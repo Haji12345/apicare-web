@@ -1,0 +1,365 @@
+---
+// ========================================================================
+// /honey/[slug] — Product Detail Page (PDP)
+// ========================================================================
+// Astro generates one static page per honey at build time.
+// ========================================================================
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import JarSilhouette from '../../components/JarSilhouette.astro';
+import { honey } from '../../data/honey.js';
+import { getBeekeepersForHoney } from '../../data/beekeepers.js';
+
+export function getStaticPaths() {
+  return honey.map((h) => ({
+    params: { slug: h.slug },
+    props: { honey: h },
+  }));
+}
+
+const { honey: h } = Astro.props;
+const linkedBeekeepers = getBeekeepersForHoney(h.beekeepers);
+const otherInDistrict = honey.filter(
+  (other) => other.district === h.district && other.slug !== h.slug
+);
+---
+
+<BaseLayout
+  title={h.name}
+  description={`${h.name} — ${h.subtitle}. ${h.oneLiner}`}
+>
+
+  <!-- Breadcrumb -->
+  <div class="container-content pt-8">
+    <nav class="text-tiny uppercase tracking-widest text-ink-mute">
+      <a href="/honey" class="no-underline hover:text-honey transition-colors">Honey</a>
+      <span class="mx-2">/</span>
+      <span>{h.districtFull}</span>
+    </nav>
+  </div>
+
+  <!-- ====================================================================
+       MAIN PRODUCT BLOCK — image left, details right
+       ==================================================================== -->
+  <section class="container-content py-12 md:py-16">
+    <div class="grid md:grid-cols-12 gap-12 lg:gap-16">
+
+      <!-- Image gallery — swaps based on selected size if size has its own image -->
+      <div class="md:col-span-7">
+        <div
+          class="aspect-[4/5] w-full mb-4 bg-cream-paper border border-ink-fade/30 overflow-hidden relative"
+          id="pdp-gallery"
+        >
+          <!-- Silhouette layer (visible by default for sizes without a photo) -->
+          <div
+            class="absolute inset-0 transition-opacity duration-500"
+            id="pdp-silhouette"
+          >
+            <JarSilhouette
+              village={h.village}
+              district={`${h.district} Sikkim`}
+              comingSoon={!h.available}
+            />
+          </div>
+
+          {/* Render an <img> for each size that HAS its own image. JS toggles visibility. */}
+          {h.sizes.filter((s) => s.image).map((size) => (
+            <img
+              src={size.image}
+              alt={`${h.name} — ${size.weight}`}
+              class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500"
+              data-size-image={size.weight}
+            />
+          ))}
+        </div>
+      </div>
+
+      <!-- Product details -->
+      <div class="md:col-span-5">
+        {!h.available && (
+          <span class="inline-block text-tiny uppercase tracking-widest text-honey border border-honey px-3 py-1 mb-6">
+            Coming Soon
+          </span>
+        )}
+        <p class="eyebrow mb-4">{h.districtFull}</p>
+        <h1 class="font-serif text-4xl md:text-5xl font-light tracking-tight text-ink leading-tight text-balance mb-3">
+          {h.name}
+        </h1>
+        <p class="text-lg text-ink-soft italic mb-8">{h.subtitle}</p>
+
+        <p class="text-base text-ink-soft leading-relaxed mb-10">
+          {h.oneLiner}
+        </p>
+
+        <div class="hairline mb-8"></div>
+
+        {h.available ? (
+          <>
+            <!-- LIVE: size selector + buy -->
+            <p class="eyebrow mb-4">Choose Size</p>
+            <div class="grid grid-cols-2 gap-3 mb-8" id="size-options">
+              {h.sizes.map((size, i) => (
+                <button
+                  type="button"
+                  data-size-option
+                  data-size={size.weight}
+                  data-price-inr={size.priceINR}
+                  data-price-usd={size.priceUSD}
+                  class:list={[
+                    'border py-4 px-4 text-left transition-colors duration-300',
+                    i === 0
+                      ? 'border-ink bg-ink/5'
+                      : 'border-ink-fade hover:border-ink',
+                  ]}
+                >
+                  <p class="text-sm font-medium text-ink mb-1">{size.weight}</p>
+                  <p class="text-tiny text-ink-mute" data-price data-price-inr={size.priceINR} data-price-usd={size.priceUSD}>
+                    ₹{size.priceINR}
+                  </p>
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              id="add-to-cart"
+              class="snipcart-add-item btn-primary w-full mb-4"
+              data-item-id={h.slug}
+              data-item-price={h.sizes[0].priceINR}
+              data-item-url={`/honey/${h.slug}`}
+              data-item-name={h.name}
+              data-base-name={h.name}
+              data-item-image={h.image}
+              data-item-description={h.oneLiner}
+            >
+              Add to Cart
+            </button>
+
+            <p class="text-tiny text-ink-mute text-center">
+              Ships within 3 business days. Currently shipping to India only.
+            </p>
+          </>
+        ) : (
+          <>
+            <!-- COMING SOON: notify capture -->
+            <p class="eyebrow mb-4">Be the first to know</p>
+            <p class="text-base text-ink-soft leading-relaxed mb-6">
+              {h.comingSoonNote || 'First commercial harvest expected soon.'} Leave your email and we'll write to you the day this honey ships.
+            </p>
+            <form
+              class="space-y-3 mb-6"
+              data-notify-form
+              data-product={h.slug}
+              onsubmit="event.preventDefault(); alert('Connect this form to your email service. Email: ' + this.email.value);"
+            >
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="your@email.com"
+                class="w-full bg-transparent border-b border-ink py-3 text-base focus:outline-none focus:border-honey transition-colors duration-300"
+              />
+              <button type="submit" class="btn-primary w-full">
+                Notify Me
+              </button>
+            </form>
+            <p class="text-tiny text-ink-mute text-center">
+              No spam. One email when this harvest is ready.
+            </p>
+          </>
+        )}
+
+        <div class="hairline my-10"></div>
+
+        <!-- Specs -->
+        <dl class="space-y-4 text-sm">
+          <div class="flex justify-between border-b border-ink-fade/30 pb-3">
+            <dt class="text-ink-mute">Village</dt>
+            <dd class="text-ink">{h.village}, {h.districtFull}</dd>
+          </div>
+          <div class="flex justify-between border-b border-ink-fade/30 pb-3">
+            <dt class="text-ink-mute">Altitude</dt>
+            <dd class="text-ink">{h.altitude}</dd>
+          </div>
+          <div class="flex justify-between border-b border-ink-fade/30 pb-3">
+            <dt class="text-ink-mute">Harvest</dt>
+            <dd class="text-ink">{h.harvestSeason}</dd>
+          </div>
+          <div class="flex justify-between border-b border-ink-fade/30 pb-3">
+            <dt class="text-ink-mute">Certification</dt>
+            <dd class="text-ink">Organic, traceable</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       THE PLACE — long-form story
+       ==================================================================== -->
+  <section class="bg-cream-deep section">
+    <div class="container-content max-w-reading">
+      <p class="eyebrow mb-6">The Place</p>
+      <h2 class="font-serif text-3xl md:text-4xl font-light text-ink leading-tight tracking-tight text-balance mb-8">
+        {h.village}, {h.districtFull}
+      </h2>
+      <div class="prose-editorial">
+        {h.placeStory ? (
+          <p>{h.placeStory}</p>
+        ) : (
+          <p class="text-ink-mute italic">[ TODO: Write the 150-word story of {h.village}. What makes this place. The geography, the people, the forest, the journey to source from here. ]</p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       THE FOREST — flora & terroir note
+       ==================================================================== -->
+  <section class="container-content section">
+    <div class="grid md:grid-cols-12 gap-12 items-start">
+      <div class="md:col-span-5">
+        <p class="eyebrow mb-6">The Forest</p>
+        <h2 class="font-serif text-3xl md:text-4xl font-light text-ink leading-tight tracking-tight text-balance">
+          What the bees forage on.
+        </h2>
+      </div>
+      <div class="md:col-span-6 md:col-start-7">
+        {h.forestStory ? (
+          <p class="text-lg text-ink-soft leading-relaxed">{h.forestStory}</p>
+        ) : (
+          <p class="text-ink-mute italic">[ TODO: 80-word note on the local flora. What flowers? What trees? Multi-floral or specific? Seasonal patterns? ]</p>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       YOUR BEEKEEPERS
+       ==================================================================== -->
+  {linkedBeekeepers.length > 0 && (
+    <section class="bg-cream-deep section">
+      <div class="container-content">
+        <div class="mb-16">
+          <p class="eyebrow mb-6">Your Beekeepers</p>
+          <h2 class="font-serif text-3xl md:text-4xl font-light text-ink tracking-tight text-balance">
+            The people behind this jar.
+          </h2>
+        </div>
+        <div class="grid md:grid-cols-3 gap-10">
+          {linkedBeekeepers.map((b) => (
+            <a href={`/beekeepers/${b.slug}`} class="group no-underline">
+              {b.portrait ? (
+                <div class="aspect-[3/4] w-full mb-5 overflow-hidden bg-cream-paper border border-ink-fade/30">
+                  <img src={b.portrait} alt={b.name} class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-full\'><p class=\'text-tiny text-ink-mute uppercase tracking-widest\'>Portrait pending</p></div>'"/>
+                </div>
+              ) : (
+                <div class="aspect-[3/4] w-full mb-5 bg-cream-paper border border-ink-fade/30 flex items-center justify-center">
+                  <p class="text-tiny text-ink-mute uppercase tracking-widest">Portrait pending</p>
+                </div>
+              )}
+              <h3 class="font-serif text-xl text-ink group-hover:text-honey transition-colors duration-400 mb-1">{b.name}</h3>
+              <p class="text-sm text-ink-mute">{b.role}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- ====================================================================
+       TRACEABILITY CALLOUT
+       ==================================================================== -->
+  <section class="container-content section">
+    <div class="border border-ink p-12 md:p-16 text-center max-w-3xl mx-auto">
+      <p class="eyebrow mb-6">Traceability</p>
+      <h2 class="font-serif text-3xl md:text-4xl font-light text-ink tracking-tight text-balance mb-6">
+        Each jar carries a unique code.
+      </h2>
+      <p class="text-base text-ink-soft mb-8 max-w-md mx-auto">
+        Scan it to see your beekeeper, harvest date, lab test results, and the exact GPS of the hive.
+      </p>
+      <a href="/traceability" class="btn-ghost">How It Works</a>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       MORE FROM THIS DISTRICT
+       ==================================================================== -->
+  {otherInDistrict.length > 0 && (
+    <section class="bg-cream-deep section">
+      <div class="container-content">
+        <p class="eyebrow mb-10">More from {h.districtFull}</p>
+        <div class="grid md:grid-cols-3 gap-10">
+          {otherInDistrict.map((other) => (
+            <a href={`/honey/${other.slug}`} class="group no-underline">
+              <div class="img-placeholder aspect-[4/5] mb-4">
+                <div class="absolute inset-0 flex items-end p-4">
+                  <p class="text-tiny text-ink-mute">[ {other.village} ]</p>
+                </div>
+              </div>
+              <h3 class="font-serif text-xl text-ink group-hover:text-honey transition-colors duration-400">{other.name}</h3>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+</BaseLayout>
+
+<script>
+  // Size selector + price + image update
+  const sizeButtons = document.querySelectorAll<HTMLButtonElement>('[data-size-option]');
+  const cartButton = document.getElementById('add-to-cart') as HTMLButtonElement | null;
+  const silhouette = document.getElementById('pdp-silhouette');
+  const sizeImages = document.querySelectorAll<HTMLImageElement>('[data-size-image]');
+
+  function showImageForSize(size: string) {
+    // Find an <img> matching this size; if none, show silhouette
+    let matched = false;
+    sizeImages.forEach((img) => {
+      if (img.dataset.sizeImage === size) {
+        img.style.opacity = '1';
+        matched = true;
+      } else {
+        img.style.opacity = '0';
+      }
+    });
+    if (silhouette) {
+      silhouette.style.opacity = matched ? '0' : '1';
+    }
+  }
+
+  // Initialize on load — first button is "active" (250g for Zitlang)
+  if (sizeButtons.length > 0) {
+    const initial = sizeButtons[0].dataset.size;
+    if (initial) showImageForSize(initial);
+  }
+
+  sizeButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      // Visual selection state
+      sizeButtons.forEach((b) => {
+        b.classList.remove('border-ink', 'bg-ink/5');
+        b.classList.add('border-ink-fade');
+      });
+      btn.classList.add('border-ink', 'bg-ink/5');
+      btn.classList.remove('border-ink-fade');
+
+      const size = btn.dataset.size;
+      const inr = btn.dataset.priceInr;
+      const usd = btn.dataset.priceUsd;
+
+      // Swap product image
+      if (size) showImageForSize(size);
+
+      // Update cart button data attributes for Snipcart
+      if (cartButton) {
+        const baseName = cartButton.dataset.baseName || cartButton.dataset.itemName || '';
+        cartButton.dataset.itemName = `${baseName} - ${size}`;
+        if (inr) cartButton.dataset.itemPrice = inr;
+      }
+    });
+  });
+</script>

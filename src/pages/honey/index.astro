@@ -1,0 +1,245 @@
+---
+// ========================================================================
+// /honey — Catalogue page with district-toggle interactivity
+// ========================================================================
+// Default state: all 4 villages in a grid.
+// Click a district: page transforms to single-region view with
+// the Sikkim map highlighting the active district.
+// State is managed client-side via JS — no page reloads.
+// ========================================================================
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import JarSilhouette from '../../components/JarSilhouette.astro';
+import SikkimMap from '../../components/SikkimMap.astro';
+import { honey, getHoneyByDistrict } from '../../data/honey.js';
+
+const byDistrict = getHoneyByDistrict();
+const districts = ['North', 'East', 'West', 'South'] as const;
+---
+
+<BaseLayout title="Honey" description="Single-village Himalayan forest honey from four districts of Sikkim.">
+
+  <!-- Page header -->
+  <section class="container-content pt-22 md:pt-30 pb-16">
+    <p class="eyebrow mb-6">The Catalogue</p>
+    <h1 class="font-serif text-5xl md:text-6xl font-light tracking-tight text-ink leading-[1.05] text-balance max-w-3xl mb-8">
+      Two villages live. Two more on the way.
+    </h1>
+    <p class="text-lg text-ink-soft max-w-xl leading-relaxed">
+      Each honey is bottled by village — never blended across regions. Tap a district to see where it comes from on the map.
+    </p>
+  </section>
+
+  <div class="hairline container-content"></div>
+
+  <!-- District filter — sticky header -->
+  <section class="container-content py-8 sticky top-[73px] bg-cream z-30 border-b border-ink-fade/30">
+    <div class="flex flex-wrap gap-x-8 gap-y-3">
+      <button
+        type="button"
+        data-filter="all"
+        class="filter-btn text-tiny uppercase tracking-widest text-ink no-underline border-b border-ink pb-0.5 transition-colors duration-300"
+      >
+        All Villages
+      </button>
+      {districts.map((d) => (
+        byDistrict[d].length > 0 && (
+          <button
+            type="button"
+            data-filter={d}
+            class="filter-btn text-tiny uppercase tracking-widest text-ink-mute hover:text-honey transition-colors duration-300 border-b border-transparent pb-0.5"
+          >
+            {d} Sikkim
+          </button>
+        )
+      ))}
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ALL VILLAGES VIEW — 4-column grid (default)
+       ============================================================ -->
+  <section id="view-all" class="container-content section">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+      {honey.map((h) => (
+        <article class="group relative">
+          {!h.available && (
+            <span class="absolute top-4 left-4 z-10 inline-block text-tiny uppercase tracking-widest bg-cream text-honey border border-honey px-3 py-1">
+              Coming Soon
+            </span>
+          )}
+          <a href={`/honey/${h.slug}`} class="block no-underline">
+            <div class="aspect-[4/5] w-full mb-5 overflow-hidden bg-cream-paper border border-ink-fade/30">
+              <JarSilhouette
+                village={h.village}
+                district={`${h.district} Sikkim`}
+                comingSoon={!h.available}
+              />
+            </div>
+          </a>
+          <p class="eyebrow mb-2">{h.districtFull}</p>
+          <a href={`/honey/${h.slug}`} class="no-underline">
+            <h3 class="font-serif text-xl font-normal text-ink mb-2 group-hover:text-honey transition-colors duration-400">
+              {h.name}
+            </h3>
+          </a>
+          <p class="text-sm text-ink-soft mb-4 leading-relaxed">{h.oneLiner}</p>
+          {h.available ? (
+            <>
+            <div class="flex items-baseline gap-3">
+              <span class="text-sm text-ink font-medium" data-price data-price-inr={h.sizes[0].priceINR} data-price-usd={h.sizes[0].priceUSD}>
+                ₹{h.sizes[0].priceINR}
+              </span>
+              <span class="text-tiny text-ink-mute">From / {h.sizes[0].weight}</span>
+            </div>
+            <button
+              type="button"
+              class="snipcart-add-item btn-primary mt-5"
+              data-item-id={h.slug}
+              data-item-name={h.name}
+              data-item-price={h.sizes[0].priceINR}
+              data-item-url={`/honey/${h.slug}`}
+            >
+              Add to Cart
+            </button>
+            </>
+          ) : (
+            <span class="text-tiny uppercase tracking-widest text-ink-mute">
+              {h.comingSoonNote || 'Notify me →'}
+            </span>
+          )}
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PER-DISTRICT VIEWS — product card + Sikkim map
+       Each district has its own section, hidden by default,
+       revealed when the matching filter is clicked.
+       ============================================================ -->
+  {districts.map((d) => (
+    byDistrict[d].length > 0 && (
+      <section
+        id={`view-${d}`}
+        class="district-view container-content section hidden"
+        data-district-view={d}
+      >
+        <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+
+          <!-- LEFT: product card(s) -->
+          <div class="lg:col-span-5">
+            <p class="eyebrow mb-4">{d} Sikkim</p>
+            <h2 class="font-serif text-4xl md:text-5xl font-light text-ink tracking-tight text-balance mb-10">
+              {byDistrict[d].length === 1 ? 'One village' : `${byDistrict[d].length} villages`} in this district.
+            </h2>
+            <div class="space-y-10">
+              {byDistrict[d].map((h) => (
+                <article class="group">
+                  <div class="grid grid-cols-5 gap-6 items-start">
+                    <a href={`/honey/${h.slug}`} class="col-span-2 block no-underline aspect-[4/5] bg-cream-paper border border-ink-fade/30 overflow-hidden relative">
+                      {!h.available && (
+                        <span class="absolute top-2 left-2 z-10 inline-block text-tiny uppercase tracking-widest bg-cream text-honey border border-honey px-2 py-0.5" style="font-size:9px">
+                          Soon
+                        </span>
+                      )}
+                      <JarSilhouette
+                        village={h.village}
+                        district={`${h.district} Sikkim`}
+                        comingSoon={!h.available}
+                      />
+                    </a>
+                    <div class="col-span-3">
+                      <a href={`/honey/${h.slug}`} class="no-underline">
+                        <h3 class="font-serif text-2xl text-ink mb-2 group-hover:text-honey transition-colors duration-400">
+                          {h.name}
+                        </h3>
+                      </a>
+                      <p class="text-sm text-ink-soft mb-3 leading-relaxed">{h.oneLiner}</p>
+                      {h.available ? (
+                        <>
+                        <div class="flex items-baseline gap-3">
+                          <span class="text-sm text-ink font-medium" data-price data-price-inr={h.sizes[0].priceINR} data-price-usd={h.sizes[0].priceUSD}>
+                            ₹{h.sizes[0].priceINR}
+                          </span>
+                          <span class="text-tiny text-ink-mute">/ {h.sizes[0].weight}</span>
+                        </div>
+                        <button
+                          type="button"
+                          class="snipcart-add-item btn-primary mt-5"
+                          data-item-id={h.slug}
+                          data-item-name={h.name}
+                          data-item-price={h.sizes[0].priceINR}
+                          data-item-url={`/honey/${h.slug}`}
+                        >
+                          Add to Cart
+                        </button>
+                        </>
+                      ) : (
+                        <span class="text-tiny uppercase tracking-widest text-ink-mute">
+                          {h.comingSoonNote || 'Notify me →'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <!-- RIGHT: Sikkim map with this district highlighted -->
+          <div class="lg:col-span-7">
+            <div class="bg-cream-paper border border-ink-fade/30 p-6 md:p-10">
+              <SikkimMap activeDistrict={d} />
+            </div>
+            <p class="text-tiny uppercase tracking-widest text-ink-mute mt-4 text-center">
+              {d} Sikkim — source region
+            </p>
+          </div>
+        </div>
+      </section>
+    )
+  ))}
+
+</BaseLayout>
+
+<script>
+  // ========================================================================
+  // District filter — toggles between grid view and per-region map view
+  // ========================================================================
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const allView = document.getElementById('view-all');
+  const districtViews = document.querySelectorAll<HTMLElement>('.district-view');
+
+  function setActive(filter: string) {
+    // Update button styles
+    buttons.forEach((b) => {
+      const isActive = b.dataset.filter === filter;
+      b.classList.toggle('text-ink', isActive);
+      b.classList.toggle('text-ink-mute', !isActive);
+      b.classList.toggle('border-ink', isActive);
+      b.classList.toggle('border-transparent', !isActive);
+    });
+
+    // Toggle views
+    if (filter === 'all') {
+      allView?.classList.remove('hidden');
+      districtViews.forEach((v) => v.classList.add('hidden'));
+    } else {
+      allView?.classList.add('hidden');
+      districtViews.forEach((v) => {
+        v.classList.toggle('hidden', v.dataset.districtView !== filter);
+      });
+    }
+
+    // Smooth scroll to top of catalogue (below sticky header)
+    window.scrollTo({ top: 200, behavior: 'smooth' });
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter;
+      if (filter) setActive(filter);
+    });
+  });
+</script>

@@ -1,0 +1,162 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import {
+  getPublicBeekeepers,
+  getTotalBeekeeperCount,
+  getPubliclyProfiledCount,
+  getUnnamedCollectiveCount,
+} from '../../data/beekeepers.js';
+
+const namedBeekeepers = getPublicBeekeepers();
+const total = getTotalBeekeeperCount();
+const named = getPubliclyProfiledCount();
+const unnamed = getUnnamedCollectiveCount();
+
+// Group named beekeepers by village (only those with consent)
+const byVillage: Record<string, typeof namedBeekeepers> = {};
+namedBeekeepers.forEach((b) => {
+  if (!byVillage[b.village]) byVillage[b.village] = [];
+  byVillage[b.village].push(b);
+});
+
+const sortedVillages = Object.keys(byVillage).sort();
+---
+
+<BaseLayout
+  title="The Beekeepers"
+  description="Meet the beekeepers behind every ApiCare jar. The ones you see here have asked to be visible. The rest of the collective stays private — by their choice, and ours."
+>
+
+  <!-- Hero -->
+  <section class="container-content pt-22 md:pt-30 pb-22">
+    <p class="eyebrow mb-6">The Beekeepers</p>
+    <h1 class="font-serif text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-ink leading-[1.05] text-balance max-w-4xl mb-10">
+      {total} beekeepers. The ones you meet here, chose to be here.
+    </h1>
+    <p class="text-lg text-ink-soft max-w-2xl leading-relaxed">
+      A beekeeper's name and face on a global e-commerce site is a permanent thing. We do not publish either without explicit consent — collected in person, in their language, with the right to withdraw at any time.
+    </p>
+    <p class="text-lg text-ink-soft max-w-2xl leading-relaxed mt-4">
+      The {named} {named === 1 ? 'profile' : 'profiles'} below {named === 1 ? 'is a beekeeper who' : 'are beekeepers who'} asked to be visible. The other {unnamed} are equally part of the collective; their identities stay between them and us.
+    </p>
+  </section>
+
+  <div class="hairline container-content"></div>
+
+  <!-- ============================================================
+       NAMED PROFILES — only Tier 2/3 beekeepers
+       ============================================================ -->
+  <section class="container-content py-22">
+    <div class="mb-16">
+      <p class="eyebrow mb-4">Named Profiles</p>
+      <h2 class="font-serif text-3xl md:text-4xl font-light text-ink tracking-tight text-balance max-w-3xl">
+        {named === 1 ? 'One beekeeper' : `${named} beekeepers`} who chose to share their story.
+      </h2>
+    </div>
+
+    {sortedVillages.length > 0 ? (
+      sortedVillages.map((village) => (
+        <div class="mb-16 last:mb-0">
+          <p class="eyebrow mb-8">{village}, {byVillage[village][0].district} Sikkim</p>
+          <div class="grid md:grid-cols-3 lg:grid-cols-4 gap-10">
+            {byVillage[village].map((b) => (
+              <a href={`/beekeepers/${b.slug}`} class="group no-underline">
+                {b.portrait ? (
+                  <div class="aspect-[3/4] mb-4 overflow-hidden bg-cream-paper border border-ink-fade/30">
+                    <img src={b.portrait} alt={b.name} class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-full\'><p class=\'text-tiny text-ink-mute uppercase tracking-widest\'>Portrait pending</p></div>'"/>
+                  </div>
+                ) : (
+                  <div class="aspect-[3/4] mb-4 bg-cream-paper border border-ink-fade/30 flex items-center justify-center">
+                    <p class="text-tiny uppercase tracking-widest text-ink-mute">Portrait pending</p>
+                  </div>
+                )}
+                <h3 class="font-serif text-xl text-ink group-hover:text-honey transition-colors duration-400 mb-1">
+                  {b.name}
+                </h3>
+                <p class="text-tiny uppercase tracking-widest text-ink-mute">{b.role}</p>
+                {b.hives > 0 && (
+                  <p class="text-sm text-ink-soft mt-2">{b.hives} hives</p>
+                )}
+              </a>
+            ))}
+          </div>
+        </div>
+      ))
+    ) : (
+      <p class="text-base text-ink-soft italic">
+        Profiles will appear here as beekeepers complete their consent forms and we publish their stories. The first will be ready soon.
+      </p>
+    )}
+  </section>
+
+  <!-- ============================================================
+       THE WIDER COLLECTIVE — total only, no village breakdown
+       Editorial side-rail layout to fill the page properly.
+       ============================================================ -->
+  <section class="bg-cream-deep section">
+    <div class="container-content">
+      <div class="grid md:grid-cols-12 gap-10 lg:gap-16">
+
+        <div class="md:col-span-2">
+          <p class="eyebrow">The Collective</p>
+        </div>
+
+        <div class="md:col-span-6">
+          <h2 class="font-serif text-3xl md:text-4xl font-light text-ink tracking-tight text-balance mb-8">
+            {unnamed} beekeepers across Sikkim — by their choice, unnamed here.
+          </h2>
+          <div class="prose-editorial">
+            <p>
+              The rest of the collective participates without a public profile. They keep hives. They sell to ApiCare. They receive the same prices, the same training, and the same agreements as the named beekeepers — but their identities do not appear on this site.
+            </p>
+            <p>
+              We track who they are, where they work, and what they harvest. We share that information with auditors and partners under formal agreements. We do not publish it.
+            </p>
+            <p>
+              That is the default we operate under. A handful of beekeepers may, in time, ask to be visible. Most will not. Either is fine.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right rail: the headline number, alone -->
+        <div class="md:col-span-4 flex items-center justify-center">
+          <div class="text-center md:text-left">
+            <p class="font-serif text-7xl md:text-8xl text-honey font-light leading-none mb-4">
+              {total}
+            </p>
+            <p class="text-tiny uppercase tracking-widest text-ink-mute">
+              Verified beekeepers,<br/>across four districts of Sikkim
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       OUR CONSENT POLICY
+       ============================================================ -->
+  <section class="container-content section">
+    <div class="grid md:grid-cols-12 gap-10 lg:gap-16">
+
+      <div class="md:col-span-3">
+        <p class="eyebrow">A note on consent</p>
+      </div>
+
+      <div class="md:col-span-7">
+        <div class="prose-editorial">
+          <p>
+            We follow the principle of <em>free, prior, and informed consent</em> — usually shortened to FPIC — for any decision about how a beekeeper's name, photo, or story is used in public.
+          </p>
+          <p>
+            What that means in practice: nothing about a beekeeper appears on this site without their explicit agreement, given in person, in their own language, with a clear understanding of where the page will appear and what permanence on the internet means. Any beekeeper can ask us to remove their profile at any time, and we will do so within twenty-four hours. The named beekeepers above have signed a consent form that documents all of this.
+          </p>
+          <p>
+            We think this is what taking smallholder partnerships seriously actually looks like — beyond the marketing language of traceability.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>

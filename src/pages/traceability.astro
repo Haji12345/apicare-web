@@ -1,0 +1,267 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Traceability"
+  description="Every ApiCare jar carries a unique code. Scan it to see your beekeeper, the harvest date, and the lab test results — powered by FarmLedger."
+>
+
+  <!-- Hero -->
+  <section class="container-content pt-22 md:pt-30 pb-22">
+    <p class="eyebrow mb-6">Powered by FarmLedger</p>
+    <h1 class="font-serif text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-ink leading-[1.05] text-balance max-w-4xl mb-10">
+      Every jar tells you exactly who, where, and when.
+    </h1>
+    <p class="text-lg text-ink-soft max-w-xl leading-relaxed">
+      Most premium honey says "trust us." We say: scan the code on the lid.
+    </p>
+  </section>
+
+  <!-- 3-step how it works strip -->
+  <section class="bg-cream-deep section">
+    <div class="container-content">
+      <p class="eyebrow mb-16 text-center">How It Works</p>
+      <div class="grid md:grid-cols-3 gap-12">
+        {[
+          { n: '01', title: 'Scan', body: 'Point any phone camera at the QR code printed on your jar lid.' },
+          { n: '02', title: 'See', body: "A page opens showing the beekeeper's name, photo, village, and the exact harvest date." },
+          { n: '03', title: 'Verify', body: 'Lab test results, organic certification, and the GPS of the apiary — all timestamped, all signed.' },
+        ].map((step) => (
+          <div>
+            <p class="font-serif text-6xl text-honey font-light mb-6">{step.n}</p>
+            <h3 class="font-serif text-2xl text-ink mb-3 font-normal">{step.title}</h3>
+            <p class="text-base text-ink-soft leading-relaxed">{step.body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       MOCK QR EXPERIENCE — visual demo of what scanning produces
+       ============================================================ -->
+  <section class="container-content section">
+    <div class="max-w-content mx-auto">
+      <p class="eyebrow mb-6 text-center">A scan, in three layers</p>
+      <h2 class="font-serif text-3xl md:text-5xl font-light text-ink tracking-tight text-balance mb-16 text-center max-w-3xl mx-auto">
+        This is what a buyer sees, the moment they scan.
+      </h2>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Layer 1: Beekeeper -->
+        <div class="bg-cream-paper border border-ink-fade/30 p-8">
+          <p class="eyebrow mb-6">Layer One</p>
+          <div class="aspect-square bg-cream-deep mb-6 flex items-center justify-center">
+            <svg viewBox="0 0 60 60" width="80" height="80" aria-hidden="true">
+              <circle cx="30" cy="22" r="10" fill="none" stroke="#7A7269" stroke-width="1.2"/>
+              <path d="M 12 50 Q 12 36 30 36 Q 48 36 48 50" fill="none" stroke="#7A7269" stroke-width="1.2"/>
+            </svg>
+          </div>
+          <p class="text-tiny uppercase tracking-widest text-ink-mute mb-2">The Beekeeper</p>
+          <p class="font-serif text-xl text-ink mb-3">Dal Bhadur Rai</p>
+          <p class="text-sm text-ink-soft leading-relaxed">Master Trainer, Zitlang. 24 hives. Working with ApiCare since 2021.</p>
+        </div>
+
+        <!-- Layer 2: Harvest -->
+        <div class="bg-cream-paper border border-ink-fade/30 p-8">
+          <p class="eyebrow mb-6">Layer Two</p>
+          <div class="aspect-square bg-cream-deep mb-6 flex items-center justify-center">
+            <svg viewBox="0 0 60 60" width="80" height="80" aria-hidden="true">
+              <rect x="14" y="14" width="32" height="32" fill="none" stroke="#7A7269" stroke-width="1.2"/>
+              <line x1="14" y1="22" x2="46" y2="22" stroke="#7A7269" stroke-width="0.8"/>
+              <line x1="14" y1="30" x2="46" y2="30" stroke="#7A7269" stroke-width="0.8"/>
+              <line x1="14" y1="38" x2="46" y2="38" stroke="#7A7269" stroke-width="0.8"/>
+              <line x1="22" y1="14" x2="22" y2="46" stroke="#7A7269" stroke-width="0.8"/>
+              <line x1="30" y1="14" x2="30" y2="46" stroke="#7A7269" stroke-width="0.8"/>
+              <line x1="38" y1="14" x2="38" y2="46" stroke="#7A7269" stroke-width="0.8"/>
+            </svg>
+          </div>
+          <p class="text-tiny uppercase tracking-widest text-ink-mute mb-2">The Harvest</p>
+          <p class="font-serif text-xl text-ink mb-3">Spring 2026</p>
+          <p class="text-sm text-ink-soft leading-relaxed">Hive #07, Zitlang. 2.4 kg. Harvested 14 March 2026, 08:42 IST.</p>
+        </div>
+
+        <!-- Layer 3: Test -->
+        <div class="bg-cream-paper border border-ink-fade/30 p-8">
+          <p class="eyebrow mb-6">Layer Three</p>
+          <div class="aspect-square bg-cream-deep mb-6 flex items-center justify-center">
+            <svg viewBox="0 0 60 60" width="80" height="80" aria-hidden="true">
+              <path d="M 22 14 L 22 28 L 14 46 L 46 46 L 38 28 L 38 14 Z" fill="none" stroke="#7A7269" stroke-width="1.2"/>
+              <line x1="22" y1="14" x2="38" y2="14" stroke="#7A7269" stroke-width="1.2"/>
+              <circle cx="26" cy="38" r="1.5" fill="#B8541A"/>
+              <circle cx="32" cy="34" r="1.5" fill="#B8541A"/>
+              <circle cx="34" cy="40" r="1.5" fill="#B8541A"/>
+            </svg>
+          </div>
+          <p class="text-tiny uppercase tracking-widest text-ink-mute mb-2">The Lab</p>
+          <p class="font-serif text-xl text-ink mb-3">Eurofins, signed</p>
+          <p class="text-sm text-ink-soft leading-relaxed">Authenticity, pesticide residue, antibiotic residue — all clear. Test ID 2026-0341.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       WHY THIS MATTERS — editorial layout with side rails
+       ============================================================ -->
+  <section class="bg-cream-deep section">
+    <div class="container-content">
+      <div class="grid md:grid-cols-12 gap-10 lg:gap-16">
+
+        <div class="md:col-span-2">
+          <p class="eyebrow mb-2">Essay</p>
+          <p class="font-serif text-3xl text-honey font-light leading-none">01</p>
+        </div>
+
+        <div class="md:col-span-6">
+          <h2 class="font-serif text-3xl md:text-4xl text-ink mb-8 font-light tracking-tight text-balance">
+            Why this matters
+          </h2>
+          <div class="prose-editorial">
+            <p>
+              Honey is one of the most adulterated foods on earth. The figure most often cited in industry reports is that around a third of all honey traded internationally fails authenticity testing — diluted with rice syrup, blended across origins, or passed off as something it isn't. The numbers vary by year and by source, but the direction has been consistent for two decades: the trust gap is wide, and it has been getting wider.
+            </p>
+            <p>
+              For specialty honey from smallholder producers, the trust gap is the central problem. A jar of premium single-origin honey from a remote Himalayan village is, from the buyer's point of view, indistinguishable from a jar of supermarket honey with a romantic label. The buyer cannot verify the village. They cannot verify the beekeeper. They cannot verify the harvest date or the lab results. Everything is taken on the word of whoever printed the label.
+            </p>
+            <p>
+              That is the gap that closes most of the value before it reaches the producer. When the buyer cannot tell the difference between authentic single-origin honey and a well-marketed blend, the authentic honey gets priced like the blend. The beekeeper, who actually did the work, is the one who pays.
+            </p>
+          </div>
+        </div>
+
+        <!-- Side rail: stat + pull quote -->
+        <div class="md:col-span-4 space-y-10">
+          <div>
+            <p class="font-serif text-6xl text-honey font-light leading-none mb-3">~⅓</p>
+            <p class="text-sm text-ink-soft leading-relaxed">
+              Of all honey traded internationally fails authenticity testing — diluted, blended, or mislabelled.
+            </p>
+          </div>
+          <blockquote class="border-l-2 border-honey pl-6 py-2">
+            <p class="font-serif text-xl italic text-ink leading-snug font-light">
+              When the buyer cannot tell the difference, the authentic honey gets priced like the blend.
+            </p>
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       WHAT FARMLEDGER DOES
+       ============================================================ -->
+  <section class="container-content section">
+    <div class="grid md:grid-cols-12 gap-10 lg:gap-16">
+
+      <div class="md:col-span-2">
+        <p class="eyebrow mb-2">Essay</p>
+        <p class="font-serif text-3xl text-honey font-light leading-none">02</p>
+      </div>
+
+      <div class="md:col-span-6">
+        <h2 class="font-serif text-3xl md:text-4xl text-ink mb-8 font-light tracking-tight text-balance">
+          What FarmLedger does
+        </h2>
+        <div class="prose-editorial">
+          <p>
+            FarmLedger is the digital traceability system we built to close this gap for ApiCare honey, and eventually for any smallholder agricultural product where the producer has been priced out of their own value chain.
+          </p>
+          <p>
+            It works in three steps. When a beekeeper harvests a frame, they record the harvest in our app — village, hive, date, weight, and a phone photo. When the honey goes to lab testing, the test results are signed by Eurofins (or the testing lab of record) and attached to the same record. When the honey is jarred at our facility, each jar is given a unique code that links back to that complete record.
+          </p>
+          <p>
+            The buyer scans the code on the lid. They see the chain — beekeeper, hive, harvest, test, jar — laid out in plain language with photos and timestamps. None of it is taken on our word. All of it can be independently verified.
+          </p>
+        </div>
+      </div>
+
+      <!-- Side rail: process visual -->
+      <div class="md:col-span-4">
+        <p class="eyebrow mb-6">The chain</p>
+        <ol class="space-y-4">
+          {[
+            { label: 'Beekeeper logs harvest', detail: 'Village, hive, date, photo' },
+            { label: 'Lab signs result', detail: 'Eurofins or partner lab' },
+            { label: 'Jar gets code', detail: 'Linked to the full record' },
+            { label: 'Buyer scans', detail: 'Verifies the chain' },
+          ].map((step, i) => (
+            <li class="grid grid-cols-[auto,1fr] gap-4 items-baseline border-b border-ink-fade/40 pb-4">
+              <span class="font-serif text-2xl text-honey font-light">{(i + 1).toString().padStart(2, '0')}</span>
+              <div>
+                <p class="text-sm font-medium text-ink mb-1">{step.label}</p>
+                <p class="text-tiny uppercase tracking-widest text-ink-mute">{step.detail}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       WHERE THIS GOES
+       ============================================================ -->
+  <section class="bg-cream-deep section">
+    <div class="container-content">
+      <div class="grid md:grid-cols-12 gap-10 lg:gap-16">
+
+        <div class="md:col-span-2">
+          <p class="eyebrow mb-2">Essay</p>
+          <p class="font-serif text-3xl text-honey font-light leading-none">03</p>
+        </div>
+
+        <div class="md:col-span-6">
+          <h2 class="font-serif text-3xl md:text-4xl text-ink mb-8 font-light tracking-tight text-balance">
+            Where this goes
+          </h2>
+          <div class="prose-editorial">
+            <p>
+              Honey is the first product. The same problem — invisible producer, untrusting buyer, value captured in the middle — exists in coffee, cardamom, cacao, vanilla, and most other smallholder export categories from South Asia, East Africa, and Latin America. The proof system we are building for ApiCare is, at the architectural level, the same proof system those categories need.
+            </p>
+            <p>
+              We are not in a hurry to expand. The first task is to make traceability work, end to end, for our four villages of Sikkim honey. If that holds — and the EU export pipeline we are building over the next eighteen months will be a real test — FarmLedger becomes something we can offer to other smallholder collectives.
+            </p>
+            <p>
+              The honey is what people taste. The system behind the honey is what we are actually building.
+            </p>
+            <p class="mt-12 text-sm text-ink-mute italic">
+              — The ApiCare team, Sikkim
+            </p>
+          </div>
+        </div>
+
+        <!-- Side rail: future categories -->
+        <div class="md:col-span-4">
+          <p class="eyebrow mb-6">Beyond honey</p>
+          <ul class="space-y-3">
+            {['Coffee', 'Cardamom', 'Cacao', 'Vanilla', 'Tea'].map((cat) => (
+              <li class="flex items-baseline gap-3 border-b border-ink-fade/40 pb-3">
+                <span class="text-honey font-serif text-lg leading-none">→</span>
+                <span class="font-serif text-xl text-ink">{cat}</span>
+              </li>
+            ))}
+          </ul>
+          <p class="text-tiny uppercase tracking-widest text-ink-mute mt-6 leading-relaxed">
+            Same problem.<br/>Same proof system.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="bg-ink text-cream section">
+    <div class="container-content max-w-3xl text-center">
+      <p class="eyebrow text-cream/60 mb-6">Try it</p>
+      <h2 class="font-serif text-4xl md:text-5xl font-light tracking-tight leading-[1.1] text-balance mb-10 text-cream">
+        Buy a jar. Scan the code. See what we mean.
+      </h2>
+      <a href="/honey" class="inline-flex items-center justify-center px-8 py-3.5 bg-cream text-ink text-sm font-medium tracking-wide uppercase no-underline hover:bg-honey hover:text-cream transition-all duration-400 ease-editorial">
+        See the Honey
+      </a>
+    </div>
+  </section>
+
+</BaseLayout>

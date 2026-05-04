@@ -1,0 +1,79 @@
+---
+// ========================================================================
+// Footer — minimal editorial footer with newsletter capture
+// ========================================================================
+import { footerNav, site } from '../data/site.js';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-cream-deep mt-30">
+  <div class="container-content py-22">
+
+    <!-- Newsletter -->
+    <div class="max-w-reading mb-22">
+      <p class="eyebrow mb-4">Stay close</p>
+      <h3 class="font-serif text-3xl md:text-4xl font-light text-ink mb-4 tracking-tight text-balance">
+        One letter per harvest. Nothing more.
+      </h3>
+      <p class="text-base text-ink-soft mb-6">
+        We write when there's something honest to say — a new village, a new harvest, a story from the hives.
+      </p>
+
+      <form class="flex flex-col sm:flex-row gap-3 max-w-md" onsubmit="event.preventDefault(); alert('Connect this form to your email service (Buttondown, ConvertKit, Mailchimp).')">
+        <input
+          type="email"
+          required
+          placeholder="your@email.com"
+          class="flex-1 bg-transparent border-b border-ink py-2 px-1 text-sm focus:outline-none focus:border-honey transition-colors duration-300"
+        />
+        <button type="submit" class="btn-ghost">
+          Subscribe
+        </button>
+      </form>
+    </div>
+
+    <div class="hairline mb-22"></div>
+
+    <!-- Link grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-12 mb-22">
+
+      <!-- Brand block -->
+      <div class="col-span-2 md:col-span-1">
+        <p class="font-serif text-2xl text-ink mb-3">{site.name}</p>
+        <p class="text-sm text-ink-mute leading-relaxed max-w-xs">
+          {site.tagline}
+        </p>
+      </div>
+
+      <!-- Link groups -->
+      {Object.entries(footerNav).map(([heading, links]) => (
+        <div>
+          <p class="eyebrow mb-5">{heading}</p>
+          <ul class="space-y-3">
+            {links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-sm text-ink-soft no-underline hover:text-honey transition-colors duration-300"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <div class="hairline mb-8"></div>
+
+    <!-- Bottom bar -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-tiny text-ink-mute">
+      <p>© {year} {site.address.line1}. Made in Sikkim.</p>
+      <p>
+        <a href="/contact" class="text-ink-mute hover:text-honey">{site.email}</a>
+      </p>
+    </div>
+  </div>
+</footer>

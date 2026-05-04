@@ -1,0 +1,242 @@
+---
+// ========================================================================
+// Header — minimal editorial navigation with dropdown support
+// ========================================================================
+// Top-level items can have `children` arrays in src/data/site.js. When
+// they do, the parent renders as a dropdown:
+//   - Desktop: hover to reveal, click parent to navigate to its href
+//   - Mobile:  tap to expand the accordion (no immediate navigation)
+// ========================================================================
+import { navigation, site } from '../data/site.js';
+
+const currentPath = Astro.url.pathname;
+
+// Helper: is the current page this nav item or one of its children?
+function isActiveBranch(item: any): boolean {
+  if (item.href === currentPath) return true;
+  if (item.children) {
+    return item.children.some((c: any) => c.href === currentPath);
+  }
+  return false;
+}
+---
+
+<header class="border-b border-ink-fade/40 bg-cream sticky top-0 z-40">
+  <div class="container-content">
+    <div class="grid grid-cols-3 items-center py-5 md:py-6">
+
+      <!-- Wordmark -->
+      <a
+        href="/"
+        class="justify-self-start font-serif text-2xl md:text-3xl leading-none tracking-tight text-ink no-underline hover:text-honey transition-colors duration-400"
+      >
+        {site.name}
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center justify-self-center gap-6 lg:gap-8">
+        {navigation.map((item) => (
+          item.children && item.children.length > 0 ? (
+            <!-- Dropdown parent -->
+            <div class="nav-dropdown relative" data-dropdown>
+              <a
+                href={item.href}
+                class:list={[
+                  'nav-item flex items-center gap-1 text-tiny uppercase tracking-widest font-medium no-underline border-b border-transparent pb-0.5 transition-all duration-400',
+                  isActiveBranch(item)
+                    ? 'text-honey border-honey'
+                    : 'text-ink hover:text-honey hover:border-honey',
+                ]}
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                {item.label}
+                <svg width="9" height="9" viewBox="0 0 9 9" fill="none" class="dropdown-chevron transition-transform duration-300">
+                  <path d="M1.5 3 L4.5 6 L7.5 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+              </a>
+
+              <!-- Dropdown panel -->
+              <div class="dropdown-panel absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 invisible transition-all duration-300 pointer-events-none">
+                <div class="bg-cream border border-ink-fade/40 shadow-lg min-w-[14rem] py-3">
+                  {item.children.map((child: any) => (
+                    <a
+                      href={child.href}
+                      class:list={[
+                        'block px-6 py-2.5 text-tiny uppercase tracking-widest font-medium no-underline transition-colors duration-300 whitespace-nowrap',
+                        currentPath === child.href
+                          ? 'text-honey'
+                          : 'text-ink hover:text-honey',
+                      ]}
+                    >
+                      {child.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <!-- Plain nav link -->
+            <a
+              href={item.href}
+              class:list={[
+                'text-tiny uppercase tracking-widest font-medium no-underline border-b border-transparent pb-0.5 transition-all duration-400',
+                currentPath === item.href
+                  ? 'text-honey border-honey'
+                  : 'text-ink hover:text-honey hover:border-honey',
+              ]}
+            >
+              {item.label}
+            </a>
+          )
+        ))}
+      </nav>
+
+      <!-- Right utilities -->
+      <div class="flex items-center justify-self-end gap-4 md:gap-6">
+
+        <!-- Currency toggle -->
+        <div class="hidden sm:flex items-center text-tiny uppercase tracking-widest text-ink-mute">
+          <button
+            type="button"
+            data-currency="inr"
+            class="currency-btn px-1.5 py-0.5 transition-colors duration-300 text-ink"
+            aria-label="Switch to Indian Rupees"
+          >₹ INR</button>
+          <span class="text-ink-fade px-1">/</span>
+          <button
+            type="button"
+            data-currency="usd"
+            class="currency-btn px-1.5 py-0.5 transition-colors duration-300 text-ink-mute hover:text-ink"
+            aria-label="Switch to US Dollars"
+          >$ USD</button>
+        </div>
+
+        <!-- Cart -->
+        <button
+          type="button"
+          class="snipcart-checkout text-tiny uppercase tracking-widest text-ink hover:text-honey transition-colors duration-400 flex items-center gap-2"
+          aria-label="Open cart"
+        >
+          <span>Cart</span>
+          <span class="snipcart-items-count font-medium">0</span>
+        </button>
+
+        <!-- Mobile menu button -->
+        <button
+          type="button"
+          id="mobile-menu-toggle"
+          class="md:hidden text-ink"
+          aria-label="Toggle menu"
+        >
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <line x1="3" y1="7" x2="19" y2="7" stroke="currentColor" stroke-width="1.5" />
+            <line x1="3" y1="15" x2="19" y2="15" stroke="currentColor" stroke-width="1.5" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Nav -->
+    <nav id="mobile-nav" class="hidden md:hidden pb-6 border-t border-ink-fade/30 mt-2 pt-6">
+      <ul class="flex flex-col gap-3">
+        {navigation.map((item) => (
+          <li>
+            {item.children && item.children.length > 0 ? (
+              <!-- Mobile accordion -->
+              <details class="group">
+                <summary class="flex items-center justify-between text-sm uppercase tracking-widest text-ink no-underline hover:text-honey transition-colors duration-300 cursor-pointer list-none py-2">
+                  <span>{item.label}</span>
+                  <svg width="11" height="11" viewBox="0 0 11 11" fill="none" class="transition-transform duration-300 group-open:rotate-180">
+                    <path d="M2 4 L5.5 7.5 L9 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                  </svg>
+                </summary>
+                <ul class="pl-4 pt-2 pb-3 flex flex-col gap-2.5 border-l border-ink-fade/30 ml-1 mt-1">
+                  <li>
+                    <a href={item.href} class="text-tiny uppercase tracking-widest text-ink-mute hover:text-honey transition-colors duration-300 no-underline">
+                      About — Overview
+                    </a>
+                  </li>
+                  {item.children.map((child: any) => (
+                    <li>
+                      <a href={child.href} class="text-tiny uppercase tracking-widest text-ink hover:text-honey transition-colors duration-300 no-underline">
+                        {child.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ) : (
+              <a
+                href={item.href}
+                class="block py-2 text-sm uppercase tracking-widest text-ink no-underline hover:text-honey transition-colors duration-300"
+              >
+                {item.label}
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  /* Dropdown: open on hover (desktop only — mobile uses <details>) */
+  @media (min-width: 768px) {
+    .nav-dropdown:hover .dropdown-panel,
+    .nav-dropdown:focus-within .dropdown-panel {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translate(-50%, 0);
+    }
+    .nav-dropdown:hover .dropdown-chevron,
+    .nav-dropdown:focus-within .dropdown-chevron {
+      transform: rotate(180deg);
+    }
+  }
+  /* Hide default <summary> arrow on Safari */
+  summary::-webkit-details-marker { display: none; }
+</style>
+
+<script>
+  // Mobile menu toggle
+  const toggle = document.getElementById('mobile-menu-toggle');
+  const nav = document.getElementById('mobile-nav');
+  toggle?.addEventListener('click', () => {
+    nav?.classList.toggle('hidden');
+  });
+
+  // Currency toggle
+  const STORAGE_KEY = 'apicare-currency';
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.currency-btn');
+
+  function applyCurrency(code: string) {
+    buttons.forEach((btn) => {
+      const isActive = btn.dataset.currency === code;
+      btn.classList.toggle('text-ink', isActive);
+      btn.classList.toggle('text-ink-mute', !isActive);
+    });
+    document.querySelectorAll<HTMLElement>('[data-price]').forEach((el) => {
+      const inr = el.dataset.priceInr;
+      const usd = el.dataset.priceUsd;
+      if (code === 'usd' && usd) {
+        el.textContent = `$${usd}`;
+      } else if (inr) {
+        el.textContent = `₹${inr}`;
+      }
+    });
+    localStorage.setItem(STORAGE_KEY, code);
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const code = btn.dataset.currency;
+      if (code) applyCurrency(code);
+    });
+  });
+
+  const saved = localStorage.getItem(STORAGE_KEY) || 'inr';
+  applyCurrency(saved);
+</script>

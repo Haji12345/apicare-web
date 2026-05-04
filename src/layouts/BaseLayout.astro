@@ -1,0 +1,120 @@
+---
+// ========================================================================
+// BaseLayout — wraps every page
+// ========================================================================
+// Handles HTML structure, head meta, font loading, header, footer,
+// and Snipcart initialization.
+// ========================================================================
+
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site, snipcart } from '../data/site.js';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  bodyClass?: string;
+}
+
+const {
+  title = site.name,
+  description = site.description,
+  ogImage = '/og-default.jpg',
+  bodyClass = '',
+} = Astro.props;
+
+const fullTitle = title === site.name ? `${site.name} — ${site.tagline}` : `${title} — ${site.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site).toString()} />
+    <meta property="og:site_name" content={site.name} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Favicon — TODO: replace with real ApiCare favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Snipcart preconnect -->
+    <link rel="preconnect" href="https://app.snipcart.com" />
+    <link rel="preconnect" href="https://cdn.snipcart.com" />
+  </head>
+
+  <body class={bodyClass}>
+    <Header />
+
+    <main>
+      <slot />
+    </main>
+
+    <Footer />
+
+    <!-- ====================================================================
+         SNIPCART
+         Cart and checkout overlay. Free until you sell — then 2% transaction fee.
+         Get your public API key at https://snipcart.com → Account → API Keys
+         Replace the publicApiKey in src/data/site.js with your real key.
+         ==================================================================== -->
+    <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.css" />
+    <div hidden id="snipcart" data-api-key={snipcart.publicApiKey} data-config-modal-style="side"></div>
+    <script async src="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const bee = document.createElement("div");
+        bee.id = "bee-cursor";
+        document.body.appendChild(bee);
+
+        let mouseX = 0, mouseY = 0;
+        let x = 0, y = 0;
+
+        document.addEventListener("mousemove", (e) => {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+        });
+
+        function animate() {
+          x += (mouseX - x) * 0.08;
+          y += (mouseY - y) * 0.08;
+          bee.style.transform = `translate(${x}px, ${y}px)`;
+          requestAnimationFrame(animate);
+        }
+
+        animate();
+      });
+    </script>
+    <script>
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      });
+
+      document.querySelectorAll('[data-reveal]').forEach(el => {
+        observer.observe(el);
+      });
+    </script>
+  </body>
+</html>

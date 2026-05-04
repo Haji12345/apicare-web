@@ -1,0 +1,131 @@
+---
+// ========================================================================
+// JarSilhouette — Honey jar SVG for placeholder use
+// ========================================================================
+// Use anywhere a real product photo doesn't exist yet. Looks intentional,
+// not broken. Renders the village name on the label.
+// ========================================================================
+
+interface Props {
+  village: string;
+  district: string;
+  comingSoon?: boolean;
+  className?: string;
+}
+
+const { village, district, comingSoon = false, className = '' } = Astro.props;
+---
+
+<div class:list={['jar-silhouette', className, { 'is-coming-soon': comingSoon }]}>
+  <svg viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <!-- Lid -->
+    <path
+      d="M 38 18 L 38 28 L 82 28 L 82 18 Z"
+      fill="#B8541A"
+      opacity="0.85"
+    />
+    <line x1="38" y1="22" x2="82" y2="22" stroke="#1A1916" stroke-width="0.4" opacity="0.3"/>
+
+    <!-- Jar body — slight taper, hand-drawn feel -->
+    <path
+      d="M 30 28
+         L 90 28
+         L 92 130
+         Q 92 142 82 144
+         L 38 144
+         Q 28 142 28 130 Z"
+      fill="none"
+      stroke="#7A7269"
+      stroke-width="1"
+      opacity="0.55"
+    />
+
+    <!-- Honey fill — warm amber gradient simulated with two solid layers -->
+    <path
+      d="M 32 38
+         L 88 38
+         L 90 130
+         Q 90 140 81 142
+         L 39 142
+         Q 30 140 30 130 Z"
+      fill="#F4D9A8"
+      opacity="0.4"
+    />
+
+    <!-- Label — cream rectangle -->
+    <rect
+      x="38" y="64"
+      width="44" height="42"
+      fill="#FBFAF6"
+      stroke="#B0A89C"
+      stroke-width="0.4"
+    />
+
+    <!-- Label inner border -->
+    <rect
+      x="40" y="66"
+      width="40" height="38"
+      fill="none"
+      stroke="#B8541A"
+      stroke-width="0.3"
+      opacity="0.5"
+    />
+
+    <!-- Label text — village -->
+    <text
+      x="60" y="80"
+      text-anchor="middle"
+      fill="#1A1916"
+      font-family="serif"
+      font-size="6.5"
+      font-weight="500"
+    >{village}</text>
+
+    <!-- Label text — district eyebrow -->
+    <text
+      x="60" y="92"
+      text-anchor="middle"
+      fill="#7A7269"
+      font-family="sans-serif"
+      font-size="3.5"
+      letter-spacing="0.3"
+    >{district.toUpperCase()}</text>
+
+    <!-- Decorative hairline below district -->
+    <line x1="50" y1="96" x2="70" y2="96" stroke="#B8541A" stroke-width="0.3" opacity="0.6"/>
+
+    <!-- "ApiCare" tiny mark at bottom -->
+    <text
+      x="60" y="103"
+      text-anchor="middle"
+      fill="#B0A89C"
+      font-family="serif"
+      font-size="3"
+      font-style="italic"
+    >ApiCare</text>
+  </svg>
+</div>
+
+<style>
+  .jar-silhouette {
+    width: 100%;
+    height: 100%;
+    background: #FBFAF6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    transition: opacity 0.4s ease;
+  }
+  .jar-silhouette svg {
+    width: auto;
+    height: 100%;
+    max-height: 320px;
+  }
+  .jar-silhouette.is-coming-soon {
+    background: linear-gradient(180deg, #FBFAF6 0%, #F4EFE6 100%);
+  }
+  .jar-silhouette.is-coming-soon svg {
+    opacity: 0.85;
+  }
+</style>

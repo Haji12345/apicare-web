@@ -1,0 +1,161 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getTotalBeekeeperCount } from '../data/beekeepers.js';
+
+const total = getTotalBeekeeperCount();
+---
+
+<BaseLayout
+  title="About"
+  description="ApiCare in three parts — the founding story, the beekeepers who fill the jars, and the traceability system that makes every claim verifiable."
+>
+
+  <!-- Hero -->
+  <section class="container-content pt-22 md:pt-30 pb-22">
+    <p class="eyebrow mb-6">About ApiCare</p>
+    <h1 class="font-serif text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-ink leading-[1.05] text-balance max-w-4xl mb-10">
+      Three parts. One promise.
+    </h1>
+    <p class="text-lg text-ink-soft max-w-2xl leading-relaxed">
+      ApiCare is a smallholder honey collective from Sikkim, India's only fully organic state. Three things make this work — a story, the people behind it, and a traceability system that makes every claim independently verifiable.
+    </p>
+  </section>
+
+  <div class="hairline container-content"></div>
+
+  <!-- ============================================================
+       Three sections — one per about-page subtopic
+       ============================================================ -->
+
+  <!-- 01 — Story -->
+  <section class="container-content section">
+    <div class="grid md:grid-cols-12 gap-10 lg:gap-16 items-start">
+      <div class="md:col-span-2">
+        <p class="eyebrow mb-2">Section 01</p>
+        <p class="font-serif text-4xl text-honey font-light leading-none">01</p>
+      </div>
+      <div class="md:col-span-6">
+        <h2 class="font-serif text-3xl md:text-5xl font-light tracking-tight text-ink leading-tight text-balance mb-8">
+          Our Story
+        </h2>
+        <div class="prose-editorial mb-10">
+          <p>
+            We started in 2020 with a single hypothesis: if you could verify exactly who produced each jar of honey, the middleman becomes optional. Five years and {total} beekeepers later, that hypothesis became a company.
+          </p>
+          <p>
+            How we got from twelve beekeepers in one village to a recognised RAMP partner working across four districts of Sikkim — and what we are building next.
+          </p>
+        </div>
+        <a href="/story" class="btn-ghost">Read the full story →</a>
+      </div>
+      <div class="md:col-span-4 hidden md:block">
+        <div class="aspect-[4/5] bg-cream-paper border border-ink-fade/30 overflow-hidden">
+          <img
+            src="/images/hero1.jpg"
+            alt=""
+            class="w-full h-full object-cover"
+            onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-full\'><p class=\'text-tiny text-ink-mute uppercase tracking-widest\'>The Land</p></div>'"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 — The Beekeepers -->
+  <section class="bg-cream-deep section">
+    <div class="container-content">
+      <div class="grid md:grid-cols-12 gap-10 lg:gap-16 items-start">
+        <div class="md:col-span-2">
+          <p class="eyebrow mb-2">Section 02</p>
+          <p class="font-serif text-4xl text-honey font-light leading-none">02</p>
+        </div>
+        <div class="md:col-span-6">
+          <h2 class="font-serif text-3xl md:text-5xl font-light tracking-tight text-ink leading-tight text-balance mb-8">
+            The Beekeepers
+          </h2>
+          <div class="prose-editorial mb-10">
+            <p>
+              {total} verified beekeepers across four districts. The ones you meet by name on this site chose to share their story. The rest of the collective stays unnamed — by their choice, and ours.
+            </p>
+            <p>
+              We follow the principle of free, prior, and informed consent for any decision about how a beekeeper's name, photo, or story is used. This is what taking smallholder partnerships seriously actually looks like, beyond the marketing language of traceability.
+            </p>
+          </div>
+          <a href="/beekeepers" class="btn-ghost">Meet the beekeepers →</a>
+        </div>
+        <div class="md:col-span-4 hidden md:block">
+          <div class="aspect-[4/5] bg-cream-paper border border-ink-fade/30 overflow-hidden flex items-center justify-center">
+            <div class="text-center px-6">
+              <p class="font-serif text-7xl text-honey font-light leading-none mb-3">{total}</p>
+              <p class="text-tiny uppercase tracking-widest text-ink-mute">Beekeepers across<br/>four districts of Sikkim</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 — Traceability -->
+  <section class="container-content section">
+    <div class="grid md:grid-cols-12 gap-10 lg:gap-16 items-start">
+      <div class="md:col-span-2">
+        <p class="eyebrow mb-2">Section 03</p>
+        <p class="font-serif text-4xl text-honey font-light leading-none">03</p>
+      </div>
+      <div class="md:col-span-6">
+        <h2 class="font-serif text-3xl md:text-5xl font-light tracking-tight text-ink leading-tight text-balance mb-8">
+          Traceability
+        </h2>
+        <div class="prose-editorial mb-10">
+          <p>
+            Every jar carries a unique code. Scan it and you see the beekeeper, the harvest date, the lab results, and the village it came from — all timestamped, all signed, all independently verifiable.
+          </p>
+          <p>
+            We built FarmLedger to make this work for ApiCare honey. Eventually we want it to work for any smallholder agricultural product where the producer has been priced out of their own value chain.
+          </p>
+        </div>
+        <a href="/traceability" class="btn-ghost">How it works →</a>
+      </div>
+      <div class="md:col-span-4 hidden md:block">
+        <div class="aspect-[4/5] bg-cream-paper border border-ink-fade/30 overflow-hidden flex items-center justify-center">
+          <!-- Stylized QR-like SVG -->
+          <svg viewBox="0 0 100 100" width="60%" height="60%" aria-hidden="true">
+            <rect x="10" y="10" width="22" height="22" fill="none" stroke="#1A1916" stroke-width="2"/>
+            <rect x="14" y="14" width="14" height="14" fill="#1A1916"/>
+            <rect x="68" y="10" width="22" height="22" fill="none" stroke="#1A1916" stroke-width="2"/>
+            <rect x="72" y="14" width="14" height="14" fill="#1A1916"/>
+            <rect x="10" y="68" width="22" height="22" fill="none" stroke="#1A1916" stroke-width="2"/>
+            <rect x="14" y="72" width="14" height="14" fill="#1A1916"/>
+            <!-- inner dots -->
+            <rect x="40" y="40" width="6" height="6" fill="#B8541A"/>
+            <rect x="50" y="40" width="6" height="6" fill="#1A1916"/>
+            <rect x="60" y="40" width="6" height="6" fill="#1A1916"/>
+            <rect x="40" y="50" width="6" height="6" fill="#1A1916"/>
+            <rect x="50" y="50" width="6" height="6" fill="#B8541A"/>
+            <rect x="60" y="50" width="6" height="6" fill="#1A1916"/>
+            <rect x="40" y="60" width="6" height="6" fill="#1A1916"/>
+            <rect x="50" y="60" width="6" height="6" fill="#1A1916"/>
+            <rect x="60" y="60" width="6" height="6" fill="#B8541A"/>
+            <rect x="70" y="50" width="6" height="6" fill="#1A1916"/>
+            <rect x="50" y="70" width="6" height="6" fill="#1A1916"/>
+            <rect x="70" y="70" width="6" height="6" fill="#1A1916"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-ink text-cream section">
+    <div class="container-content max-w-3xl text-center">
+      <p class="eyebrow text-cream/60 mb-6">The honey itself</p>
+      <h2 class="font-serif text-4xl md:text-5xl font-light tracking-tight leading-[1.1] text-balance mb-10 text-cream">
+        Single-village honey from Sikkim's protected forests.
+      </h2>
+      <a href="/honey" class="inline-flex items-center justify-center px-8 py-3.5 bg-cream text-ink text-sm font-medium tracking-wide uppercase no-underline hover:bg-honey hover:text-cream transition-all duration-400 ease-editorial">
+        Shop the Honey
+      </a>
+    </div>
+  </section>
+
+</BaseLayout>

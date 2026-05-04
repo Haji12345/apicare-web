@@ -1,0 +1,162 @@
+---
+// ========================================================================
+// SikkimMap — Schematic 4-region SVG with district highlighting
+// ========================================================================
+// Stylized geographic representation of Sikkim's 4 districts.
+// `activeDistrict` prop highlights one region in the brand honey color.
+// Replace this SVG with a real hand-drawn topographic illustration in
+// Phase C — same component API, just swap the inner SVG paths.
+// ========================================================================
+
+interface Props {
+  activeDistrict?: 'North' | 'East' | 'West' | 'South' | null;
+  showLabels?: boolean;
+}
+
+const { activeDistrict = null, showLabels = true } = Astro.props;
+---
+
+<div class="sikkim-map" data-active={activeDistrict}>
+  <svg viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg" aria-label={`Map of Sikkim${activeDistrict ? `, showing ${activeDistrict} district` : ''}`}>
+
+    <!-- ============================================================
+         OUTER STATE BORDER — Sikkim's roughly trapezoidal shape
+         ============================================================ -->
+
+    <!-- North district — top, wider portion -->
+    <path
+      class:list={['region', 'region-north', { active: activeDistrict === 'North' }]}
+      d="M 130 30 Q 180 20 240 30 Q 290 40 320 70 L 310 130 L 250 145 L 180 140 L 110 125 Z"
+      fill="#F4EFE6"
+      stroke="#7A7269"
+      stroke-width="1.2"
+      data-district="North"
+    />
+
+    <!-- West district — left side -->
+    <path
+      class:list={['region', 'region-west', { active: activeDistrict === 'West' }]}
+      d="M 110 125 L 180 140 L 175 220 L 110 245 L 70 200 L 75 150 Z"
+      fill="#F4EFE6"
+      stroke="#7A7269"
+      stroke-width="1.2"
+      data-district="West"
+    />
+
+    <!-- East district — right side -->
+    <path
+      class:list={['region', 'region-east', { active: activeDistrict === 'East' }]}
+      d="M 250 145 L 310 130 L 330 200 L 290 235 L 230 230 L 220 165 Z"
+      fill="#F4EFE6"
+      stroke="#7A7269"
+      stroke-width="1.2"
+      data-district="East"
+    />
+
+    <!-- South district — bottom center -->
+    <path
+      class:list={['region', 'region-south', { active: activeDistrict === 'South' }]}
+      d="M 180 140 L 250 145 L 220 165 L 230 230 L 175 240 L 175 220 Z"
+      fill="#F4EFE6"
+      stroke="#7A7269"
+      stroke-width="1.2"
+      data-district="South"
+    />
+
+    <!-- Bottom tip — extends from South -->
+    <path
+      class:list={['region', 'region-south', { active: activeDistrict === 'South' }]}
+      d="M 175 240 L 230 230 L 215 290 L 175 295 Z"
+      fill="#F4EFE6"
+      stroke="#7A7269"
+      stroke-width="1.2"
+      data-district="South"
+    />
+
+    <!-- ============================================================
+         VILLAGE PINS — small dots marking source villages
+         ============================================================ -->
+
+    <!-- Dzongu (North) -->
+    <g class="village-pin" data-village="Dzongu" data-district="North">
+      <circle cx="200" cy="80" r="3" fill="#1A1916"/>
+      {showLabels && (
+        <text x="200" y="68" text-anchor="middle" font-size="9" fill="#1A1916" font-family="sans-serif" letter-spacing="0.5">DZONGU</text>
+      )}
+    </g>
+
+    <!-- Zitlang (East) -->
+    <g class="village-pin" data-village="Zitlang" data-district="East">
+      <circle cx="275" cy="190" r="3" fill="#1A1916"/>
+      {showLabels && (
+        <text x="280" y="180" text-anchor="middle" font-size="9" fill="#1A1916" font-family="sans-serif" letter-spacing="0.5">ZITLANG</text>
+      )}
+    </g>
+
+    <!-- Yuksom (West) -->
+    <g class="village-pin" data-village="Yuksom" data-district="West">
+      <circle cx="115" cy="180" r="3" fill="#1A1916"/>
+      {showLabels && (
+        <text x="115" y="170" text-anchor="middle" font-size="9" fill="#1A1916" font-family="sans-serif" letter-spacing="0.5">YUKSOM</text>
+      )}
+    </g>
+
+    <!-- Kewzing (South) -->
+    <g class="village-pin" data-village="Kewzing" data-district="South">
+      <circle cx="195" cy="265" r="3" fill="#1A1916"/>
+      {showLabels && (
+        <text x="195" y="280" text-anchor="middle" font-size="9" fill="#1A1916" font-family="sans-serif" letter-spacing="0.5">KEWZING</text>
+      )}
+    </g>
+
+    <!-- ============================================================
+         COMPASS / DECORATION
+         ============================================================ -->
+    <g transform="translate(355, 50)">
+      <line x1="0" y1="-12" x2="0" y2="12" stroke="#7A7269" stroke-width="0.6"/>
+      <line x1="-12" y1="0" x2="12" y2="0" stroke="#7A7269" stroke-width="0.6"/>
+      <text x="0" y="-16" text-anchor="middle" font-size="8" fill="#7A7269" font-family="sans-serif">N</text>
+    </g>
+
+    <!-- Title -->
+    <text x="200" y="335" text-anchor="middle" font-size="11" fill="#7A7269" font-family="sans-serif" letter-spacing="2">SIKKIM</text>
+  </svg>
+</div>
+
+<style>
+  .sikkim-map {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sikkim-map svg {
+    width: 100%;
+    height: auto;
+    max-width: 480px;
+  }
+
+  .region {
+    transition: fill 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                stroke 0.4s ease;
+  }
+
+  .region.active {
+    fill: #B8541A;
+    stroke: #9A4516;
+  }
+
+  /* When any region is highlighted, fade non-active ones slightly */
+  .sikkim-map[data-active] .region:not(.active) {
+    opacity: 0.65;
+  }
+
+  .village-pin circle {
+    transition: r 0.3s ease, fill 0.3s ease;
+  }
+  .village-pin text {
+    pointer-events: none;
+    transition: fill 0.3s ease;
+  }
+</style>

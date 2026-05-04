@@ -1,0 +1,212 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Impact"
+  description="ApiCare's training programs, government partnerships, community work, and recognition. The human backbone behind the honey."
+>
+
+  <!-- Hero -->
+  <section class="container-content section">
+    <p class="eyebrow mb-6">Impact</p>
+    <h1 class="font-serif text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-ink leading-[1.05] text-balance max-w-4xl mb-10">
+      The work behind the honey.
+    </h1>
+    <p class="text-lg text-ink-soft max-w-xl leading-relaxed">
+      Training programmes, government partnerships, and the community work that makes the honey credible.
+    </p>
+  </section>
+
+  <!-- Stats -->
+  <section class="bg-cream-deep section-tight">
+    <div class="container-content">
+      <div class="grid md:grid-cols-4 gap-10 md:gap-6 max-w-content mx-auto">
+        {[
+          { num: '125', label: 'Beekeepers trained' },
+          { num: '4', label: 'Districts covered' },
+          { num: '4', label: 'Village programmes' },
+          { num: '2022', label: 'RAMP partner since' },
+        ].map((stat) => (
+          <div class="text-center md:text-left">
+            <p class="font-serif text-5xl md:text-6xl text-honey font-light mb-2 leading-none">
+              {stat.num}
+            </p>
+            <p class="text-tiny uppercase tracking-widest text-ink-mute">
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Partnership -->
+  <section class="container-content section">
+    <div class="grid md:grid-cols-12 gap-10 lg:gap-16">
+      <div class="md:col-span-2">
+        <p class="eyebrow mb-2">Partnership</p>
+        <p class="font-serif text-3xl text-honey font-light leading-none">01</p>
+      </div>
+
+      <div class="md:col-span-6">
+        <h2 class="font-serif text-3xl md:text-4xl text-ink mb-8 font-light tracking-tight text-balance">
+          Government of Sikkim - RAMP
+        </h2>
+        <div class="prose-editorial">
+          <p>
+            The Raising and Accelerating MSME Performance programme is a Government of Sikkim initiative, supported by the World Bank, to professionalise rural agribusinesses across the state. ApiCare has been a recognised RAMP partner since 2022.
+          </p>
+          <p>
+            Our beekeeper onboarding, training curriculum, and quality protocols are reviewed against state-level standards. We work directly with the Sikkim Department of Commerce &amp; Industries on programme design.
+          </p>
+          <p>
+            For us, RAMP recognition is both a quality stamp and operational scaffolding. Without it, we could not have moved from twelve beekeepers to one hundred and twenty-five in four years.
+          </p>
+        </div>
+      </div>
+
+      <div class="md:col-span-4">
+        <div class="aspect-[4/5] bg-cream-paper border border-ink-fade/30 flex items-center justify-center mb-4">
+          <p class="text-tiny text-ink-mute uppercase tracking-widest">[ Photo: RAMP review meeting ]</p>
+        </div>
+        <p class="text-tiny uppercase tracking-widest text-ink-mute">
+          Annual RAMP review at the Department of Commerce &amp; Industries, Gangtok.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Training -->
+  <section class="bg-cream-deep section">
+    <div class="container-content">
+      <div class="grid md:grid-cols-12 gap-10 lg:gap-16">
+        <div class="md:col-span-2">
+          <p class="eyebrow mb-2">Training</p>
+          <p class="font-serif text-3xl text-honey font-light leading-none">02</p>
+        </div>
+
+        <div class="md:col-span-6">
+          <h2 class="font-serif text-3xl md:text-4xl text-ink mb-8 font-light tracking-tight text-balance">
+            The training programme
+          </h2>
+          <div class="prose-editorial">
+            <p>
+              Every beekeeper who joins ApiCare goes through a structured training programme run by our Master Trainers in their own village. The curriculum covers hive management, hygiene protocols, harvest timing, and documentation for traceability.
+            </p>
+            <p>
+              The work of training is not to replace traditional knowledge. It is to add the small set of practices that make the honey legible to international buyers without losing what is distinctive about how it was produced.
+            </p>
+            <p>
+              Trainings run quarterly in each village. New beekeepers are paired with a mentor for their first season.
+            </p>
+          </div>
+        </div>
+
+        <div class="md:col-span-4">
+          <p class="eyebrow mb-6">Programme structure</p>
+          <ol class="space-y-4">
+            {[
+              { phase: 'Onboarding', detail: 'In-village introduction, FPIC consent process, baseline assessment' },
+              { phase: 'Equipment', detail: 'Frame hives, smokers, protective gear, harvest tools' },
+              { phase: 'Field training', detail: 'Two weeks with a Master Trainer, hands-on with their hives' },
+              { phase: 'First harvest', detail: 'Documented and reviewed jointly - quality, weight, methodology' },
+              { phase: 'Quarterly cycle', detail: 'Refresher trainings, peer learning, technique upgrades' },
+            ].map((item, i) => (
+              <li class="grid grid-cols-[auto,1fr] gap-4 items-baseline border-b border-ink-fade/40 pb-4">
+                <span class="font-serif text-2xl text-honey font-light">{(i + 1).toString().padStart(2, '0')}</span>
+                <div>
+                  <p class="text-sm font-medium text-ink mb-1">{item.phase}</p>
+                  <p class="text-tiny uppercase tracking-widest text-ink-mute leading-snug">{item.detail}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Community & Training — full-bleed photo strip -->
+  <section class="section-tight">
+    <div class="container-content mb-16">
+      <p class="eyebrow mb-6">Community &amp; Training</p>
+      <h2 class="font-serif text-3xl md:text-5xl font-light tracking-tight text-ink text-balance leading-tight max-w-3xl">
+        The work happens in the villages, not in offices.
+      </h2>
+    </div>
+
+    <!-- Full-bleed feature photo — edge to edge, no borders -->
+    <div class="w-full aspect-[16/7] overflow-hidden bg-cream-deep mb-2">
+      <img
+        src="/images/training1.jpg"
+        alt="ApiCare beekeeper training session"
+        class="w-full h-full object-cover"
+        onerror="this.style.display='none'"
+      />
+    </div>
+
+    <!-- Two-up secondary photos (still full-width row, no container) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <div class="aspect-[4/3] overflow-hidden bg-cream-deep">
+        <img
+          src="/images/training2.jpg"
+          alt="Hands-on hive training in Sikkim"
+          class="w-full h-full object-cover"
+          onerror="this.style.display='none'"
+        />
+      </div>
+      <div class="aspect-[4/3] overflow-hidden bg-cream-deep">
+        <img
+          src="/images/community1.jpg"
+          alt="ApiCare community gathering"
+          class="w-full h-full object-cover"
+          onerror="this.style.display='none'"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- Certifications -->
+  <section class="bg-cream-deep section">
+    <div class="container-content">
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <p class="eyebrow mb-6">Certifications</p>
+        <h2 class="font-serif text-3xl md:text-4xl font-light text-ink tracking-tight text-balance">
+          The paperwork behind the jar.
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {[
+          { name: 'GI Certified', detail: 'Geographical indication for origin-linked Sikkim honey' },
+          { name: 'FSSAI Approved', detail: 'Food safety approval for Indian distribution' },
+          { name: 'ZED Certified', detail: 'MSME quality and sustainability recognition' },
+          { name: 'EU Organic (In Progress)', detail: 'Certification pathway currently underway' },
+        ].map((cert) => (
+          <div class="bg-cream border border-ink-fade/30 p-8 text-center">
+            <div class="aspect-square mb-4 flex items-center justify-center bg-cream-paper">
+              <p class="text-tiny uppercase tracking-widest text-ink-mute">{cert.name}</p>
+            </div>
+            <p class="font-serif text-lg text-ink mb-2">{cert.name}</p>
+            <p class="text-tiny text-ink-mute leading-relaxed">{cert.detail}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="bg-ink text-cream section">
+    <div class="container-content max-w-3xl text-center">
+      <p class="eyebrow text-cream/60 mb-6">Documentation</p>
+      <h2 class="font-serif text-4xl md:text-5xl font-light tracking-tight leading-[1.1] text-balance mb-10 text-cream">
+        Buyers and partners can request our training and certification record.
+      </h2>
+      <a href="/contact" class="inline-flex items-center justify-center px-8 py-3.5 bg-cream text-ink text-sm font-medium tracking-wide uppercase no-underline hover:bg-honey hover:text-cream transition-all duration-400 ease-editorial">
+        Get in Touch
+      </a>
+    </div>
+  </section>
+
+</BaseLayout>

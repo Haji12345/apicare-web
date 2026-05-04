@@ -1,0 +1,289 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SikkimMap from '../components/SikkimMap.astro';
+---
+
+<BaseLayout
+  title="Our Story"
+  description="ApiCare partners with smallholder beekeepers in Sikkim — India's only fully organic state — to produce single-village Himalayan forest honey."
+>
+
+  <!-- Hero -->
+  <section class="container-content pt-22 md:pt-30 pb-22">
+    <p class="eyebrow mb-6">Our Story</p>
+    <h1 class="font-serif text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-ink leading-[1.05] text-balance max-w-4xl mb-10">
+      We started with one question: who actually grew this honey?
+    </h1>
+    <p class="text-lg text-ink-soft max-w-xl leading-relaxed">
+      Five years later, we have 125 answers — each with a name, a village, and a story. This is how we got here.
+    </p>
+  </section>
+
+  <!-- Wide hero band -->
+  <div class="container-content mb-22">
+    <div class="aspect-[21/9] w-full overflow-hidden bg-cream-deep relative">
+      <img
+        src="/images/hero.jpg"
+        alt=""
+        class="w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-cream/60 via-transparent to-transparent"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       INTRO BLOCK — full-width manifesto opening
+       ============================================================ -->
+  <section class="container-content section-tight">
+    <div class="grid md:grid-cols-12 gap-10">
+      <div class="md:col-span-2">
+        <p class="eyebrow">In Brief</p>
+      </div>
+      <div class="md:col-span-9">
+        <p class="font-serif text-2xl md:text-3xl text-ink leading-relaxed text-balance font-light">
+          ApiCare is a smallholder honey collective from Sikkim, the small Himalayan state in northeast India that became, in 2016, the first place on earth to declare itself fully organic. We started in 2020 with twelve beekeepers in one village. Today we work with one hundred and twenty-five.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       STATS STRIP — visual punctuation between intro and chapters
+       ============================================================ -->
+  <section class="bg-cream-deep py-16 md:py-22 mt-22">
+    <div class="container-content">
+      <div class="grid md:grid-cols-4 gap-10 md:gap-6 max-w-content mx-auto">
+        {[
+          { num: '125', label: 'Verified beekeepers' },
+          { num: '4', label: 'Districts of Sikkim' },
+          { num: '2016', label: 'Sikkim went fully organic' },
+          { num: '3–4×', label: 'Above local market price' },
+        ].map((stat) => (
+          <div class="text-center md:text-left">
+            <p class="font-serif text-5xl md:text-6xl text-honey font-light mb-2 leading-none">
+              {stat.num}
+            </p>
+            <p class="text-tiny uppercase tracking-widest text-ink-mute">
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CHAPTER 1 — THE VALLEY
+       Editorial layout: text column + side rail with map
+       ============================================================ -->
+  <section class="container-content section">
+    <div class="grid md:grid-cols-12 gap-10 lg:gap-16">
+
+      <!-- Left: chapter mark -->
+      <div class="md:col-span-2">
+        <p class="eyebrow mb-2">Chapter One</p>
+        <p class="font-serif text-4xl text-honey font-light leading-none">01</p>
+      </div>
+
+      <!-- Center: text column -->
+      <div class="md:col-span-6">
+        <h2 class="font-serif text-3xl md:text-4xl text-ink mb-8 font-light tracking-tight text-balance">
+          The valley
+        </h2>
+        <div class="prose-editorial">
+          <p>
+            Sikkim runs from sub-tropical river valleys at 700 metres up to alpine pasture above 6,000. In the space of a single day's drive you pass through five distinct forest belts — broadleaf, conifer, rhododendron, alpine, and snowline — and the species count rises with every kilometre. The state is roughly the size of Luxembourg and contains close to a third of the flowering plants found in all of India.
+          </p>
+          <p>
+            For bees, this is a kind of paradise. The forage is uncontaminated — no chemical fertilizer, no pesticide, no industrial agriculture anywhere in the state. The biodiversity gives the bees a long, layered flowering season. And because the terrain is steep and the villages are small, the forest cover has stayed largely intact in a way that almost nowhere else in mainland India has managed.
+          </p>
+          <p>
+            Sikkim's organic status is sometimes treated, in the wider Indian conversation, as a kind of well-meaning eccentricity. We don't see it that way. From where we sit, on the edge of the forest with the hives, it looks like the most quietly radical agricultural decision any state has made in this century.
+          </p>
+        </div>
+      </div>
+
+      <!-- Right rail: Sikkim map + caption -->
+      <div class="md:col-span-4 md:sticky md:top-24 md:self-start">
+        <div class="bg-cream-paper border border-ink-fade/30 p-4 md:p-6">
+          <SikkimMap />
+        </div>
+        <p class="text-tiny uppercase tracking-widest text-ink-mute mt-4 leading-relaxed">
+          Four districts. <br/> Four source villages.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CHAPTER 2 — THE PROBLEM
+       Editorial layout with pull-quote + numbers
+       ============================================================ -->
+  <section class="bg-cream-deep section">
+    <div class="container-content">
+      <div class="grid md:grid-cols-12 gap-10 lg:gap-16">
+
+        <div class="md:col-span-2">
+          <p class="eyebrow mb-2">Chapter Two</p>
+          <p class="font-serif text-4xl text-honey font-light leading-none">02</p>
+        </div>
+
+        <div class="md:col-span-6">
+          <h2 class="font-serif text-3xl md:text-4xl text-ink mb-8 font-light tracking-tight text-balance">
+            The problem
+          </h2>
+          <div class="prose-editorial">
+            <p>
+              Smallholder beekeepers, in Sikkim and across most of South Asia, have been invisible to the global honey market for decades. Their honey moves through middlemen who blend it with cheaper sources, strip out the origin information, and sell it on at a margin the beekeeper never sees. By the time a jar reaches a supermarket shelf, the only person who has not been paid fairly is the person who actually kept the bees.
+            </p>
+            <p>
+              For the beekeeper, the math is brutal. A typical Sikkim smallholder, working with eight to twelve hives, was earning between ₹300 and ₹500 per kilogram of honey when we first started visiting villages in 2020. International specialty markets were paying ten to fifteen times that — for honey that was, in many cases, less distinctive than what was sitting in the smallholder's storage drum.
+            </p>
+            <p>
+              The information asymmetry was almost total. The beekeeper didn't know what their honey was worth. The buyer abroad didn't know who had grown it. The middleman, who knew both, was the only party who could capture the difference.
+            </p>
+          </div>
+        </div>
+
+        <div class="md:col-span-4 space-y-8">
+          <!-- Pull quote -->
+          <blockquote class="border-l-2 border-honey pl-6 py-2">
+            <p class="font-serif text-xl md:text-2xl italic text-ink leading-snug font-light">
+              The beekeeper didn't know what their honey was worth. The middleman did.
+            </p>
+          </blockquote>
+
+          <!-- Number block -->
+          <div class="border-t border-ink-fade pt-6">
+            <p class="font-serif text-5xl text-honey font-light mb-2 leading-none">10–15×</p>
+            <p class="text-sm text-ink-soft leading-relaxed">
+              The gap between what international specialty markets paid for premium single-origin honey and what Sikkim smallholders received from local middlemen in 2020.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CHAPTER 3 — HOW APICARE STARTED
+       Editorial layout with timeline
+       ============================================================ -->
+  <section class="container-content section">
+    <div class="grid md:grid-cols-12 gap-10 lg:gap-16">
+
+      <div class="md:col-span-2">
+        <p class="eyebrow mb-2">Chapter Three</p>
+        <p class="font-serif text-4xl text-honey font-light leading-none">03</p>
+      </div>
+
+      <div class="md:col-span-6">
+        <h2 class="font-serif text-3xl md:text-4xl text-ink mb-8 font-light tracking-tight text-balance">
+          How ApiCare started
+        </h2>
+        <div class="prose-editorial">
+          <p>
+            We registered ApiCare Organic Farms in 2020, in the middle of the pandemic, with a single hypothesis: if you could verify exactly who produced each jar of honey, and prove it to the buyer, the middleman becomes optional. The beekeeper sells direct. The buyer sees the source. The price meets where it should — somewhere between what the beekeeper deserves and what the market will pay for genuine single-origin honey.
+          </p>
+          <p>
+            The first year was small and slow. Four villages, twelve beekeepers, a lot of conversations on plastic chairs in front of houses. The collective grew when the Government of Sikkim's RAMP programme — a state-level initiative to professionalise rural agribusinesses — recognised us as a partner in 2022. That gave us a formal framework, training infrastructure, and a way to scale beyond the founders' own contacts.
+          </p>
+          <p>
+            Today we work with 125 verified beekeepers across all four districts of Sikkim. Every beekeeper is named. Every harvest is logged. Every jar carries a code that traces back to the village it came from.
+          </p>
+        </div>
+      </div>
+
+      <!-- Right rail: timeline -->
+      <div class="md:col-span-4">
+        <p class="eyebrow mb-6">Timeline</p>
+        <ol class="space-y-6">
+          {[
+            { year: '2020', event: 'Founded — twelve beekeepers, one village' },
+            { year: '2021', event: 'First Master Trainer program in Zitlang' },
+            { year: '2024', event: 'Recognised by Government of Sikkim — Commerce & Industries Department' },
+            { year: '2025', event: 'Dzongu conversations begin' },
+            { year: '2026', event: 'EU export pipeline' },
+          ].map((item) => (
+            <li class="grid grid-cols-[auto,1fr] gap-4 items-baseline border-b border-ink-fade/40 pb-4">
+              <span class="font-serif text-2xl text-honey font-light">{item.year}</span>
+              <span class="text-sm text-ink-soft leading-relaxed">{item.event}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CHAPTER 4 — WHAT WE'RE BUILDING NEXT
+       ============================================================ -->
+  <section class="bg-cream-deep section">
+    <div class="container-content">
+      <div class="grid md:grid-cols-12 gap-10 lg:gap-16">
+
+        <div class="md:col-span-2">
+          <p class="eyebrow mb-2">Chapter Four</p>
+          <p class="font-serif text-4xl text-honey font-light leading-none">04</p>
+        </div>
+
+        <div class="md:col-span-6">
+          <h2 class="font-serif text-3xl md:text-4xl text-ink mb-8 font-light tracking-tight text-balance">
+            What we are building next
+          </h2>
+          <div class="prose-editorial">
+            <p>Two things, on parallel tracks.</p>
+            <p>
+              The first is the EU export pipeline. Sikkim honey has the agroecological credentials to compete with the best European wild-forest honey — but Indian smallholder honey has historically been blocked at the EU border by chain-of-custody requirements that no traditional supply chain can meet. We are working through Eurofins testing and EU organic certification now, and we expect to be shipping into European specialty channels within the next eighteen months.
+            </p>
+            <p>
+              The second is FarmLedger, our digital traceability system. Right now it powers the QR codes on our jars. Eventually we want it to power traceability for any smallholder agricultural product, anywhere — coffee, cardamom, cacao, vanilla. The underlying argument is the same in all of these categories: the producer is invisible, the buyer is willing to pay for visibility, and the only thing missing is the proof system in the middle.
+            </p>
+            <p>
+              ApiCare is the first proof. The honey is what people taste; the system behind the honey is what we are actually building.
+            </p>
+            <p class="mt-12 text-sm text-ink-mute italic">
+              — The ApiCare team, Sikkim
+            </p>
+          </div>
+        </div>
+
+        <!-- Right rail: parallel tracks visual -->
+        <div class="md:col-span-4">
+          <p class="eyebrow mb-6">Two parallel tracks</p>
+          <div class="space-y-8">
+            <div class="border border-ink-fade p-6 bg-cream">
+              <p class="text-tiny uppercase tracking-widest text-honey mb-3">Track One</p>
+              <p class="font-serif text-xl text-ink mb-2 font-normal">EU export pipeline</p>
+              <p class="text-sm text-ink-soft leading-relaxed">
+                Eurofins testing, EU organic certification, specialty channel partners. ETA: eighteen months.
+              </p>
+            </div>
+            <div class="border border-ink-fade p-6 bg-cream">
+              <p class="text-tiny uppercase tracking-widest text-honey mb-3">Track Two</p>
+              <p class="font-serif text-xl text-ink mb-2 font-normal">FarmLedger</p>
+              <p class="text-sm text-ink-soft leading-relaxed">
+                Digital traceability infrastructure for smallholder agriculture. Honey first, then coffee, cardamom, cacao.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA strip -->
+  <section class="container-content section">
+    <div class="max-w-3xl mx-auto text-center">
+      <p class="eyebrow mb-6">What's next</p>
+      <h2 class="font-serif text-3xl md:text-5xl font-light text-ink leading-tight tracking-tight text-balance mb-10">
+        Two villages live. Two more on the way.
+      </h2>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="/honey" class="btn-primary">See the Honey</a>
+        <a href="/beekeepers" class="btn-ghost">Meet the Beekeepers</a>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>

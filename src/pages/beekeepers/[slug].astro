@@ -1,0 +1,110 @@
+---
+// ========================================================================
+// /beekeepers/[slug] — Individual beekeeper profile
+// ========================================================================
+// Only generates pages for beekeepers with consentLevel >= 2.
+// Beekeepers at consentLevel 0 or 1 produce no public route.
+// ========================================================================
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublicBeekeepers } from '../../data/beekeepers.js';
+import { honey } from '../../data/honey.js';
+
+export function getStaticPaths() {
+  return getPublicBeekeepers().map((b) => ({
+    params: { slug: b.slug },
+    props: { beekeeper: b },
+  }));
+}
+
+const { beekeeper: b } = Astro.props;
+const theirHoney = honey.filter((h) => b.honeySlugs.includes(h.slug));
+const isFullProfile = b.consentLevel === 3;
+---
+
+<BaseLayout
+  title={b.name}
+  description={`${b.name}, ${b.role} from ${b.village}, ${b.district} Sikkim.`}
+>
+
+  <div class="container-content pt-8">
+    <nav class="text-tiny uppercase tracking-widest text-ink-mute">
+      <a href="/beekeepers" class="no-underline hover:text-honey transition-colors">Beekeepers</a>
+      <span class="mx-2">/</span>
+      <span>{b.village}</span>
+    </nav>
+  </div>
+
+  <section class="container-content py-12 md:py-16">
+    <div class="grid md:grid-cols-12 gap-12">
+
+      <!-- Portrait -->
+      <div class="md:col-span-5">
+        {b.portrait ? (
+          <div class="aspect-[3/4] w-full overflow-hidden bg-cream-paper border border-ink-fade/30">
+            <img src={b.portrait} alt={b.name} class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-full\'><p class=\'text-tiny text-ink-mute uppercase tracking-widest\'>Portrait pending</p></div>'"/>
+          </div>
+        ) : (
+          <div class="aspect-[3/4] w-full bg-cream-paper border border-ink-fade/30 flex items-center justify-center">
+            <p class="text-tiny text-ink-mute uppercase tracking-widest">Portrait pending</p>
+          </div>
+        )}
+      </div>
+
+      <!-- Info -->
+      <div class="md:col-span-6 md:col-start-7">
+        <p class="eyebrow mb-4">{b.village}, {b.district} Sikkim</p>
+        <h1 class="font-serif text-5xl font-light tracking-tight text-ink leading-tight mb-3">{b.name}</h1>
+        <p class="text-lg text-ink-soft italic mb-10">{b.role}</p>
+
+        {(b.yearsWithApiCare || b.hives > 0) && (
+          <dl class="space-y-3 text-sm mb-10">
+            {b.yearsWithApiCare && (
+              <div class="flex justify-between border-b border-ink-fade/30 pb-3">
+                <dt class="text-ink-mute">With ApiCare</dt>
+                <dd class="text-ink">{b.yearsWithApiCare}</dd>
+              </div>
+            )}
+            {b.hives > 0 && (
+              <div class="flex justify-between border-b border-ink-fade/30 pb-3">
+                <dt class="text-ink-mute">Hives</dt>
+                <dd class="text-ink">{b.hives}</dd>
+              </div>
+            )}
+          </dl>
+        )}
+
+        {b.bio && (
+          <div class="prose-editorial">
+            <p>{b.bio}</p>
+          </div>
+        )}
+
+        {b.quote && (
+          <blockquote class="font-serif text-2xl italic text-ink leading-relaxed mt-10 pl-6 border-l-2 border-honey">
+            "{b.quote}"
+          </blockquote>
+        )}
+      </div>
+    </div>
+  </section>
+
+  {theirHoney.length > 0 && (
+    <section class="bg-cream-deep section">
+      <div class="container-content">
+        <p class="eyebrow mb-10">Honey from {b.name}</p>
+        <div class="grid md:grid-cols-3 gap-10">
+          {theirHoney.map((h) => (
+            <a href={`/honey/${h.slug}`} class="group no-underline">
+              <div class="aspect-[4/5] mb-4 bg-cream-paper border border-ink-fade/30 flex items-center justify-center">
+                <p class="text-tiny uppercase tracking-widest text-ink-mute">{h.village}</p>
+              </div>
+              <h3 class="font-serif text-xl text-ink group-hover:text-honey transition-colors duration-400">{h.name}</h3>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+</BaseLayout>
