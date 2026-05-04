@@ -27,7 +27,7 @@ export const site = {
 // IMPORTANT: Replace this placeholder with your real public test key, then
 // switch to live key when ready to take real orders.
 export const snipcart = {
-  publicApiKey: 'YOUR_SNIPCART_PUBLIC_API_KEY_HERE',
+  publicApiKey: 'NzBjYzFkZjQtMmZkZC00NjA2LWIyNjUtMjY1ZDY0ODkzMDE4NjM5MTM1MzI0ODg0NTAxMjg1',
   // Snipcart supports multiple currencies natively
   currencies: [
     { code: 'inr', symbol: '₹', name: 'INR' },
