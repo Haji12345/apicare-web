@@ -9,6 +9,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import JarSilhouette from '../../components/JarSilhouette.astro';
 import { honey } from '../../data/honey.js';
 import { getBeekeepersForHoney } from '../../data/beekeepers.js';
+import { site, forms } from '../../data/site.js';
 
 export function getStaticPaths() {
   return honey.map((h) => ({
@@ -125,7 +126,7 @@ const otherInDistrict = honey.filter(
               id="add-to-cart"
               class="snipcart-add-item btn-primary w-full mb-4"
               data-item-id={h.slug}
-              data-item-price={h.sizes[0].priceINR}
+              data-item-price={JSON.stringify({ inr: h.sizes[0].priceINR, usd: h.sizes[0].priceUSD })}
               data-item-url={`/honey/${h.slug}`}
               data-item-name={h.name}
               data-base-name={h.name}
@@ -148,9 +149,10 @@ const otherInDistrict = honey.filter(
             </p>
             <form
               class="space-y-3 mb-6"
-              data-notify-form
+              data-apicare-form="notify"
               data-product={h.slug}
-              onsubmit="event.preventDefault(); alert('Connect this form to your email service. Email: ' + this.email.value);"
+              data-endpoint={forms.notify}
+              data-fallback-email={site.email}
             >
               <input
                 type="email"
@@ -159,9 +161,14 @@ const otherInDistrict = honey.filter(
                 placeholder="your@email.com"
                 class="w-full bg-transparent border-b border-ink py-3 text-base focus:outline-none focus:border-honey transition-colors duration-300"
               />
+              <!-- Hidden field: which product they signed up for -->
+              <input type="hidden" name="product" value={h.slug} />
+              <!-- Honeypot -->
+              <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
               <button type="submit" class="btn-primary w-full">
                 Notify Me
               </button>
+              <p class="form-status text-tiny text-ink-mute text-center" role="status" aria-live="polite"></p>
             </form>
             <p class="text-tiny text-ink-mute text-center">
               No spam. One email when this harvest is ready.
@@ -358,7 +365,11 @@ const otherInDistrict = honey.filter(
       if (cartButton) {
         const baseName = cartButton.dataset.baseName || cartButton.dataset.itemName || '';
         cartButton.dataset.itemName = `${baseName} - ${size}`;
-        if (inr) cartButton.dataset.itemPrice = inr;
+        // Multi-currency JSON. Snipcart parses this object and uses whichever
+        // currency the cart is currently set to via Snipcart.api.session.setCurrency.
+        if (inr && usd) {
+          cartButton.dataset.itemPrice = JSON.stringify({ inr: Number(inr), usd: Number(usd) });
+        }
       }
     });
   });

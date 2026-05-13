@@ -36,6 +36,27 @@ export const snipcart = {
   defaultCurrency: 'inr',
 };
 
+// =====================================================================
+// FORMS — Formspree endpoints
+// =====================================================================
+// Sign up at https://formspree.io (free tier: 50 submissions/month).
+// Create THREE separate forms so submissions don't get mixed up:
+//   1. Contact form        → general enquiries from /contact
+//   2. Newsletter signup   → "Stay close" capture in footer + /journal
+//   3. Product notify-me   → "Coming Soon" PDPs (Dzongu, Yuksom)
+//
+// Then paste the endpoint URL (looks like https://formspree.io/f/abcdwxyz)
+// into the matching field below. Until you do, forms will gracefully fall
+// back to a mailto: link so visitors are never stuck.
+//
+// To go from Formspree → Buttondown for newsletter only: swap the
+// `newsletter` URL — the form code doesn't change, both accept POST.
+export const forms = {
+  contact: 'https://formspree.io/f/xkoyekaz',     // e.g. 'https://formspree.io/f/xxxxxxxx'
+  newsletter: 'https://formspree.io/f/xwvyzajr',  // e.g. 'https://formspree.io/f/yyyyyyyy'
+  notify: 'https://formspree.io/f/xrejdrvo',      // e.g. 'https://formspree.io/f/zzzzzzzz'
+};
+
 // Main navigation — top-level + dropdown structure
 //
 // Items with `children` render as a dropdown. The parent link itself

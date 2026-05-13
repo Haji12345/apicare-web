@@ -77,8 +77,35 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
          Replace the publicApiKey in src/data/site.js with your real key.
          ==================================================================== -->
     <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.css" />
-    <div hidden id="snipcart" data-api-key={snipcart.publicApiKey} data-config-modal-style="side"></div>
+    <div
+      hidden
+      id="snipcart"
+      data-api-key={snipcart.publicApiKey}
+      data-config-modal-style="side"
+      data-currency={snipcart.defaultCurrency}
+    ></div>
     <script async src="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.js"></script>
+
+    <!-- Bridge: when the currency-btn in Header is clicked, also tell Snipcart to switch.
+         This keeps the cart, checkout, and on-page prices in sync. -->
+    <script>
+      document.addEventListener('snipcart.ready', () => {
+        // 1. On load, make Snipcart agree with whatever the toggle remembered.
+        const saved = localStorage.getItem('apicare-currency') || 'inr';
+        if (window.Snipcart?.api?.session?.setCurrency) {
+          window.Snipcart.api.session.setCurrency(saved);
+        }
+        // 2. When the toggle is clicked, push the change to Snipcart.
+        document.querySelectorAll('.currency-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const code = btn.dataset.currency;
+            if (code && window.Snipcart?.api?.session?.setCurrency) {
+              window.Snipcart.api.session.setCurrency(code);
+            }
+          });
+        });
+      });
+    </script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const bee = document.createElement("div");
@@ -114,6 +141,84 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 
       document.querySelectorAll('[data-reveal]').forEach(el => {
         observer.observe(el);
+      });
+    </script>
+
+    <!-- ====================================================================
+         UNIVERSAL FORM HANDLER
+         Catches every <form data-apicare-form="..."> on the site.
+         - If data-endpoint is set (Formspree URL), POSTs via fetch
+         - If not, opens user's mail client as a graceful fallback
+         - Shows inline status in the form's .form-status element
+         ==================================================================== -->
+    <script>
+      document.querySelectorAll('form[data-apicare-form]').forEach((form) => {
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+
+          const kind = form.dataset.apicareForm; // 'contact' | 'newsletter' | 'notify'
+          const endpoint = form.dataset.endpoint;
+          const fallbackEmail = form.dataset.fallbackEmail || 'hello@apicare.co.in';
+          const statusEl = form.querySelector('.form-status');
+          const submitBtn = form.querySelector('button[type="submit"]');
+
+          const setStatus = (text, tone = 'neutral') => {
+            if (!statusEl) return;
+            statusEl.textContent = text;
+            statusEl.classList.remove('text-honey', 'text-ink-mute');
+            statusEl.classList.add(tone === 'error' ? 'text-honey' : 'text-ink-mute');
+          };
+
+          // ---- Fallback path: no endpoint configured yet → mailto: ----
+          if (!endpoint) {
+            const data = new FormData(form);
+            const subject = encodeURIComponent(
+              kind === 'contact'   ? `[Contact] ${data.get('purpose') || 'Enquiry'}` :
+              kind === 'newsletter' ? '[Newsletter] New subscriber'                  :
+              kind === 'notify'    ? `[Notify] ${data.get('product') || 'product'}`  :
+                                     '[ApiCare website]'
+            );
+            const lines = [];
+            for (const [k, v] of data.entries()) {
+              if (k === '_gotcha') continue;
+              lines.push(`${k}: ${v}`);
+            }
+            const body = encodeURIComponent(lines.join('\n'));
+            window.location.href = `mailto:${fallbackEmail}?subject=${subject}&body=${body}`;
+            setStatus('Opening your mail app…');
+            return;
+          }
+
+          // ---- Real submit: POST JSON to Formspree (or compatible) ----
+          if (submitBtn) submitBtn.setAttribute('disabled', 'true');
+          setStatus('Sending…');
+
+          try {
+            const data = new FormData(form);
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              body: data,
+              headers: { Accept: 'application/json' },
+            });
+
+            if (res.ok) {
+              form.reset();
+              setStatus(
+                kind === 'newsletter' ? 'Thank you — you’re on the list.' :
+                kind === 'notify'    ? 'Done. We’ll write the day this harvest is ready.' :
+                                       'Thank you — we’ll be in touch shortly.'
+              );
+            } else {
+              const json = await res.json().catch(() => ({}));
+              const msg = json?.errors?.[0]?.message || 'Something went wrong. Please email us directly.';
+              setStatus(msg, 'error');
+            }
+          } catch (err) {
+            setStatus('Network error. Please email us directly.', 'error');
+          } finally {
+            if (submitBtn) submitBtn.removeAttribute('disabled');
+          }
+        });
       });
     </script>
   </body>

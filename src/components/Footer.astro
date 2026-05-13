@@ -2,7 +2,7 @@
 // ========================================================================
 // Footer — minimal editorial footer with newsletter capture
 // ========================================================================
-import { footerNav, site } from '../data/site.js';
+import { footerNav, site, forms } from '../data/site.js';
 
 const year = new Date().getFullYear();
 ---
@@ -20,16 +20,25 @@ const year = new Date().getFullYear();
         We write when there's something honest to say — a new village, a new harvest, a story from the hives.
       </p>
 
-      <form class="flex flex-col sm:flex-row gap-3 max-w-md" onsubmit="event.preventDefault(); alert('Connect this form to your email service (Buttondown, ConvertKit, Mailchimp).')">
+      <form
+        class="flex flex-col sm:flex-row gap-3 max-w-md"
+        data-apicare-form="newsletter"
+        data-endpoint={forms.newsletter}
+        data-fallback-email={site.email}
+      >
         <input
           type="email"
+          name="email"
           required
           placeholder="your@email.com"
           class="flex-1 bg-transparent border-b border-ink py-2 px-1 text-sm focus:outline-none focus:border-honey transition-colors duration-300"
         />
+        <!-- Hidden honeypot — bots fill this, humans don't. Formspree drops on the floor. -->
+        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
         <button type="submit" class="btn-ghost">
           Subscribe
         </button>
+        <p class="form-status text-tiny text-ink-mute basis-full sm:basis-auto" role="status" aria-live="polite"></p>
       </form>
     </div>
 
