@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="120" height="120" role="img" aria-label="Cardamom pod">
+  <g fill="none" stroke="#20201E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M50 20 C40 28 33 41 34 55 C35 71 44 81 50 85 C56 81 65 71 66 55 C67 41 60 28 50 20 Z"></path>
+    <path d="M50 24 L50 80"></path>
+    <path d="M42 28 C38 46 39 64 46 79"></path>
+    <path d="M58 28 C62 46 61 64 54 79"></path>
+    <path d="M50 20 C50 13 49 9 45 6"></path>
+    <path d="M50 16 C55 11 61 11 64 14"></path>
+  </g>
+</svg>

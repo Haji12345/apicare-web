@@ -3,14 +3,14 @@
 // /honey — Catalogue page with district-toggle interactivity
 // ========================================================================
 // Default state: all 4 villages in a grid.
-// Click a district: page transforms to single-region view with
-// the Sikkim map highlighting the active district.
+// Click a district: page transforms to single-region view showing
+// that district's illustrated topographic plate.
 // State is managed client-side via JS — no page reloads.
 // ========================================================================
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import JarSilhouette from '../../components/JarSilhouette.astro';
-import SikkimMap from '../../components/SikkimMap.astro';
+import RegionMap from '../../components/RegionMap.astro';
 import { honey, getHoneyByDistrict } from '../../data/honey.js';
 
 const byDistrict = getHoneyByDistrict();
@@ -187,10 +187,10 @@ const districts = ['North', 'East', 'West', 'South'] as const;
             </div>
           </div>
 
-          <!-- RIGHT: Sikkim map with this district highlighted -->
+          <!-- RIGHT: illustrated topographic plate for this district -->
           <div class="lg:col-span-7">
             <div class="bg-cream-paper border border-ink-fade/30 p-6 md:p-10">
-              <SikkimMap activeDistrict={d} />
+              <RegionMap activeDistrict={d} />
             </div>
             <p class="text-tiny uppercase tracking-widest text-ink-mute mt-4 text-center">
               {d} Sikkim — source region

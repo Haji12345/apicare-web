@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="120" height="120" role="img" aria-label="Wheat sheaf">
+  <g fill="none" stroke="#20201E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M50 62 L50 20"></path>
+    <path d="M50 24 C45 27 44 33 50 36 C56 33 55 27 50 24 Z"></path>
+    <path d="M50 30 L45 27 M50 30 L55 27 M50 38 L45 35 M50 38 L55 35 M50 46 L45 43 M50 46 L55 43"></path>
+    <path d="M50 62 C44 56 40 46 38 30"></path>
+    <path d="M38 34 C33 38 33 44 39 45 C44 41 43 35 38 34 Z"></path>
+    <path d="M40 41 L35 40 M40 41 L45 39 M42 49 L37 48 M42 49 L47 47"></path>
+    <path d="M50 62 C56 56 60 46 62 30"></path>
+    <path d="M62 34 C67 38 67 44 61 45 C56 41 57 35 62 34 Z"></path>
+    <path d="M60 41 L55 39 M60 41 L65 40 M58 49 L53 47 M58 49 L63 48"></path>
+    <path d="M40 60 Q50 57 60 60 L60 66 Q50 69 40 66 Z"></path>
+    <path d="M50 66 L44 82 M50 66 L50 84 M50 66 L56 82"></path>
+  </g>
+</svg>

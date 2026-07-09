@@ -1,0 +1,372 @@
+---
+// src/components/OriginAtlas.astro
+// Native reimplementation of the illustrator's "Origin Atlas" map.
+// - No React, no dc-runtime. ~50 lines of vanilla JS, progressive-enhancement.
+// - Content is real server-rendered DOM (SEO-visible), driven by src/data/atlas.js.
+// - Interaction: click a marker/chip -> master map zooms toward it + the region
+//   detail (plate + fact card) crossfades in. Back/Escape returns to overview.
+//
+// Props:
+//   master  – path to the master relief map        (default: /images/atlas/sikkim.svg)
+//   eager   – if true, don't lazy-load plate images (default: false)
+import { atlas, honeyTrail } from '../data/atlas.js';
+
+const { master = '/images/atlas/sikkim.svg', eager = false } = Astro.props;
+const loading = eager ? 'eager' : 'lazy';
+---
+
+<div class="atlas" data-atlas>
+  <div class="atlas__stage" data-active="">
+
+    <!-- ── OVERVIEW ───────────────────────────────────────────── -->
+    <div class="atlas__overview">
+      <img class="atlas__master" src={master} alt="Relief map of Sikkim showing Apicare's four sourcing origins" loading={loading} />
+
+      <svg class="atlas__trail" viewBox="0 0 1000 750" preserveAspectRatio="none" aria-hidden="true">
+        {honeyTrail.map((d) => (
+          <path d={d} fill="none" stroke="var(--atlas-accent)" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 9" opacity="0.75" />
+        ))}
+      </svg>
+
+      {atlas.map((r) => (
+        <button
+          class="atlas__marker"
+          type="button"
+          data-goto={r.key}
+          style={`left:${r.x}%;top:${r.y}%`}
+          aria-label={`Explore ${r.name}, ${r.district}`}
+        >
+          <span class="atlas__halo" aria-hidden="true"></span>
+          <svg class="atlas__ring" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
+            <circle cx="23" cy="23" r="17" fill="none" stroke="var(--atlas-paper)" stroke-width="4.5" opacity="0.9" />
+            <circle cx="23" cy="23" r="17" fill="none" stroke="var(--atlas-accent)" stroke-width="1.6" />
+            <circle cx="23" cy="23" r="10.5" fill="none" stroke="var(--atlas-accent)" stroke-width="1" />
+            <circle cx="23" cy="23" r="4" fill="var(--atlas-accent)" stroke="var(--atlas-paper)" stroke-width="1.6" />
+          </svg>
+          <span class="atlas__tip">{r.name} — Explore</span>
+        </button>
+      ))}
+    </div>
+
+    <!-- ── REGION DETAIL PANELS ───────────────────────────────── -->
+    {atlas.map((r) => (
+      <div class="atlas__panel" data-panel={r.key} aria-hidden="true">
+        <div class="atlas__plateWrap">
+          <img class="atlas__plate" src={r.plate} alt={`Illustrated terrain of ${r.name}`} loading="lazy" />
+        </div>
+
+        <div class="atlas__card">
+          <div class="atlas__cardTop">
+            <span class="atlas__no">Origin Nº {r.no}</span>
+            <img class="atlas__glyph" src={r.glyph} alt={r.glyphAlt} width="40" height="40" />
+          </div>
+
+          <h3 class="atlas__name">{r.name}</h3>
+          <p class="atlas__tagline">{r.tagline}</p>
+          <div class="atlas__rule"></div>
+
+          <dl class="atlas__facts">
+            <div><dt>Altitude</dt><dd>{r.altitude}</dd></div>
+            <div><dt>District</dt><dd>{r.district}</dd></div>
+            <div><dt>Dominant Flora</dt><dd>{r.flora}</dd></div>
+            <div><dt>Harvest</dt><dd>{r.harvest}</dd></div>
+          </dl>
+
+          <div class="atlas__honey">
+            <span class="atlas__honeyLabel">The Honey</span>
+            <p class="atlas__honeyNote">{r.honey}</p>
+          </div>
+
+          <a class="atlas__cta" href={r.href}>See the Honey →</a>
+        </div>
+      </div>
+    ))}
+
+    <!-- ── BACK ───────────────────────────────────────────────── -->
+    <button class="atlas__back" type="button" data-back aria-label="Back to all origins">← All Origins</button>
+  </div>
+
+  <!-- ── REGION CHIPS ─────────────────────────────────────────── -->
+  <div class="atlas__chips">
+    <span class="atlas__chipsMeta">Four terroirs · One honey ethic</span>
+    <div class="atlas__chipRow" role="tablist" aria-label="Origins">
+      {atlas.map((r) => (
+        <button class="atlas__chip" type="button" data-goto={r.key} role="tab" aria-selected="false">{r.name}</button>
+      ))}
+    </div>
+    <span class="atlas__chipsMeta">100% Organic · Sikkim</span>
+  </div>
+</div>
+
+<style>
+  /* Palette is scoped + variable-driven so you can retune without touching markup.
+     Defaults preserve the illustrator's intended contrast (warm greige stage,
+     ochre markers baked into the plates). To blend into the site's near-white
+     cream instead, set --atlas-stage-bg: #FAF7F2 (theme(colors.cream.DEFAULT)). */
+  .atlas {
+    --atlas-ink: #20201E;
+    --atlas-accent: #B9831C;
+    --atlas-paper: #FFFDF6;
+    /* Transparent: the parent <section class="atlas-section"> paints the greige
+       band full-bleed. The plates are transparent SVGs, so that colour IS their
+       background. Set to #FAF7F2 to blend into cream instead. */
+    --atlas-stage-bg: transparent;
+    --atlas-muted: #7A7361;
+    --atlas-hairline: rgba(32, 32, 30, 0.14);
+
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-label: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    width: 100%;
+    color: var(--atlas-ink);
+    font-family: var(--font-display);
+
+    /* Adapt to the COLUMN we're placed in, not the viewport. Without this the
+       atlas stays in its cramped side-by-side layout inside a md:col-span-7
+       column on a wide desktop. */
+    container-type: inline-size;
+    container-name: atlas;
+  }
+
+  /* ── STAGE ─────────────────────────────────────────────────── */
+  .atlas__stage {
+    position: relative;
+    width: 100%;
+    /* matches sikkim.svg's cropped viewBox 2877x2269 */
+    aspect-ratio: 2877 / 2269;
+    background: var(--atlas-stage-bg);
+    overflow: visible;
+  }
+
+  .atlas__overview,
+  .atlas__panel {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.55s ease, transform 1.05s cubic-bezier(0.55, 0, 0.18, 1);
+  }
+
+  /* OVERVIEW visible only when nothing is selected */
+  .atlas__overview { opacity: 1; }
+  .atlas__stage:not([data-active=""]) .atlas__overview {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.18);
+    transform-origin: var(--zoom-origin, 50% 50%);
+  }
+
+  .atlas__master { display: block; width: 100%; height: 100%; object-fit: contain; }
+  /* trail + markers are positioned against the img box; contain keeps them aligned. */
+  .atlas__trail  { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+  /* ── MARKERS ───────────────────────────────────────────────── */
+  .atlas__marker {
+    position: absolute;
+    width: 58px; height: 58px;
+    transform: translate(-50%, -50%);
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: 0; padding: 0; cursor: pointer;
+  }
+  .atlas__ring { position: relative; display: block; }
+  .atlas__halo {
+    position: absolute; inset: -16px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(185,131,28,.5), rgba(185,131,28,0) 68%);
+    animation: atlasPulse 2.8s ease-in-out infinite;
+  }
+  .atlas__tip {
+    position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%);
+    margin-bottom: 6px; white-space: nowrap;
+    background: var(--atlas-paper); border: 1px solid var(--atlas-ink);
+    padding: 5px 12px;
+    font-family: var(--font-label); font-size: 10px; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--atlas-ink);
+    opacity: 0; transition: opacity .25s; pointer-events: none;
+  }
+  .atlas__marker:hover .atlas__tip,
+  .atlas__marker:focus-visible .atlas__tip { opacity: 1; }
+  .atlas__marker:focus-visible .atlas__ring { outline: 2px solid var(--atlas-accent); outline-offset: 4px; border-radius: 50%; }
+
+  @keyframes atlasPulse {
+    0%, 100% { transform: scale(.7); opacity: .5; }
+    50%      { transform: scale(1.18); opacity: .95; }
+  }
+
+  /* ── DETAIL PANELS ─────────────────────────────────────────── */
+  .atlas__panel {
+    opacity: 0; visibility: hidden; pointer-events: none;
+    display: flex; align-items: center; gap: 32px;
+    transition: opacity .6s ease .15s, visibility 0s linear .75s;
+  }
+  .atlas__stage[data-active] .atlas__panel.is-active {
+    opacity: 1; visibility: visible; pointer-events: auto;
+    transition: opacity .7s ease .35s, visibility 0s;
+  }
+  .atlas__plateWrap { flex: 1.7; min-width: 0; }
+  .atlas__plate {
+    display: block; width: 100%; height: auto;
+    filter: drop-shadow(0 26px 34px rgba(32,32,30,.22));
+  }
+  .atlas__card {
+    flex: 1;
+    background: var(--atlas-paper); border: 1px solid var(--atlas-ink);
+    box-shadow: 0 18px 40px rgba(32,32,30,.14);
+    padding: clamp(22px, 2.4vw, 34px) clamp(22px, 2.6vw, 36px);
+  }
+  .atlas__cardTop { display: flex; justify-content: space-between; align-items: center; }
+  .atlas__no {
+    font-family: var(--font-label); font-size: 10px; letter-spacing: .24em;
+    text-transform: uppercase; color: var(--atlas-accent);
+  }
+  .atlas__glyph { width: 40px; height: 40px; opacity: .9; }
+  .atlas__name {
+    font-weight: 500; font-size: clamp(32px, 3.4vw, 44px); letter-spacing: .12em;
+    text-transform: uppercase; line-height: 1; margin: 14px 0 0;
+  }
+  .atlas__tagline { font-style: italic; font-size: clamp(16px, 1.5vw, 19px); color: var(--atlas-accent); margin: 8px 0 0; }
+  .atlas__rule { border-top: 2px solid var(--atlas-accent); margin-top: 22px; }
+
+  .atlas__facts {
+    margin: 0; display: grid; grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--atlas-ink);
+  }
+  .atlas__facts > div { padding: 16px 0 14px; }
+  .atlas__facts > div:nth-child(odd)  { padding-right: 18px; }
+  .atlas__facts > div:nth-child(even) { padding-left: 18px; border-left: 1px solid var(--atlas-hairline); }
+  .atlas__facts > div:nth-child(1),
+  .atlas__facts > div:nth-child(2) { border-bottom: 1px solid var(--atlas-hairline); }
+  .atlas__facts dt {
+    font-family: var(--font-label); font-size: 9px; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--atlas-accent); margin-bottom: 7px;
+  }
+  .atlas__facts dd { margin: 0; font-size: 18px; }
+
+  .atlas__honey { border-top: 1px solid var(--atlas-hairline); padding-top: 16px; }
+  .atlas__honeyLabel {
+    display: block; font-family: var(--font-label); font-size: 9px; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--atlas-accent); margin-bottom: 7px;
+  }
+  .atlas__honeyNote { margin: 0; font-style: italic; font-size: 18px; line-height: 1.5; }
+
+  .atlas__cta {
+    display: inline-block; margin-top: 18px;
+    font-family: var(--font-label); font-size: 10.5px; letter-spacing: .2em;
+    text-transform: uppercase; text-decoration: none;
+    color: var(--atlas-ink); border-bottom: 1px solid var(--atlas-ink);
+    padding-bottom: 3px; transition: color .3s, border-color .3s;
+  }
+  .atlas__cta:hover, .atlas__cta:focus-visible { color: var(--atlas-accent); border-color: var(--atlas-accent); }
+
+  /* ── BACK ──────────────────────────────────────────────────── */
+  .atlas__back {
+    position: absolute; left: 0; top: 0;
+    opacity: 0; visibility: hidden; pointer-events: none;
+    cursor: pointer; white-space: nowrap;
+    background: var(--atlas-paper); border: 1px solid var(--atlas-ink); padding: 9px 16px;
+    font-family: var(--font-label); font-size: 10.5px; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--atlas-ink);
+    transition: opacity .5s ease .35s, background .25s, color .25s, visibility 0s linear .85s;
+  }
+  .atlas__stage:not([data-active=""]) .atlas__back {
+    opacity: 1; visibility: visible; pointer-events: auto;
+    transition: opacity .5s ease .5s, background .25s, color .25s, visibility 0s;
+  }
+  .atlas__back:hover, .atlas__back:focus-visible { background: var(--atlas-ink); color: var(--atlas-paper); }
+
+  /* ── CHIPS ─────────────────────────────────────────────────── */
+  .atlas__chips {
+    border-top: 1px solid var(--atlas-ink); margin-top: 18px; padding-top: 18px;
+    display: flex; justify-content: space-between; align-items: center; gap: 18px;
+  }
+  .atlas__chipsMeta {
+    font-family: var(--font-label); font-size: 10px; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--atlas-muted);
+  }
+  .atlas__chipRow { display: flex; gap: 10px; flex-wrap: wrap; }
+  .atlas__chip {
+    cursor: pointer; border: 1px solid var(--atlas-ink); background: transparent; color: var(--atlas-ink);
+    padding: 8px 18px;
+    font-family: var(--font-label); font-size: 10.5px; letter-spacing: .18em;
+    text-transform: uppercase; transition: all .25s;
+  }
+  .atlas__chip:hover, .atlas__chip:focus-visible { border-color: var(--atlas-accent); color: #8F6410; }
+  .atlas__chip[aria-selected="true"] { border-color: var(--atlas-accent); background: var(--atlas-accent); color: var(--atlas-paper); }
+
+  /* ── RESPONSIVE ────────────────────────────────────────────── */
+  /* Container-query driven: stacks whenever the ATLAS ITSELF is under 760px,
+     whether that's a phone viewport or a narrow desktop column. */
+  @container atlas (max-width: 760px) {
+    /* Let an open panel dictate height; overview keeps the 4:3 frame. */
+    .atlas__stage:not([data-active=""]) { aspect-ratio: auto; }
+    .atlas__panel.is-active { position: relative; inset: auto; }
+    .atlas__panel { flex-direction: column; gap: 20px; }
+    .atlas__plateWrap, .atlas__card { flex: none; width: 100%; }
+    .atlas__back { position: sticky; }
+    .atlas__chips { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .atlas__chipsMeta:last-of-type { display: none; }
+  }
+
+  /* Fallback for browsers without container queries (pre-Chrome 105 / Safari 16). */
+  @supports not (container-type: inline-size) {
+    @media (max-width: 760px) {
+      .atlas__stage:not([data-active=""]) { aspect-ratio: auto; }
+      .atlas__panel.is-active { position: relative; inset: auto; }
+      .atlas__panel { flex-direction: column; gap: 20px; }
+      .atlas__plateWrap, .atlas__card { flex: none; width: 100%; }
+      .atlas__back { position: sticky; }
+      .atlas__chips { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .atlas__chipsMeta:last-of-type { display: none; }
+    }
+  }
+
+  /* ── REDUCED MOTION ────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .atlas__halo { animation: none; }
+    .atlas__overview, .atlas__panel, .atlas__back { transition: opacity .2s linear; }
+    .atlas__stage:not([data-active=""]) .atlas__overview { transform: none; }
+  }
+</style>
+
+<script>
+  // Progressive enhancement: markup works as a static overview even if this
+  // never runs; this layer adds select / back / keyboard behaviour.
+  function initAtlas(root: HTMLElement) {
+    const stage  = root.querySelector<HTMLElement>('.atlas__stage');
+    if (!stage) return;
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('.atlas__panel'));
+    const chips  = Array.from(root.querySelectorAll<HTMLElement>('.atlas__chip'));
+    const markers = Array.from(root.querySelectorAll<HTMLElement>('.atlas__marker'));
+
+    // Cache each region's marker coords to drive the zoom-origin on select.
+    const coords: Record<string, string> = {};
+    markers.forEach((m) => {
+      const key = m.dataset.goto!;
+      coords[key] = `${m.style.left} ${m.style.top}`;
+    });
+
+    function select(key: string | null) {
+      stage.dataset.active = key ?? '';
+      if (key) stage.style.setProperty('--zoom-origin', coords[key] ?? '50% 50%');
+
+      panels.forEach((p) => {
+        const on = p.dataset.panel === key;
+        p.classList.toggle('is-active', on);
+        p.setAttribute('aria-hidden', String(!on));
+      });
+      chips.forEach((c) => c.setAttribute('aria-selected', String(c.dataset.goto === key)));
+
+      // Move focus to the back button when a region opens (keyboard users).
+      if (key) root.querySelector<HTMLElement>('.atlas__back')?.focus({ preventScroll: true });
+    }
+
+    root.querySelectorAll<HTMLElement>('[data-goto]').forEach((el) =>
+      el.addEventListener('click', () => select(el.dataset.goto!))
+    );
+    root.querySelector<HTMLElement>('[data-back]')?.addEventListener('click', () => select(null));
+
+    // Escape returns to the overview.
+    root.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && stage.dataset.active) select(null);
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-atlas]').forEach(initAtlas);
+</script>

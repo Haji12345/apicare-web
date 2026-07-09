@@ -1,0 +1,90 @@
+---
+// src/components/RegionMap.astro
+// ─────────────────────────────────────────────────────────────────────────────
+// Drop-in replacement for <SikkimMap activeDistrict={d} /> on /honey.
+//
+// Same API: pass `activeDistrict`. Instead of highlighting a polygon on a
+// schematic, this renders that district's illustrated topographic plate.
+// Pass null (or omit) for the master relief map of all of Sikkim.
+//
+// ZERO JAVASCRIPT. /honey already renders one section per district and toggles
+// section visibility client-side, so each section just needs the right image.
+//
+// WHY NOT HIGHLIGHT A DISTRICT ON sikkim.svg?
+//   It has no district geometry. The illustrator left four EMPTY named groups
+//   (`North---Dzongu`, `Zitlang---East`, `West---Yuksom`, `South---Kewzing`) —
+//   layer names with no paths inside. The terrain is one flat unlabeled layer.
+//   There is nothing to fill. Swapping to the region plate is the equivalent
+//   gesture, and the plates already exist.
+//
+// DIMENSIONS ARE PRESERVED EXACTLY.
+//   SikkimMap rendered an <svg> at width:100%; max-width:480px; height:auto
+//   with viewBox="0 0 400 360" — a box of min(parentWidth, 480px) wide and
+//   0.9x that tall. The frame below reproduces that box precisely, and the
+//   plate is object-fit:contain inside it. The plates' aspect ratios differ
+//   (1.27-1.55 vs the frame's 1.11), so they letterbox rather than resize it.
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface Props {
+  activeDistrict?: 'North' | 'East' | 'West' | 'South' | null;
+}
+
+const { activeDistrict = null } = Astro.props;
+
+const PLATES = {
+  North: { src: '/images/atlas/dzongu.svg',  village: 'Dzongu'  },
+  East:  { src: '/images/atlas/zitlang.svg', village: 'Zitlang' },
+  West:  { src: '/images/atlas/yuksom.svg',  village: 'Yuksom'  },
+  South: { src: '/images/atlas/kewzing.svg', village: 'Kewzing' },
+} as const;
+
+const plate = activeDistrict ? PLATES[activeDistrict] : null;
+const src = plate ? plate.src : '/images/atlas/sikkim.svg';
+const alt = plate
+  ? `Illustrated topographic map of ${plate.village}, ${activeDistrict} Sikkim`
+  : `Relief map of Sikkim showing ApiCare's four source villages`;
+---
+
+<div class="region-map">
+  <div class="region-map__frame">
+    <img class="region-map__plate" src={src} alt={alt} loading="lazy" decoding="async" />
+  </div>
+</div>
+
+<style>
+  .region-map {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Reproduces SikkimMap's exact box: min(parentWidth, 480px) wide, 0.9x tall. */
+  .region-map__frame {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 400 / 360;
+  }
+
+  .region-map__plate {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    /* contain, never cover: cropping would slice terrain off the edges. */
+    object-fit: contain;
+    display: block;
+    animation: region-map-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes region-map-in {
+    from { opacity: 0; transform: scale(0.985); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .region-map__plate { animation: none; }
+  }
+</style>

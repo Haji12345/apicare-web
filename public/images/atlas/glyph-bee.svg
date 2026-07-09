@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="120" height="120" role="img" aria-label="Bee">
+  <g fill="none" stroke="#20201E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="50" cy="38" rx="13" ry="7.5" transform="rotate(-20 50 38)"></ellipse>
+    <ellipse cx="65" cy="40" rx="11" ry="6.5" transform="rotate(10 65 40)"></ellipse>
+    <ellipse cx="55" cy="62" rx="25" ry="15"></ellipse>
+    <path d="M50 49 Q47 62 51 75"></path>
+    <path d="M62 49 Q59 62 63 75"></path>
+    <path d="M73 53 Q71 62 73 71"></path>
+    <circle cx="28" cy="60" r="7"></circle>
+    <path d="M25 54 Q21 46 23 42"></path>
+    <path d="M31 54 Q30 45 33 41"></path>
+    <path d="M80 62 l7 0"></path>
+  </g>
+</svg>

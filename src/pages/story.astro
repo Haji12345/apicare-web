@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SikkimMap from '../components/SikkimMap.astro';
 ---
 
 <BaseLayout
@@ -19,15 +18,20 @@ import SikkimMap from '../components/SikkimMap.astro';
     </p>
   </section>
 
-  <!-- Wide hero band -->
+  <!-- Wide hero band — full-bleed width, height unchanged.
+       The .aspect-[21/9] frame still sets the height from the CONTAINER width;
+       only the absolutely-positioned .story-bleed child escapes to 100vw.
+       Result: identical height at every breakpoint, edge-to-edge image. -->
   <div class="container-content mb-22">
-    <div class="aspect-[21/9] w-full overflow-hidden bg-cream-deep relative">
-      <img
-        src="/images/hero.jpg"
-        alt=""
-        class="w-full h-full object-cover"
-      />
-      <div class="absolute inset-0 bg-gradient-to-t from-cream/60 via-transparent to-transparent"></div>
+    <div class="aspect-[21/9] w-full relative bg-cream-deep">
+      <div class="story-bleed">
+        <img
+          src="/images/hero.jpg"
+          alt="ApiCare beekeepers inspecting a comb frame at a hive in Sikkim"
+          class="w-full h-full object-cover"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-cream/60 via-transparent to-transparent"></div>
+      </div>
     </div>
   </div>
 
@@ -106,7 +110,13 @@ import SikkimMap from '../components/SikkimMap.astro';
       <!-- Right rail: Sikkim map + caption -->
       <div class="md:col-span-4 md:sticky md:top-24 md:self-start">
         <div class="bg-cream-paper border border-ink-fade/30 p-4 md:p-6">
-          <SikkimMap />
+          <img
+            src="/images/atlas/sikkim.svg"
+            alt="Relief map of Sikkim showing ApiCare's four source villages: Dzongu, Yuksom, Zitlang and Kewzing"
+            width="2877" height="2269"
+            loading="lazy" decoding="async"
+            class="block w-full h-auto"
+          />
         </div>
         <p class="text-tiny uppercase tracking-widest text-ink-mute mt-4 leading-relaxed">
           Four districts. <br/> Four source villages.
@@ -287,3 +297,20 @@ import SikkimMap from '../components/SikkimMap.astro';
   </section>
 
 </BaseLayout>
+
+<style>
+  /* Full-bleed child of the 21:9 frame.
+     top/bottom:0 inherits the frame's height, so the image can NEVER get
+     taller than it is today. left + width escape BaseLayout's max-width.
+     box-sizing is set explicitly: Tailwind preflight is disabled
+     (applyBaseStyles: false in astro.config.mjs). */
+  .story-bleed {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(50% - 50vw);
+    width: 100vw;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+</style>
