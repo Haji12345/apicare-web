@@ -521,6 +521,9 @@ function razorpay_(method, path, payload) {
   const text = res.getContentText();
   let body = {};
   try { body = JSON.parse(text || '{}'); } catch (_) { /* non-JSON error page */ }
+  if (code === 401) {
+    throw new Error('Razorpay rejected the API keys (401). Check RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Script Properties: same test/live mode, no extra characters.');
+  }
   if (code >= 300) {
     const reason = (body.error && body.error.description) || text.slice(0, 200);
     throw new Error(`Razorpay ${method.toUpperCase()} ${path} → ${code}: ${reason}`);
@@ -542,7 +545,7 @@ function safeEqual_(a, b) {
 }
 
 function prop_(key) {
-  const v = PropertiesService.getScriptProperties().getProperty(key);
+  const v = (PropertiesService.getScriptProperties().getProperty(key) || '').trim();
   if (!v) throw new Error(`Script Property ${key} is not set (Project Settings → Script Properties).`);
   return v;
 }

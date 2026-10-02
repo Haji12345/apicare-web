@@ -20,8 +20,8 @@ const KEY_ID = 'rzp_test_abc';
 const SECRET = 'test_secret_123';
 
 // ---------------------------------------------------------------- fakes
-function makeWorld() {
-  const props = { RAZORPAY_KEY_ID: KEY_ID, RAZORPAY_KEY_SECRET: SECRET, NOTIFY_EMAIL: 'owner@apicare.test' };
+function makeWorld(overrides = {}) {
+  const props = { RAZORPAY_KEY_ID: KEY_ID, RAZORPAY_KEY_SECRET: SECRET, NOTIFY_EMAIL: 'owner@apicare.test', ...overrides };
   const mail = [];
   const rawWrites = [];
   const rzp = { orders: {}, payments: {}, seq: 0 };
@@ -333,6 +333,14 @@ test('reconcile: catches paid orders whose browser closed, abandons stale ones',
 
   w.api.reconcilePending(); // idempotent
   assert.equal(w.mail.length, 2);
+});
+
+test('keys with stray spaces still work; wrong keys give a clear error', () => {
+  const w = makeWorld({ RAZORPAY_KEY_ID: ` ${KEY_ID} `, RAZORPAY_KEY_SECRET: `${SECRET}
+` });
+  assert.equal(w.post(validOrder()).ok, true);
+  const bad = makeWorld({ RAZORPAY_KEY_SECRET: 'wrong' });
+  assert.throws(() => bad.api.setup(), /rejected the API keys/);
 });
 
 test('setup: creates the sheet and exactly one reconcile trigger', () => {
