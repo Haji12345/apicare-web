@@ -28,9 +28,17 @@ function isActiveBranch(item: any): boolean {
       <!-- Wordmark -->
       <a
         href="/"
-        class="justify-self-start font-serif text-2xl md:text-3xl leading-none tracking-tight text-ink no-underline hover:text-honey transition-colors duration-400"
+        class="justify-self-start block no-underline opacity-100 hover:opacity-70 transition-opacity duration-400"
+        aria-label={`${site.name} — home`}
       >
-        {site.name}
+        <img
+          src="/apicare-logo.svg"
+          alt={site.name}
+          width="268"
+          height="72"
+          class="h-7 md:h-9 w-auto"
+          fetchpriority="high"
+        />
       </a>
 
       <!-- Desktop Nav -->
@@ -93,34 +101,7 @@ function isActiveBranch(item: any): boolean {
       </nav>
 
       <!-- Right utilities -->
-      <div class="flex items-center justify-self-end gap-4 md:gap-6">
-
-        <!-- Currency toggle -->
-        <div class="hidden sm:flex items-center text-tiny uppercase tracking-widest text-ink-mute">
-          <button
-            type="button"
-            data-currency="inr"
-            class="currency-btn px-1.5 py-0.5 transition-colors duration-300 text-ink"
-            aria-label="Switch to Indian Rupees"
-          >₹ INR</button>
-          <span class="text-ink-fade px-1">/</span>
-          <button
-            type="button"
-            data-currency="usd"
-            class="currency-btn px-1.5 py-0.5 transition-colors duration-300 text-ink-mute hover:text-ink"
-            aria-label="Switch to US Dollars"
-          >$ USD</button>
-        </div>
-
-        <!-- Cart -->
-        <button
-          type="button"
-          class="snipcart-checkout text-tiny uppercase tracking-widest text-ink hover:text-honey transition-colors duration-400 flex items-center gap-2"
-          aria-label="Open cart"
-        >
-          <span>Cart</span>
-          <span class="snipcart-items-count font-medium">0</span>
-        </button>
+      <div class="col-start-3 flex items-center justify-self-end gap-4 md:gap-6">
 
         <!-- Mobile menu button -->
         <button
@@ -207,36 +188,4 @@ function isActiveBranch(item: any): boolean {
   toggle?.addEventListener('click', () => {
     nav?.classList.toggle('hidden');
   });
-
-  // Currency toggle
-  const STORAGE_KEY = 'apicare-currency';
-  const buttons = document.querySelectorAll<HTMLButtonElement>('.currency-btn');
-
-  function applyCurrency(code: string) {
-    buttons.forEach((btn) => {
-      const isActive = btn.dataset.currency === code;
-      btn.classList.toggle('text-ink', isActive);
-      btn.classList.toggle('text-ink-mute', !isActive);
-    });
-    document.querySelectorAll<HTMLElement>('[data-price]').forEach((el) => {
-      const inr = el.dataset.priceInr;
-      const usd = el.dataset.priceUsd;
-      if (code === 'usd' && usd) {
-        el.textContent = `$${usd}`;
-      } else if (inr) {
-        el.textContent = `₹${inr}`;
-      }
-    });
-    localStorage.setItem(STORAGE_KEY, code);
-  }
-
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const code = btn.dataset.currency;
-      if (code) applyCurrency(code);
-    });
-  });
-
-  const saved = localStorage.getItem(STORAGE_KEY) || 'inr';
-  applyCurrency(saved);
 </script>

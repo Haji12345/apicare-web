@@ -1,0 +1,35 @@
+---
+import PolicyPage from '../components/PolicyPage.astro';
+import { site } from '../data/site.js';
+---
+
+<PolicyPage title="Cancellation & Refunds" description="ApiCare's cancellation, return and refund policy." updated="2 October 2026">
+  <h2>Cancelling an order</h2>
+  <p>
+    You can cancel any order before it is dispatched for a full refund. Email
+    <a href={`mailto:${site.email}`}>{site.email}</a> or WhatsApp {site.phone} with your order reference
+    (it starts with APC-).
+  </p>
+
+  <h2>Returns</h2>
+  <p>
+    Honey is a food product, so we cannot accept returns of opened jars or change-of-mind returns once an order has
+    been dispatched.
+  </p>
+
+  <h2>Damaged, leaking or wrong items</h2>
+  <p>
+    If your jar arrives broken, leaking, or is not what you ordered, tell us within 48 hours of delivery with a photo
+    of the jar and the packaging. We will send a replacement or give you a full refund. You do not need to send the
+    jar back.
+  </p>
+
+  <h2>How refunds are paid</h2>
+  <p>
+    Refunds go back to the original payment method (UPI, card or netbanking) through Razorpay. We start the refund
+    within 2 business days of approving it; your bank usually takes a further 5–7 business days to show it.
+  </p>
+
+  <h2>Questions</h2>
+  <p>Email <a href={`mailto:${site.email}`}>{site.email}</a> or call / WhatsApp {site.phone}.</p>
+</PolicyPage>

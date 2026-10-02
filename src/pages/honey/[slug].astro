@@ -9,7 +9,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import JarSilhouette from '../../components/JarSilhouette.astro';
 import { honey } from '../../data/honey.js';
 import { getBeekeepersForHoney } from '../../data/beekeepers.js';
-import { site, forms } from '../../data/site.js';
+import { site, forms, shop } from '../../data/site.js';
 
 export function getStaticPaths() {
   return honey.map((h) => ({
@@ -23,6 +23,11 @@ const linkedBeekeepers = getBeekeepersForHoney(h.beekeepers);
 const otherInDistrict = honey.filter(
   (other) => other.district === h.district && other.slug !== h.slug
 );
+// One swipeable gallery per size. Sizes without photos fall back to the
+// product image; products with no photos at all show the silhouette.
+const galleries = h.sizes
+  .map((size) => ({ weight: size.weight, photos: size.images ?? (h.image ? [h.image] : []) }))
+  .filter((g) => g.photos.length > 0);
 ---
 
 <BaseLayout
@@ -45,34 +50,59 @@ const otherInDistrict = honey.filter(
   <section class="container-content py-12 md:py-16">
     <div class="grid md:grid-cols-12 gap-12 lg:gap-16">
 
-      <!-- Image gallery — swaps based on selected size if size has its own image -->
+      <!-- Image gallery — swaps based on selected size -->
       <div class="md:col-span-7">
-        <div
-          class="aspect-[4/5] w-full mb-4 bg-cream-paper border border-ink-fade/30 overflow-hidden relative"
-          id="pdp-gallery"
-        >
-          <!-- Silhouette layer (visible by default for sizes without a photo) -->
-          <div
-            class="absolute inset-0 transition-opacity duration-500"
-            id="pdp-silhouette"
-          >
+        {galleries.length === 0 ? (
+          <div class="aspect-[4/5] w-full mb-4 bg-cream-paper border border-ink-fade/30 overflow-hidden">
             <JarSilhouette
               village={h.village}
               district={`${h.district} Sikkim`}
               comingSoon={!h.available}
             />
           </div>
-
-          {/* Render an <img> for each size that HAS its own image. JS toggles visibility. */}
-          {h.sizes.filter((s) => s.image).map((size) => (
-            <img
-              src={size.image}
-              alt={`${h.name} — ${size.weight}`}
-              class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500"
-              data-size-image={size.weight}
-            />
-          ))}
-        </div>
+        ) : galleries.map((g, gi) => (
+          <div class:list={['pdp-gallery', { hidden: gi !== 0 }]} data-gallery={g.weight}>
+            <div class="relative mb-4">
+              <div
+                class="gallery-track flex overflow-x-auto snap-x snap-mandatory aspect-[4/5] w-full bg-cream-paper border border-ink-fade/30"
+                aria-label={`${h.name} ${g.weight} photos`}
+                tabindex="0"
+              >
+                {g.photos.map((src, i) => (
+                  <img
+                    src={src}
+                    alt={`${h.name}, ${g.weight} jar, photo ${i + 1} of ${g.photos.length}`}
+                    loading={gi === 0 && i === 0 ? 'eager' : 'lazy'}
+                    class="w-full h-full shrink-0 snap-center object-cover"
+                  />
+                ))}
+              </div>
+              {g.photos.length > 1 && (
+                <>
+                  <button type="button" data-gallery-step="-1" aria-label="Previous photo"
+                    class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-cream/85 text-ink text-lg flex items-center justify-center shadow-sm hover:bg-cream transition-colors">‹</button>
+                  <button type="button" data-gallery-step="1" aria-label="Next photo"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-cream/85 text-ink text-lg flex items-center justify-center shadow-sm hover:bg-cream transition-colors">›</button>
+                  <div class="absolute bottom-4 inset-x-0 flex justify-center gap-2">
+                    {g.photos.map((_, i) => (
+                      <span data-gallery-dot class:list={['w-2 h-2 rounded-full transition-colors', i === 0 ? 'bg-cream' : 'bg-cream/50']}></span>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            {g.photos.length > 1 && (
+              <div class="flex gap-3">
+                {g.photos.map((src, i) => (
+                  <button type="button" data-gallery-thumb={i} aria-label={`Show photo ${i + 1}`}
+                    class:list={['w-16 h-20 overflow-hidden border transition-colors', i === 0 ? 'border-ink' : 'border-ink-fade/40 hover:border-ink']}>
+                    <img src={src} alt="" loading="lazy" class="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
 
       <!-- Product details -->
@@ -121,23 +151,17 @@ const otherInDistrict = honey.filter(
               ))}
             </div>
 
-            <button
-              type="button"
-              id="add-to-cart"
-              class="snipcart-add-item btn-primary w-full mb-4"
-              data-item-id={h.slug}
-              data-item-price={JSON.stringify({ inr: h.sizes[0].priceINR, usd: h.sizes[0].priceUSD })}
-              data-item-url={`/honey/${h.slug}`}
-              data-item-name={h.name}
-              data-base-name={h.name}
-              data-item-image={h.image}
-              data-item-description={h.oneLiner}
+            <a
+              href={`/checkout?sku=${h.slug}&size=${h.sizes[0].weight}`}
+              id="buy-now"
+              data-sku={h.slug}
+              class="btn-primary w-full mb-4"
             >
-              Add to Cart
-            </button>
+              Buy Now
+            </a>
 
             <p class="text-tiny text-ink-mute text-center">
-              Ships within 3 business days. Currently shipping to India only.
+              Delivered within {shop.deliveryDays} days{shop.shippingINR === 0 && ', shipping included'}. India only.
             </p>
           </>
         ) : (
@@ -318,30 +342,41 @@ const otherInDistrict = honey.filter(
 <script>
   // Size selector + price + image update
   const sizeButtons = document.querySelectorAll<HTMLButtonElement>('[data-size-option]');
-  const cartButton = document.getElementById('add-to-cart') as HTMLButtonElement | null;
-  const silhouette = document.getElementById('pdp-silhouette');
-  const sizeImages = document.querySelectorAll<HTMLImageElement>('[data-size-image]');
+  const buyLink = document.getElementById('buy-now') as HTMLAnchorElement | null;
+  const galleries = document.querySelectorAll<HTMLElement>('[data-gallery]');
 
-  function showImageForSize(size: string) {
-    // Find an <img> matching this size; if none, show silhouette
-    let matched = false;
-    sizeImages.forEach((img) => {
-      if (img.dataset.sizeImage === size) {
-        img.style.opacity = '1';
-        matched = true;
-      } else {
-        img.style.opacity = '0';
-      }
+  // Each gallery: native swipe/scroll with snap, plus arrows, dots, thumbs
+  galleries.forEach((gallery) => {
+    const track = gallery.querySelector<HTMLElement>('.gallery-track')!;
+    const dots = gallery.querySelectorAll<HTMLElement>('[data-gallery-dot]');
+    const thumbs = gallery.querySelectorAll<HTMLElement>('[data-gallery-thumb]');
+    const count = track.children.length;
+    const current = () => Math.round(track.scrollLeft / track.clientWidth);
+    const go = (i: number) =>
+      track.scrollTo({ left: ((i + count) % count) * track.clientWidth, behavior: 'smooth' });
+
+    gallery.querySelectorAll<HTMLButtonElement>('[data-gallery-step]').forEach((btn) =>
+      btn.addEventListener('click', () => go(current() + Number(btn.dataset.galleryStep))));
+    thumbs.forEach((t) => t.addEventListener('click', () => go(Number(t.dataset.galleryThumb))));
+    track.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') go(current() + 1);
+      if (e.key === 'ArrowLeft') go(current() - 1);
     });
-    if (silhouette) {
-      silhouette.style.opacity = matched ? '0' : '1';
-    }
-  }
+    track.addEventListener('scroll', () => {
+      const i = current();
+      dots.forEach((d, j) => {
+        d.classList.toggle('bg-cream', j === i);
+        d.classList.toggle('bg-cream/50', j !== i);
+      });
+      thumbs.forEach((t, j) => {
+        t.classList.toggle('border-ink', j === i);
+        t.classList.toggle('border-ink-fade/40', j !== i);
+      });
+    }, { passive: true });
+  });
 
-  // Initialize on load — first button is "active" (250g for Zitlang)
-  if (sizeButtons.length > 0) {
-    const initial = sizeButtons[0].dataset.size;
-    if (initial) showImageForSize(initial);
+  function showGalleryForSize(size: string) {
+    galleries.forEach((g) => g.classList.toggle('hidden', g.dataset.gallery !== size));
   }
 
   sizeButtons.forEach((btn) => {
@@ -355,22 +390,23 @@ const otherInDistrict = honey.filter(
       btn.classList.remove('border-ink-fade');
 
       const size = btn.dataset.size;
-      const inr = btn.dataset.priceInr;
-      const usd = btn.dataset.priceUsd;
 
-      // Swap product image
-      if (size) showImageForSize(size);
+      // Swap to this size's photos
+      if (size && galleries.length > 0) showGalleryForSize(size);
 
-      // Update cart button data attributes for Snipcart
-      if (cartButton) {
-        const baseName = cartButton.dataset.baseName || cartButton.dataset.itemName || '';
-        cartButton.dataset.itemName = `${baseName} - ${size}`;
-        // Multi-currency JSON. Snipcart parses this object and uses whichever
-        // currency the cart is currently set to via Snipcart.api.session.setCurrency.
-        if (inr && usd) {
-          cartButton.dataset.itemPrice = JSON.stringify({ inr: Number(inr), usd: Number(usd) });
-        }
+      // Carry the chosen size through to checkout
+      if (buyLink && size) {
+        buyLink.href = `/checkout?sku=${buyLink.dataset.sku}&size=${size}`;
       }
     });
   });
 </script>
+
+<style>
+  .gallery-track {
+    scrollbar-width: none;
+  }
+  .gallery-track::-webkit-scrollbar {
+    display: none;
+  }
+</style>

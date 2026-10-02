@@ -10,6 +10,14 @@
 //   available: false  → "Coming soon" badge, email-capture instead of buy
 // ========================================================================
 
+// Product photos by jar size. The jars and labels are the same for every
+// village, so live villages share these. Each size's PDP gallery shows its
+// photos in this order. Cards use a 250g photo (see each product's `image`).
+const jarPhotos = {
+  '250g': ['/images/honey/honey-250g-1.webp', '/images/honey/honey-250g-2.webp'],
+  '500g': ['/images/honey/honey-500g-1.jpg', '/images/honey/honey-500g-2.jpg'],
+};
+
 export const honey = [
 
   // =====================================================================
@@ -35,13 +43,12 @@ export const honey = [
     altitude: '1,200 – 2,000 m',
     harvestSeason: 'Spring & Autumn',
     sizes: [
-      { weight: '250g', priceINR: 650, priceUSD: 12 },
-      { weight: '500g', priceINR: 1200, priceUSD: 22, image: '/images/honey/zitlang.jpg' },
+      { weight: '250g', priceINR: 650, priceUSD: 12, images: jarPhotos['250g'] },
+      { weight: '500g', priceINR: 1200, priceUSD: 22, images: jarPhotos['500g'] },
     ],
-    // Default image (used in catalogue + home cards). For per-size images,
-    // see sizes[].image — currently only 500g has a real photo. 250g falls
-    // back to the JarSilhouette placeholder.
-    image: '/images/honey/zitlang.jpg',
+    // Card image (catalogue + home). sizes[].images feed the PDP gallery.
+    // Products without `image` show the JarSilhouette.
+    image: jarPhotos['250g'][0],
     available: true,
   },
 
@@ -68,10 +75,10 @@ export const honey = [
     altitude: '1,500 – 2,200 m',
     harvestSeason: 'Spring',
     sizes: [
-      { weight: '250g', priceINR: 650, priceUSD: 12 },
-      { weight: '500g', priceINR: 1200, priceUSD: 22 },
+      { weight: '250g', priceINR: 650, priceUSD: 12, images: jarPhotos['250g'] },
+      { weight: '500g', priceINR: 1200, priceUSD: 22, images: jarPhotos['500g'] },
     ],
-    image: '/images/honey/kewzing.jpg',
+    image: jarPhotos['250g'][1], // different card photo from Zitlang's, side by side in the grid
     available: true,
   },
 
@@ -101,7 +108,6 @@ export const honey = [
       { weight: '250g', priceINR: 850, priceUSD: 16 },
       { weight: '500g', priceINR: 1600, priceUSD: 30 },
     ],
-    image: '/images/honey/dzongu.jpg',
     available: false,
     comingSoonNote: 'First commercial harvest expected late 2026.',
     flagship: true, // still appears first on home — story sells the brand even before the jar ships
@@ -131,7 +137,6 @@ export const honey = [
       { weight: '250g', priceINR: 750, priceUSD: 14 },
       { weight: '500g', priceINR: 1400, priceUSD: 26 },
     ],
-    image: '/images/honey/yuksom.jpg',
     available: false,
     comingSoonNote: 'First commercial harvest expected 2027.',
   },
@@ -165,7 +170,7 @@ export function getHoneyByDistrict() {
   };
 }
 
-// New: get only purchasable honey for catalogue and Snipcart
+// Purchasable honey — catalogue buttons and the checkout product picker
 export function getAvailableHoney() {
   return honey.filter((h) => h.available);
 }

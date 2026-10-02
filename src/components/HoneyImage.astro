@@ -1,0 +1,33 @@
+---
+// ========================================================================
+// HoneyImage — product photo, or the JarSilhouette when there isn't one
+// ========================================================================
+import JarSilhouette from './JarSilhouette.astro';
+
+interface Props {
+  honey: {
+    name: string;
+    village: string;
+    district: string;
+    available: boolean;
+    image?: string;
+  };
+}
+
+const { honey: h } = Astro.props;
+---
+
+{h.image ? (
+  <img
+    src={h.image}
+    alt={`${h.name} — Himalayan forest honey`}
+    loading="lazy"
+    class="w-full h-full object-cover transition-transform duration-700 ease-editorial group-hover:scale-[1.03]"
+  />
+) : (
+  <JarSilhouette
+    village={h.village}
+    district={`${h.district} Sikkim`}
+    comingSoon={!h.available}
+  />
+)}

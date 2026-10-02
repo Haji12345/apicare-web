@@ -1,7 +1,7 @@
 # ApiCare — Website
 
 Single-village honey from Sikkim's protected forests.
-Built with Astro + Tailwind. Deployed to GitHub Pages. Snipcart for checkout.
+Built with Astro + Tailwind. Deployed to GitHub Pages. Razorpay for checkout.
 
 ---
 
@@ -12,9 +12,9 @@ Built with Astro + Tailwind. Deployed to GitHub Pages. Snipcart for checkout.
 | Framework | Astro 4 (static site generation) |
 | Styling | Tailwind CSS 3 |
 | Fonts | Cormorant Garamond + Inter (Google Fonts) |
-| Checkout | Snipcart (2% transaction fee) |
+| Checkout | Razorpay + Google Apps Script → Google Sheet ([order-pipeline/](order-pipeline/README.md)) |
 | Hosting | GitHub Pages (free) |
-| Currency | INR + USD with toggle |
+| Currency | INR |
 
 ## Quick Start
 
@@ -62,7 +62,7 @@ apicare-web/
 │   ├── data/                     # SINGLE SOURCE OF TRUTH
 │   │   ├── honey.js              # ← Add/edit honey SKUs here
 │   │   ├── beekeepers.js         # ← Add/edit beekeeper profiles here
-│   │   └── site.js               # Nav, contact info, Snipcart key
+│   │   └── site.js               # Nav, contact info, shop/checkout config
 │   └── styles/
 │       └── global.css            # Base styles + utility classes
 ├── public/                        # Static assets, served as-is
@@ -100,13 +100,15 @@ Then update the `image:` field in the relevant data file.
 
 Until photos exist, the site shows elegant placeholder blocks — looks intentional, not broken.
 
-## Snipcart Setup
+## Checkout Setup
 
-1. Sign up at https://snipcart.com (free until you sell)
-2. Get your **public test API key** from Account → API Keys
-3. Open `src/data/site.js` and replace `YOUR_SNIPCART_PUBLIC_API_KEY_HERE`
-4. Add INR and USD as accepted currencies in Snipcart dashboard
-5. When ready to take real orders, swap the test key for the live key
+Orders go through `/checkout` → Razorpay → a Google Sheet, with a confirmation
+email to the customer. Full setup steps: [order-pipeline/README.md](order-pipeline/README.md).
+
+Until `shop.checkoutEndpoint` in `src/data/site.js` is set, the checkout page
+sends orders to WhatsApp instead.
+
+Tests for the order script: `node order-pipeline/test.mjs`
 
 ## Deployment to GitHub Pages
 
@@ -133,8 +135,8 @@ When you buy `apicare.in`:
 ✅ **Done (Day 1 scaffold):**
 - All 7 pages built and routable
 - Design tokens locked (colors, fonts, spacing)
-- Header + footer with currency toggle
-- Snipcart integration wired
+- Header + footer
+- Razorpay checkout + order sheet ([order-pipeline/](order-pipeline/README.md))
 - Honey + beekeeper data models in place
 - 4 PDPs auto-generated from data
 - Sitemap + SEO meta tags
@@ -142,7 +144,7 @@ When you buy `apicare.in`:
 🔨 **TODO (your work):**
 - Write copy on Story, Traceability, Journal pages (search for `[ TODO` in code)
 - Add real photos to `public/images/`
-- Replace Snipcart API key with real one
+- Set up Razorpay + the order sheet (order-pipeline/README.md)
 - Add remaining beekeepers to `src/data/beekeepers.js`
 - Fill `placeStory` and `forestStory` in `src/data/honey.js` for each SKU
 - Replace placeholder Sikkim map with real SVG illustration (Day 6 work)

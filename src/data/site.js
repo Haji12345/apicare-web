@@ -22,18 +22,25 @@ export const site = {
   },
 };
 
-// Snipcart configuration — public API key, safe to commit
-// Get yours from https://snipcart.com → Account → API Keys
-// IMPORTANT: Replace this placeholder with your real public test key, then
-// switch to live key when ready to take real orders.
-export const snipcart = {
-  publicApiKey: 'NzBjYzFkZjQtMmZkZC00NjA2LWIyNjUtMjY1ZDY0ODkzMDE4NjM5MTM1MzI0ODg0NTAxMjg1',
-  // Snipcart supports multiple currencies natively
-  currencies: [
-    { code: 'inr', symbol: '₹', name: 'INR' },
-    { code: 'usd', symbol: '$', name: 'USD' },
-  ],
-  defaultCurrency: 'inr',
+// =====================================================================
+// SHOP — checkout + order pipeline
+// =====================================================================
+// Payments run through Razorpay; orders land in a Google Sheet and the
+// customer gets a confirmation email. The server half lives in
+// /order-pipeline (Google Apps Script) — see order-pipeline/README.md.
+//
+// checkoutEndpoint: the Apps Script Web App URL
+//   (https://script.google.com/macros/s/…/exec). Until it is set, the
+//   checkout page still collects every detail but sends the order to
+//   WhatsApp instead of opening Razorpay, so no visitor is ever stuck.
+//
+// shippingINR and deliveryDays must match CONFIG in order-pipeline/Code.gs.
+export const shop = {
+  checkoutEndpoint: '',
+  shippingINR: 0,      // 0 = shipping included in the jar price
+  deliveryDays: 14,
+  maxQuantity: 10,
+  whatsapp: '917908090298', // digits only, with country code
 };
 
 // =====================================================================
@@ -80,8 +87,8 @@ export const navigation = [
 export const footerNav = {
   Shop: [
     { label: 'All Honey', href: '/honey' },
-    { label: 'Dzongu, North Sikkim', href: '/honey/dzongu-north' },
-    { label: 'Yuksom, West Sikkim', href: '/honey/yuksom-west' },
+    { label: 'Zitlang, East Sikkim', href: '/honey/zitlang-pakyong' },
+    { label: 'Kewzing, South Sikkim', href: '/honey/kewzing-south' },
   ],
   About: [
     { label: 'Our Story', href: '/story' },
@@ -94,3 +101,11 @@ export const footerNav = {
     { label: 'Instagram', href: 'https://instagram.com/apicare' },
   ],
 };
+
+// Policy pages — required by Razorpay during merchant onboarding
+export const policies = [
+  { label: 'Shipping', href: '/shipping-policy' },
+  { label: 'Refunds', href: '/refund-policy' },
+  { label: 'Terms', href: '/terms' },
+  { label: 'Privacy', href: '/privacy-policy' },
+];

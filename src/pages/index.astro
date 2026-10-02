@@ -3,7 +3,7 @@
 // Home Page
 // ========================================================================
 import BaseLayout from '../layouts/BaseLayout.astro';
-import JarSilhouette from '../components/JarSilhouette.astro';
+import HoneyImage from '../components/HoneyImage.astro';
 import OriginAtlas from '../components/OriginAtlas.astro';
 import { getFeaturedHoney } from '../data/honey.js';
 import { getPublicBeekeepers, getTotalBeekeeperCount } from '../data/beekeepers.js';
@@ -121,11 +121,7 @@ const totalBeekeepers = getTotalBeekeeperCount();
             )}
             <a href={`/honey/${h.slug}`} class="block no-underline">
               <div class="aspect-[4/5] w-full mb-5 overflow-hidden bg-cream-paper border border-ink-fade/30">
-              <JarSilhouette
-                village={h.village}
-                district={`${h.district} Sikkim`}
-                comingSoon={!h.available}
-              />
+              <HoneyImage honey={h} />
               </div>
             </a>
             <p class="eyebrow mb-2">{h.districtFull}</p>
@@ -141,16 +137,9 @@ const totalBeekeepers = getTotalBeekeeperCount();
                 ₹{h.sizes[0].priceINR}
                 <span class="text-ink-mute font-normal text-tiny ml-1">/ {h.sizes[0].weight}</span>
               </p>
-                <button
-                  type="button"
-                  class="snipcart-add-item btn-primary mt-5"
-                  data-item-id={h.slug}
-                  data-item-name={h.name}
-                  data-item-price={h.sizes[0].priceINR}
-                  data-item-url={`/honey/${h.slug}`}
-                >
-                  Add to Cart
-                </button>
+                <a href={`/checkout?sku=${h.slug}&size=${h.sizes[0].weight}`} class="btn-primary mt-5">
+                  Buy Now
+                </a>
               </>
             ) : (
               <p class="text-tiny uppercase tracking-widest text-ink-mute">

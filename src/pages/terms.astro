@@ -1,0 +1,49 @@
+---
+import PolicyPage from '../components/PolicyPage.astro';
+import { site } from '../data/site.js';
+---
+
+<PolicyPage title="Terms & Conditions" description="Terms that apply when you use apicare.co.in or buy from ApiCare." updated="2 October 2026">
+  <p>
+    This website is run by {site.address.line1} ("ApiCare", "we"), {site.address.line2}. By using the site or placing
+    an order you agree to these terms.
+  </p>
+
+  <h2>Products</h2>
+  <p>
+    Our honey is raw and single-origin, so colour, texture and taste vary naturally from harvest to harvest. Raw honey
+    may crystallise; this is natural and does not affect quality. Honey should not be given to infants under 12 months.
+  </p>
+
+  <h2>Prices and payment</h2>
+  <ul>
+    <li>All prices are in Indian Rupees and include applicable taxes.</li>
+    <li>Payments are processed securely by Razorpay. We never see or store your card, UPI or bank credentials.</li>
+    <li>An order is confirmed once payment succeeds and you receive our confirmation email.</li>
+    <li>If we cannot fulfil an order (for example, a harvest sells out) we will refund you in full.</li>
+  </ul>
+
+  <h2>Delivery, cancellations and refunds</h2>
+  <p>
+    See our <a href="/shipping-policy">Shipping & Delivery</a> and <a href="/refund-policy">Cancellation & Refunds</a>
+    policies, which form part of these terms.
+  </p>
+
+  <h2>Website content</h2>
+  <p>
+    Text, photographs and illustrations on this site belong to ApiCare or are used with permission. Please do not
+    reuse them without asking.
+  </p>
+
+  <h2>Liability</h2>
+  <p>
+    To the extent permitted by law, our liability for any order is limited to the amount you paid for it.
+    Nothing in these terms limits your rights as a consumer under Indian law.
+  </p>
+
+  <h2>Governing law</h2>
+  <p>These terms are governed by the laws of India. Disputes are subject to the courts at Gangtok, Sikkim.</p>
+
+  <h2>Contact</h2>
+  <p>{site.address.line1}, {site.address.line2} · <a href={`mailto:${site.email}`}>{site.email}</a> · {site.phone}</p>
+</PolicyPage>

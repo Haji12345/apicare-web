@@ -1,0 +1,533 @@
+---
+// ========================================================================
+// /checkout — order details + Razorpay payment
+// ========================================================================
+// Flow (server half: order-pipeline/Code.gs, a Google Apps Script):
+//   1. Customer picks honey, size, quantity, fills contact + addresses
+//   2. POST {action:'create'} → script prices the order itself, creates a
+//      Razorpay order, logs a row in the Orders sheet ("Awaiting payment")
+//   3. Razorpay Checkout opens (UPI / cards / netbanking)
+//   4. On success, POST {action:'verify'} → script checks the signature,
+//      marks the row "Paid", emails the customer and ApiCare
+// If shop.checkoutEndpoint is empty, the same form sends the order to
+// WhatsApp instead, so the page works before Razorpay is live.
+//
+// Product and size can be preselected: /checkout?sku=kewzing-south&size=500g
+// ========================================================================
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getAvailableHoney } from '../data/honey.js';
+import { indianStates } from '../data/india.js';
+import { site, shop, policies } from '../data/site.js';
+
+const products = getAvailableHoney().map((h) => ({
+  sku: h.slug,
+  name: h.name,
+  image: h.image || '',
+  sizes: h.sizes.map((s) => ({ weight: s.weight, price: s.priceINR, image: s.images?.[0] || h.image || '' })),
+}));
+const first = products[0];
+
+const config = {
+  endpoint: shop.checkoutEndpoint,
+  shipping: shop.shippingINR,
+  deliveryDays: shop.deliveryDays,
+  whatsapp: shop.whatsapp,
+  brand: site.name,
+  products,
+};
+
+const inputClass =
+  'w-full bg-transparent border-b border-ink-fade py-3 text-base text-ink placeholder:text-ink-fade focus:outline-none focus:border-honey transition-colors duration-300';
+const labelClass = 'text-tiny uppercase tracking-widest text-ink-mute block mb-1';
+
+const termsHref = policies.find((p) => p.href === '/terms')?.href ?? '/terms';
+---
+
+<BaseLayout title="Checkout" description="Order single-village Himalayan forest honey from ApiCare.">
+  <script type="application/json" id="checkout-config" set:html={JSON.stringify(config)} />
+
+  <section class="container-content pt-12 md:pt-16 pb-10">
+    <nav class="text-tiny uppercase tracking-widest text-ink-mute mb-8">
+      <a href="/honey" class="no-underline hover:text-honey transition-colors">Honey</a>
+      <span class="mx-2">/</span>
+      <span>Checkout</span>
+    </nav>
+    <h1 class="font-serif text-4xl md:text-5xl font-light tracking-tight text-ink leading-tight">
+      Your order
+    </h1>
+  </section>
+
+  <!-- ====================================================================
+       ORDER FORM
+       ==================================================================== -->
+  <section class="container-content pb-22" id="checkout-view">
+    <form id="checkout-form" class="grid md:grid-cols-12 gap-12 lg:gap-16 items-start">
+
+      <!-- LEFT: who + where -->
+      <div class="md:col-span-7 space-y-14">
+
+        <fieldset class="space-y-6">
+          <legend class="eyebrow mb-6">1 · Contact</legend>
+          <div>
+            <label for="name" class={labelClass}>Full name</label>
+            <input id="name" name="name" required maxlength="100" autocomplete="name" class={inputClass} />
+          </div>
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <label for="email" class={labelClass}>Email</label>
+              <input id="email" name="email" type="email" required maxlength="254" autocomplete="email" class={inputClass} />
+            </div>
+            <div>
+              <label for="phone" class={labelClass}>Mobile (India)</label>
+              <input
+                id="phone" name="phone" type="tel" required autocomplete="tel" inputmode="numeric"
+                pattern="([+]?91( |-)?|0)?[6-9][0-9]{4}( |-)?[0-9]{5}"
+                title="10-digit Indian mobile number"
+                placeholder="98765 43210"
+                class={inputClass}
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="space-y-6" data-address="shipping">
+          <legend class="eyebrow mb-6">2 · Delivery address</legend>
+          <div>
+            <label for="ship-line1" class={labelClass}>House / flat, street</label>
+            <input id="ship-line1" name="shipping.line1" required maxlength="200" autocomplete="shipping address-line1" class={inputClass} />
+          </div>
+          <div>
+            <label for="ship-line2" class={labelClass}>Area, landmark <span class="normal-case tracking-normal">(optional)</span></label>
+            <input id="ship-line2" name="shipping.line2" maxlength="200" autocomplete="shipping address-line2" class={inputClass} />
+          </div>
+          <div class="grid sm:grid-cols-3 gap-6">
+            <div>
+              <label for="ship-city" class={labelClass}>City / town</label>
+              <input id="ship-city" name="shipping.city" required maxlength="100" autocomplete="shipping address-level2" class={inputClass} />
+            </div>
+            <div>
+              <label for="ship-state" class={labelClass}>State</label>
+              <select id="ship-state" name="shipping.state" required autocomplete="shipping address-level1" class={inputClass}>
+                <option value="">Choose…</option>
+                {indianStates.map((st) => <option value={st}>{st}</option>)}
+              </select>
+            </div>
+            <div>
+              <label for="ship-pin" class={labelClass}>PIN code</label>
+              <input id="ship-pin" name="shipping.pin" required inputmode="numeric" pattern="[1-9][0-9]{5}" maxlength="6" title="6-digit PIN code" autocomplete="shipping postal-code" class={inputClass} />
+            </div>
+          </div>
+        </fieldset>
+
+        <div>
+          <p class="eyebrow mb-6">3 · Mailing address</p>
+          <label class="flex items-start gap-3 text-sm text-ink-soft cursor-pointer">
+            <input type="checkbox" id="mailing-same" name="mailingSame" checked class="mt-1 accent-honey" />
+            <span>Same as delivery address</span>
+          </label>
+
+          <fieldset id="mailing-fields" class="space-y-6 mt-8 hidden" disabled data-address="mailing">
+            <legend class="sr-only">Mailing address</legend>
+            <div>
+              <label for="mail-line1" class={labelClass}>House / flat, street</label>
+              <input id="mail-line1" name="mailing.line1" required maxlength="200" autocomplete="billing address-line1" class={inputClass} />
+            </div>
+            <div>
+              <label for="mail-line2" class={labelClass}>Area, landmark <span class="normal-case tracking-normal">(optional)</span></label>
+              <input id="mail-line2" name="mailing.line2" maxlength="200" autocomplete="billing address-line2" class={inputClass} />
+            </div>
+            <div class="grid sm:grid-cols-3 gap-6">
+              <div>
+                <label for="mail-city" class={labelClass}>City / town</label>
+                <input id="mail-city" name="mailing.city" required maxlength="100" autocomplete="billing address-level2" class={inputClass} />
+              </div>
+              <div>
+                <label for="mail-state" class={labelClass}>State</label>
+                <select id="mail-state" name="mailing.state" required autocomplete="billing address-level1" class={inputClass}>
+                  <option value="">Choose…</option>
+                  {indianStates.map((st) => <option value={st}>{st}</option>)}
+                </select>
+              </div>
+              <div>
+                <label for="mail-pin" class={labelClass}>PIN code</label>
+                <input id="mail-pin" name="mailing.pin" required inputmode="numeric" pattern="[1-9][0-9]{5}" maxlength="6" title="6-digit PIN code" autocomplete="billing postal-code" class={inputClass} />
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <div>
+          <label for="notes" class="eyebrow block mb-6">4 · Note <span class="normal-case tracking-normal text-ink-mute">(optional)</span></label>
+          <textarea id="notes" name="notes" rows="3" maxlength="500" placeholder="Gift message, delivery instructions…" class={inputClass}></textarea>
+        </div>
+
+        <!-- Honeypot — humans never see or fill this -->
+        <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+      </div>
+
+      <!-- RIGHT: what + pay -->
+      <aside class="md:col-span-5 md:sticky md:top-28 bg-cream-paper border border-ink-fade/30 p-6 md:p-8">
+        <p class="eyebrow mb-6">Your honey</p>
+
+        <div class="flex gap-5 mb-6">
+          <div class="w-20 h-24 shrink-0 bg-cream-deep border border-ink-fade/30 overflow-hidden">
+            <img id="summary-image" src={first.image} alt="" class="w-full h-full object-cover" />
+          </div>
+          <div class="flex-1">
+            <label for="sku" class="sr-only">Honey</label>
+            <select id="sku" name="sku" class="w-full bg-transparent font-serif text-xl text-ink border-b border-ink-fade pb-1 focus:outline-none focus:border-honey">
+              {products.map((p) => <option value={p.sku}>{p.name}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <p class={labelClass}>Jar size</p>
+        <div class="grid grid-cols-2 gap-3 mb-6" id="size-options" role="radiogroup">
+          {first.sizes.map((s, i) => (
+            <label class="size-option border border-ink-fade py-3 px-4 cursor-pointer transition-colors duration-300 has-[:checked]:border-ink has-[:checked]:bg-ink/5">
+              <input type="radio" name="size" value={s.weight} checked={i === 0} class="sr-only" />
+              <span class="block text-sm font-medium text-ink">{s.weight}</span>
+              <span class="block text-tiny text-ink-mute" data-size-price>₹{s.price}</span>
+            </label>
+          ))}
+        </div>
+
+        <p class={labelClass}>Quantity</p>
+        <div class="flex items-center border border-ink-fade w-fit mb-8">
+          <button type="button" data-qty="-1" class="w-11 h-11 text-lg text-ink hover:text-honey" aria-label="One fewer jar">−</button>
+          <input
+            id="quantity" name="quantity" type="number" min="1" max={shop.maxQuantity} value="1" required
+            class="w-14 h-11 text-center bg-transparent text-base text-ink focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+            aria-label="Quantity"
+          />
+          <button type="button" data-qty="1" class="w-11 h-11 text-lg text-ink hover:text-honey" aria-label="One more jar">+</button>
+        </div>
+
+        <dl class="space-y-3 text-sm border-t border-ink-fade/40 pt-6 mb-6">
+          <div class="flex justify-between">
+            <dt class="text-ink-mute" id="line-label">250g × 1</dt>
+            <dd class="text-ink" id="line-subtotal">₹0</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-ink-mute">Shipping</dt>
+            <dd class="text-ink">{shop.shippingINR === 0 ? 'Included' : `₹${shop.shippingINR}`}</dd>
+          </div>
+          <div class="flex justify-between border-t border-ink-fade/40 pt-3 text-base">
+            <dt class="text-ink font-medium">Total</dt>
+            <dd class="text-ink font-medium" id="total">₹0</dd>
+          </div>
+        </dl>
+
+        <label class="flex items-start gap-3 text-tiny text-ink-soft mb-6 cursor-pointer">
+          <input type="checkbox" required name="agree" class="mt-0.5 accent-honey" />
+          <span>
+            I agree to the <a href={termsHref} target="_blank">terms</a>,
+            <a href="/shipping-policy" target="_blank">shipping</a> and
+            <a href="/refund-policy" target="_blank">refund</a> policies.
+          </span>
+        </label>
+
+        <button type="submit" id="pay-button" class="btn-primary w-full disabled:opacity-60 disabled:cursor-wait">
+          Pay
+        </button>
+        <p id="checkout-status" class="text-tiny text-ink-mute text-center mt-4 min-h-[1rem]" role="status" aria-live="polite"></p>
+
+        <p class="text-tiny text-ink-mute text-center mt-4 leading-relaxed" id="pay-note">
+          Secure payment by Razorpay: UPI, cards, netbanking.<br />
+          Delivered within {shop.deliveryDays} days, anywhere in India.
+        </p>
+      </aside>
+    </form>
+  </section>
+
+  <!-- ====================================================================
+       CONFIRMATION — shown after a successful payment
+       ==================================================================== -->
+  <section class="container-content pb-22 hidden" id="done-view">
+    <div class="border border-ink p-10 md:p-16 max-w-2xl">
+      <p class="eyebrow mb-6">Order placed</p>
+      <h2 class="font-serif text-3xl md:text-4xl font-light text-ink tracking-tight text-balance mb-6">
+        Thank you. Your honey is on its way.
+      </h2>
+      <p class="text-base text-ink-soft leading-relaxed mb-4">
+        Order reference <strong class="text-ink font-medium" id="done-ref"></strong>.
+        It will be delivered within {shop.deliveryDays} days<span id="done-by"></span>.
+      </p>
+      <p class="text-base text-ink-soft leading-relaxed mb-10" id="done-email-note">
+        A confirmation is on its way to <span id="done-email" class="text-ink"></span>.
+      </p>
+      <a href="/honey" class="btn-ghost">Back to the honey</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  type Size = { weight: string; price: number; image: string };
+  type Product = { sku: string; name: string; image: string; sizes: Size[] };
+  type Config = {
+    endpoint: string;
+    shipping: number;
+    deliveryDays: number;
+    whatsapp: string;
+    brand: string;
+    products: Product[];
+  };
+  type Created = {
+    ref: string;
+    orderId: string;
+    amount: number;
+    currency: string;
+    keyId: string;
+    description: string;
+    prefill: { name: string; email: string; contact: string };
+  };
+
+  const config: Config = JSON.parse(document.getElementById('checkout-config')!.textContent || '{}');
+  const form = document.getElementById('checkout-form') as HTMLFormElement;
+  const skuSelect = document.getElementById('sku') as HTMLSelectElement;
+  const sizeBox = document.getElementById('size-options')!;
+  const qtyInput = document.getElementById('quantity') as HTMLInputElement;
+  const payButton = document.getElementById('pay-button') as HTMLButtonElement;
+  const statusEl = document.getElementById('checkout-status')!;
+  const mailingSame = document.getElementById('mailing-same') as HTMLInputElement;
+  const mailingFields = document.getElementById('mailing-fields') as HTMLFieldSetElement;
+  const maxQty = Number(qtyInput.max) || 10;
+
+  const rupees = (n: number) => '₹' + n.toLocaleString('en-IN');
+  const product = () => config.products.find((p) => p.sku === skuSelect.value) || config.products[0];
+  const selectedSize = () => {
+    const checked = form.querySelector<HTMLInputElement>('input[name="size"]:checked');
+    return product().sizes.find((s) => s.weight === checked?.value) || product().sizes[0];
+  };
+  const quantity = () => Math.min(maxQty, Math.max(1, Math.floor(Number(qtyInput.value)) || 1));
+
+  function setStatus(text: string, tone: 'neutral' | 'error' = 'neutral') {
+    statusEl.textContent = text;
+    statusEl.classList.toggle('text-honey', tone === 'error');
+    statusEl.classList.toggle('text-ink-mute', tone !== 'error');
+  }
+
+  function setBusy(busy: boolean) {
+    payButton.disabled = busy;
+  }
+
+  // ---- Summary -----------------------------------------------------------
+  // Rebuild the size options for the chosen honey, reusing the server-
+  // rendered option as the template so styling stays in the markup.
+  const sizeTemplate = sizeBox.querySelector('label')!.cloneNode(true) as HTMLLabelElement;
+  function renderSizes(preferred?: string) {
+    const p = product();
+    const keep = preferred && p.sizes.some((s) => s.weight === preferred) ? preferred : p.sizes[0].weight;
+    sizeBox.replaceChildren(
+      ...p.sizes.map((s) => {
+        const label = sizeTemplate.cloneNode(true) as HTMLLabelElement;
+        const input = label.querySelector('input')!;
+        input.value = s.weight;
+        input.checked = s.weight === keep;
+        label.querySelector('.text-sm')!.textContent = s.weight;
+        label.querySelector('[data-size-price]')!.textContent = rupees(s.price);
+        return label;
+      }),
+    );
+  }
+
+  function renderTotals() {
+    const p = product();
+    const s = selectedSize();
+    const q = quantity();
+    const subtotal = s.price * q;
+    const total = subtotal + config.shipping;
+    (document.getElementById('summary-image') as HTMLImageElement).src = s.image || p.image;
+    document.getElementById('line-label')!.textContent = `${s.weight} × ${q}`;
+    document.getElementById('line-subtotal')!.textContent = rupees(subtotal);
+    document.getElementById('total')!.textContent = rupees(total);
+    payButton.textContent = config.endpoint ? `Pay ${rupees(total)}` : 'Place order on WhatsApp';
+  }
+
+  skuSelect.addEventListener('change', () => {
+    renderSizes(selectedSize().weight);
+    renderTotals();
+  });
+  sizeBox.addEventListener('change', renderTotals);
+  qtyInput.addEventListener('input', renderTotals);
+  qtyInput.addEventListener('change', () => {
+    qtyInput.value = String(quantity());
+    renderTotals();
+  });
+  document.querySelectorAll<HTMLButtonElement>('[data-qty]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      qtyInput.value = String(Math.min(maxQty, Math.max(1, quantity() + Number(btn.dataset.qty))));
+      renderTotals();
+    });
+  });
+
+  mailingSame.addEventListener('change', () => {
+    mailingFields.disabled = mailingSame.checked;
+    mailingFields.classList.toggle('hidden', mailingSame.checked);
+  });
+
+  // Preselect from ?sku=…&size=…
+  const params = new URLSearchParams(location.search);
+  if (config.products.some((p) => p.sku === params.get('sku'))) skuSelect.value = params.get('sku')!;
+  renderSizes(params.get('size') || undefined);
+  renderTotals();
+
+  if (!config.endpoint) {
+    document.getElementById('pay-note')!.innerHTML =
+      'Online payment is being set up. Your order goes to us on WhatsApp and we reply with a UPI payment link.';
+  }
+
+  // ---- Collect -----------------------------------------------------------
+  function collect() {
+    const data = new FormData(form);
+    const get = (k: string) => String(data.get(k) ?? '').trim();
+    const address = (prefix: string) => ({
+      line1: get(`${prefix}.line1`),
+      line2: get(`${prefix}.line2`),
+      city: get(`${prefix}.city`),
+      state: get(`${prefix}.state`),
+      pin: get(`${prefix}.pin`),
+    });
+    return {
+      sku: product().sku,
+      size: selectedSize().weight,
+      quantity: quantity(),
+      name: get('name'),
+      email: get('email'),
+      phone: get('phone'),
+      shipping: address('shipping'),
+      mailingSame: mailingSame.checked,
+      mailing: mailingSame.checked ? null : address('mailing'),
+      notes: get('notes'),
+      website: get('website'),
+    };
+  }
+  type Order = ReturnType<typeof collect>;
+
+  // ---- Server calls ------------------------------------------------------
+  // No custom headers → a "simple" CORS request, which Apps Script accepts.
+  async function post(payload: object) {
+    const res = await fetch(config.endpoint, { method: 'POST', body: JSON.stringify(payload) });
+    const json = await res.json().catch(() => ({ ok: false, error: 'Unexpected response from the server.' }));
+    if (!json.ok) throw new Error(json.error || 'Something went wrong. Please try again.');
+    return json;
+  }
+
+  let razorpayLoading: Promise<void> | null = null;
+  function loadRazorpay() {
+    if ((window as any).Razorpay) return Promise.resolve();
+    razorpayLoading ??= new Promise<void>((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      s.onload = () => resolve();
+      s.onerror = () => {
+        razorpayLoading = null;
+        reject(new Error('Could not load the payment window. Check your connection and try again.'));
+      };
+      document.head.appendChild(s);
+    });
+    return razorpayLoading;
+  }
+
+  function showDone(ref: string, deliverBy: string | null, email: string, emailNote?: string) {
+    document.getElementById('checkout-view')!.classList.add('hidden');
+    document.getElementById('done-view')!.classList.remove('hidden');
+    document.getElementById('done-ref')!.textContent = ref;
+    document.getElementById('done-by')!.textContent = deliverBy ? `, by ${deliverBy}` : '';
+    document.getElementById('done-email')!.textContent = email;
+    if (emailNote) document.getElementById('done-email-note')!.textContent = emailNote;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Re-use the Razorpay order if the customer closes the window and retries
+  // without changing anything — avoids duplicate rows in the sheet.
+  let lastCreated: { key: string; data: Created } | null = null;
+
+  async function payWithRazorpay(order: Order) {
+    const key = JSON.stringify(order);
+    let created = lastCreated?.key === key ? lastCreated.data : null;
+    if (!created) {
+      setStatus('Saving your order…');
+      created = (await post({ action: 'create', ...order })) as Created;
+      lastCreated = { key, data: created };
+    }
+    await loadRazorpay();
+    setStatus('Opening secure payment…');
+
+    const rzp = new (window as any).Razorpay({
+      key: created.keyId,
+      amount: created.amount,
+      currency: created.currency,
+      order_id: created.orderId,
+      name: config.brand,
+      description: created.description,
+      image: `${location.origin}/apple-touch-icon.png`,
+      prefill: created.prefill,
+      notes: { ref: created.ref },
+      theme: { color: '#B8541A' },
+      handler: async (resp: Record<string, string>) => {
+        setStatus('Payment received. Confirming…');
+        lastCreated = null;
+        try {
+          const v = await post({ action: 'verify', ...resp });
+          showDone(v.ref, v.deliverBy, created!.prefill.email);
+        } catch {
+          // Money has moved; the sheet's 10-minute reconcile will confirm it
+          // and send the email even though this call failed.
+          showDone(
+            created!.ref,
+            null,
+            created!.prefill.email,
+            `Your payment went through. The confirmation email to ${created!.prefill.email} may take up to 15 minutes.`,
+          );
+        }
+      },
+      modal: {
+        ondismiss: () => {
+          setBusy(false);
+          setStatus('Payment window closed. Your details are saved here. Press Pay to try again.');
+        },
+      },
+    });
+    rzp.open();
+  }
+
+  function sendToWhatsApp(order: Order) {
+    const s = selectedSize();
+    const a = order.shipping;
+    const m = order.mailing;
+    const lines = [
+      `New order (${config.brand} website)`,
+      `${product().name}: ${s.weight} × ${order.quantity} = ${rupees(s.price * order.quantity + config.shipping)}`,
+      '',
+      `Name: ${order.name}`,
+      `Email: ${order.email}`,
+      `Phone: ${order.phone}`,
+      `Deliver to: ${[a.line1, a.line2, a.city, a.state, a.pin].filter(Boolean).join(', ')}`,
+      `Mailing address: ${m ? [m.line1, m.line2, m.city, m.state, m.pin].filter(Boolean).join(', ') : 'same as delivery'}`,
+    ];
+    if (order.notes) lines.push(`Note: ${order.notes}`);
+    window.open(`https://wa.me/${config.whatsapp}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
+    setStatus('WhatsApp opened. Press send there and we will reply with a payment link.');
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    const order = collect();
+
+    if (!config.endpoint) {
+      sendToWhatsApp(order);
+      return;
+    }
+
+    setBusy(true);
+    try {
+      await payWithRazorpay(order);
+    } catch (err) {
+      setBusy(false);
+      setStatus(err instanceof Error ? err.message : 'Something went wrong. Please try again.', 'error');
+    }
+  });
+</script>

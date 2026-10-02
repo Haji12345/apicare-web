@@ -1,0 +1,35 @@
+---
+import PolicyPage from '../components/PolicyPage.astro';
+import { site, shop } from '../data/site.js';
+---
+
+<PolicyPage title="Shipping & Delivery" description="How and when ApiCare honey is shipped and delivered." updated="2 October 2026">
+  <h2>Where we ship</h2>
+  <p>We currently ship to addresses within India only.</p>
+
+  <h2>Delivery time</h2>
+  <p>
+    Every order is packed by hand in Sikkim and delivered within {shop.deliveryDays} days of payment.
+    Your order confirmation email gives the exact date. Remote PIN codes, the monsoon and
+    Himalayan road closures can occasionally add a few days; if that happens we will tell you.
+  </p>
+
+  <h2>Shipping charges</h2>
+  {shop.shippingINR === 0 ? (
+    <p>Shipping is included in the price of every jar. There are no extra charges at checkout.</p>
+  ) : (
+    <p>A flat shipping charge of ₹{shop.shippingINR} per order is shown at checkout before you pay.</p>
+  )}
+
+  <h2>Tracking</h2>
+  <p>Once your order is dispatched we send the courier name and tracking number to the email or phone number you gave us.</p>
+
+  <h2>Address details</h2>
+  <p>
+    Please check your delivery address and PIN code carefully. If an order is returned to us because of an incorrect
+    or incomplete address, we will contact you to arrange re-delivery.
+  </p>
+
+  <h2>Questions</h2>
+  <p>Email <a href={`mailto:${site.email}`}>{site.email}</a> or call / WhatsApp {site.phone}.</p>
+</PolicyPage>

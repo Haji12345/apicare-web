@@ -3,12 +3,12 @@
 // BaseLayout — wraps every page
 // ========================================================================
 // Handles HTML structure, head meta, font loading, header, footer,
-// and Snipcart initialization.
+// and the site-wide form handler. Checkout lives on /checkout.
 // ========================================================================
 
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { site, snipcart } from '../data/site.js';
+import { site } from '../data/site.js';
 import '../styles/global.css';
 
 interface Props {
@@ -53,12 +53,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
 
-    <!-- Favicon — TODO: replace with real ApiCare favicon -->
+    <!-- Favicon — bee monogram from the ApiCare lockup -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    <!-- Snipcart preconnect -->
-    <link rel="preconnect" href="https://app.snipcart.com" />
-    <link rel="preconnect" href="https://cdn.snipcart.com" />
   </head>
 
   <body class={bodyClass}>
@@ -70,42 +68,6 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 
     <Footer />
 
-    <!-- ====================================================================
-         SNIPCART
-         Cart and checkout overlay. Free until you sell — then 2% transaction fee.
-         Get your public API key at https://snipcart.com → Account → API Keys
-         Replace the publicApiKey in src/data/site.js with your real key.
-         ==================================================================== -->
-    <link rel="stylesheet" href="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.css" />
-    <div
-      hidden
-      id="snipcart"
-      data-api-key={snipcart.publicApiKey}
-      data-config-modal-style="side"
-      data-currency={snipcart.defaultCurrency}
-    ></div>
-    <script async src="https://cdn.snipcart.com/themes/v3.7.1/default/snipcart.js"></script>
-
-    <!-- Bridge: when the currency-btn in Header is clicked, also tell Snipcart to switch.
-         This keeps the cart, checkout, and on-page prices in sync. -->
-    <script>
-      document.addEventListener('snipcart.ready', () => {
-        // 1. On load, make Snipcart agree with whatever the toggle remembered.
-        const saved = localStorage.getItem('apicare-currency') || 'inr';
-        if (window.Snipcart?.api?.session?.setCurrency) {
-          window.Snipcart.api.session.setCurrency(saved);
-        }
-        // 2. When the toggle is clicked, push the change to Snipcart.
-        document.querySelectorAll('.currency-btn').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            const code = btn.dataset.currency;
-            if (code && window.Snipcart?.api?.session?.setCurrency) {
-              window.Snipcart.api.session.setCurrency(code);
-            }
-          });
-        });
-      });
-    </script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const bee = document.createElement("div");
