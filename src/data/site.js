@@ -36,7 +36,7 @@ export const site = {
 //
 // shippingINR and deliveryDays must match CONFIG in order-pipeline/Code.gs.
 export const shop = {
-  checkoutEndpoint: 'https://script.google.com/macros/s/AKfycbw1eUvr1V3uzh7bfMtWMRV8AN5BwrpZzPvMGxhSeN7yYkYWClPizsgyrsfvYVoL4Eh4cQ/exec',
+  checkoutEndpoint: 'https://script.google.com/macros/s/AKfycbw19J0Auu-lIfW_vvfSK61_YzUJwCZEVMBckw2ReyN3HCjXhULjav5kKR_dY_WRyZQ3/exec',
   shippingINR: 0,      // 0 = shipping included in the jar price
   deliveryDays: 14,
   maxQuantity: 10,
