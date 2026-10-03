@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
@@ -12,6 +13,10 @@ export default defineConfig({
   base: '/',
   trailingSlash: 'ignore',
   integrations: [
+    // sitemap-index.xml for Google / Bing. Checkout is a form, not content.
+    sitemap({
+      filter: (page) => !page.includes('/checkout'),
+    }),
     tailwind({
       applyBaseStyles: false, // we use our own base styles in src/styles/global.css
     }),

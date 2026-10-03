@@ -44,7 +44,7 @@ const labelClass = 'text-tiny uppercase tracking-widest text-ink-mute block mb-1
 const termsHref = policies.find((p) => p.href === '/terms')?.href ?? '/terms';
 ---
 
-<BaseLayout title="Checkout" description="Order single-village Himalayan forest honey from ApiCare.">
+<BaseLayout title="Checkout" description="Order single-village Himalayan forest honey from ApiCare." noindex>
   <script type="application/json" id="checkout-config" set:html={JSON.stringify(config)} />
 
   <section class="container-content pt-12 md:pt-16 pb-10">
@@ -480,6 +480,13 @@ const termsHref = policies.find((p) => p.href === '/terms')?.href ?? '/terms';
       handler: async (resp: Record<string, string>) => {
         setStatus('Payment received. Confirming…');
         lastCreated = null;
+        // Google Analytics purchase event (no-op when GA4 is not configured)
+        (window as any).gtag?.('event', 'purchase', {
+          transaction_id: created!.ref,
+          value: created!.amount / 100,
+          currency: created!.currency,
+          items: [{ item_id: order.sku, item_name: product().name, item_variant: order.size, quantity: order.quantity }],
+        });
         try {
           const v = await post({ action: 'verify', ...resp });
           showDone(v.ref, v.deliverBy, created!.prefill.email);

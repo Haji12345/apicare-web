@@ -8,7 +8,7 @@
 
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { site } from '../data/site.js';
+import { site, analytics } from '../data/site.js';
 import '../styles/global.css';
 
 interface Props {
@@ -16,17 +16,50 @@ interface Props {
   description?: string;
   ogImage?: string;
   bodyClass?: string;
+  /** Extra schema.org objects for this page (Product, FAQPage, …) */
+  jsonLd?: object | object[];
+  noindex?: boolean;
 }
 
 const {
   title = site.name,
   description = site.description,
-  ogImage = '/og-default.jpg',
+  ogImage = '/images/hero.jpg',
   bodyClass = '',
+  jsonLd = [],
+  noindex = false,
 } = Astro.props;
 
-const fullTitle = title === site.name ? `${site.name} — ${site.tagline}` : `${title} — ${site.name}`;
+const fullTitle = title === site.name ? site.homeTitle : `${title} — ${site.name}`;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const ogImageUrl = new URL(ogImage, Astro.site).toString();
+
+// Site-wide structured data: tells Google and AI assistants who ApiCare is.
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${site.url}/#organization`,
+  name: site.name,
+  legalName: site.address.line1,
+  url: site.url,
+  logo: `${site.url}/apple-touch-icon.png`,
+  description: site.description,
+  email: site.email,
+  telephone: site.phone,
+  address: { '@type': 'PostalAddress', addressRegion: 'Sikkim', addressCountry: 'IN' },
+  areaServed: 'IN',
+  sameAs: Object.values(site.social),
+  knowsAbout: ['Himalayan honey', 'Sikkim honey', 'Organic honey', 'Single-origin honey', 'Beekeeping', 'Honey traceability'],
+};
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${site.url}/#website`,
+  name: site.name,
+  url: site.url,
+  publisher: { '@id': `${site.url}/#organization` },
+};
+const schemas = [organization, website, ...(Array.isArray(jsonLd) ? jsonLd : [jsonLd])];
 ---
 
 <!doctype html>
@@ -39,23 +72,57 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    {analytics.googleSiteVerification && <meta name="google-site-verification" content={analytics.googleSiteVerification} />}
+    {analytics.bingSiteVerification && <meta name="msvalidate.01" content={analytics.bingSiteVerification} />}
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={new URL(ogImage, Astro.site).toString()} />
+    <meta property="og:image" content={ogImageUrl} />
     <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="en_IN" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
 
     <!-- Favicon — bee monogram from the ApiCare lockup -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {schemas.map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
+
+    <!-- Google Analytics 4 — loads only once analytics.ga4Id is set in src/data/site.js -->
+    {analytics.ga4Id && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${analytics.ga4Id}`}></script>
+        <script is:inline define:vars={{ id: analytics.ga4Id }}>
+          window.dataLayer = window.dataLayer || [];
+          window.gtag = function () { dataLayer.push(arguments); };
+          gtag('js', new Date());
+          gtag('config', id);
+        </script>
+      </>
+    )}
+
+    <!-- Microsoft Clarity — heatmaps + session recordings, loads only once analytics.clarityId is set -->
+    {analytics.clarityId && (
+      <script is:inline define:vars={{ id: analytics.clarityId }}>
+        (function (c, l, a, r, i, t, y) {
+          c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+          t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i;
+          y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, 'clarity', 'script', id);
+      </script>
+    )}
 
   </head>
 

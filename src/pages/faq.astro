@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { faq } from '../data/faq.js';
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+---
+
+<BaseLayout
+  title="Questions about Himalayan honey"
+  description="Answers about ApiCare's raw Himalayan forest honey from Sikkim: what it is, whether it is organic, how it is tested, certifications, prices and delivery."
+  jsonLd={faqSchema}
+>
+  <section class="container-content max-w-reading pt-16 md:pt-22 pb-16">
+    <p class="eyebrow mb-6">FAQ</p>
+    <h1 class="font-serif text-4xl md:text-5xl font-light tracking-tight text-ink leading-tight mb-12">
+      Questions about our honey.
+    </h1>
+
+    <div class="border-t border-ink-fade/40">
+      {faq.map(({ q, a }) => (
+        <details class="group border-b border-ink-fade/40 py-6">
+          <summary class="flex justify-between items-baseline gap-6 cursor-pointer list-none">
+            <h2 class="font-serif text-xl md:text-2xl text-ink font-normal">{q}</h2>
+            <span class="text-honey text-2xl leading-none transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+          </summary>
+          <p class="text-base text-ink-soft leading-relaxed mt-4">{a}</p>
+        </details>
+      ))}
+    </div>
+
+    <p class="text-sm text-ink-mute mt-12">
+      Something else? <a href="/contact" class="text-honey">Write to us</a>.
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  summary::-webkit-details-marker { display: none; }
+</style>

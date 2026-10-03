@@ -67,11 +67,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </div>
 
       <div class="md:col-span-4">
-        <div class="aspect-[4/5] bg-cream-paper border border-ink-fade/30 flex items-center justify-center mb-4">
-          <p class="text-tiny text-ink-mute uppercase tracking-widest">[ Photo: RAMP review meeting ]</p>
+        <div class="aspect-[4/5] bg-cream-paper border border-ink-fade/30 flex items-center justify-center p-10 mb-4">
+          <img
+            src="/images/logos/sikkim-emblem.png"
+            alt="Emblem of the Government of Sikkim"
+            class="w-full h-auto object-contain"
+            loading="lazy"
+          />
         </div>
         <p class="text-tiny uppercase tracking-widest text-ink-mute">
-          Annual RAMP review at the Department of Commerce &amp; Industries, Gangtok.
+          Government of Sikkim · Department of Commerce &amp; Industries, Gangtok. RAMP partner since 2022.
         </p>
       </div>
     </div>
@@ -177,18 +182,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </h2>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
         {[
-          { name: 'GI Certified', detail: 'Geographical indication for origin-linked Sikkim honey' },
-          { name: 'FSSAI Approved', detail: 'Food safety approval for Indian distribution' },
-          { name: 'ZED Certified', detail: 'MSME quality and sustainability recognition' },
-          { name: 'EU Organic (In Progress)', detail: 'Certification pathway currently underway' },
+          { name: 'FSSAI Registered', status: 'Done', logo: '/images/logos/fssai.png', alt: 'FSSAI logo', detail: 'Registered with the Food Safety and Standards Authority of India for food sale and distribution' },
+          { name: 'Eurofins Lab Tested', status: 'Done', logo: '/images/logos/eurofins.jpg', alt: 'Eurofins logo', detail: 'Our honey is tested by Eurofins, an independent international food-testing laboratory' },
+          { name: 'GI Tag', status: 'In progress', logo: null, alt: '', detail: 'Geographical Indication application for origin-linked Sikkim honey underway' },
         ].map((cert) => (
           <div class="bg-cream border border-ink-fade/30 p-8 text-center">
-            <div class="aspect-square mb-4 flex items-center justify-center bg-cream-paper">
-              <p class="text-tiny uppercase tracking-widest text-ink-mute">{cert.name}</p>
+            <div class="aspect-square mb-4 flex items-center justify-center bg-white p-8">
+              {cert.logo ? (
+                <img src={cert.logo} alt={cert.alt} class="max-w-full max-h-full object-contain" loading="lazy" />
+              ) : (
+                <div>
+                  <p class="font-serif text-6xl text-honey font-light leading-none mb-3">GI</p>
+                  <p class="text-tiny uppercase tracking-widest text-ink-mute">Geographical Indication</p>
+                </div>
+              )}
             </div>
-            <p class="font-serif text-lg text-ink mb-2">{cert.name}</p>
+            <p class="font-serif text-lg text-ink mb-1">{cert.name}</p>
+            <p class={`text-tiny uppercase tracking-widest mb-3 ${cert.status === 'Done' ? 'text-honey' : 'text-ink-mute'}`}>{cert.status}</p>
             <p class="text-tiny text-ink-mute leading-relaxed">{cert.detail}</p>
           </div>
         ))}

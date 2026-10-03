@@ -28,11 +28,55 @@ const otherInDistrict = honey.filter(
 const galleries = h.sizes
   .map((size) => ({ weight: size.weight, photos: size.images ?? (h.image ? [h.image] : []) }))
   .filter((g) => g.photos.length > 0);
+
+// Product structured data — price, stock and origin for Google Shopping
+// and AI assistants. One Offer per jar size.
+const pageUrl = new URL(`/honey/${h.slug}/`, site.url).toString();
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: `${h.village} ${h.subtitle}`,
+  description: `Raw single-village Himalayan forest honey from ${h.village}, ${h.districtFull}, India. ${h.oneLiner}`,
+  url: pageUrl,
+  image: [...new Set(galleries.flatMap((g) => g.photos))].map((p) => new URL(p, site.url).toString()),
+  brand: { '@type': 'Brand', name: site.name },
+  category: 'Food, Beverages & Tobacco > Food Items > Condiments & Sauces > Honey',
+  countryOfOrigin: 'IN',
+  additionalProperty: [
+    { '@type': 'PropertyValue', name: 'Origin', value: `${h.village}, ${h.districtFull}, India` },
+    { '@type': 'PropertyValue', name: 'Altitude', value: h.altitude },
+    { '@type': 'PropertyValue', name: 'Harvest season', value: h.harvestSeason },
+  ],
+  offers: h.sizes.map((size) => ({
+    '@type': 'Offer',
+    name: size.weight,
+    price: size.priceINR,
+    priceCurrency: 'INR',
+    availability: h.available ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
+    url: pageUrl,
+    seller: { '@id': `${site.url}/#organization` },
+    shippingDetails: {
+      '@type': 'OfferShippingDetails',
+      shippingRate: { '@type': 'MonetaryAmount', value: shop.shippingINR, currency: 'INR' },
+      shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'IN' },
+    },
+  })),
+};
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Honey', item: new URL('/honey/', site.url).toString() },
+    { '@type': 'ListItem', position: 2, name: h.name, item: pageUrl },
+  ],
+};
 ---
 
 <BaseLayout
-  title={h.name}
-  description={`${h.name} — ${h.subtitle}. ${h.oneLiner}`}
+  title={`${h.village} Himalayan Forest Honey, ${h.districtFull}`}
+  description={`Raw single-village Himalayan forest honey from ${h.village}, ${h.districtFull}. ${h.oneLiner} Lab tested, traceable to the beekeeper.`}
+  ogImage={h.image}
+  jsonLd={[productSchema, breadcrumbSchema]}
 >
 
   <!-- Breadcrumb -->

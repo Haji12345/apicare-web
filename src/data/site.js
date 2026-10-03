@@ -7,8 +7,10 @@
 export const site = {
   name: 'ApiCare',
   tagline: 'Single-village honey from Sikkim\'s protected forests',
+  // Browser-tab / Google title for the home page — lead with what people search for
+  homeTitle: 'ApiCare — Raw Himalayan Forest Honey from Sikkim, India',
   description:
-    'ApiCare partners with smallholder beekeepers in Sikkim — India\'s only fully organic state — to produce single-village Himalayan forest honey, every jar traceable to its source.',
+    'ApiCare partners with smallholder beekeepers in Sikkim — India\'s only fully organic state — to produce raw, single-village Himalayan forest honey. Lab tested by Eurofins, FSSAI registered, every jar traceable to its beekeeper.',
   url: 'https://www.apicare.co.in',
   email: 'hello@apicare.co.in', // TODO: confirm this is your real email
   phone: '+91 79080 90 298',
@@ -20,6 +22,30 @@ export const site = {
     instagram: 'https://instagram.com/apicare', // TODO: update
     linkedin: 'https://linkedin.com/company/apicare', // TODO: update
   },
+};
+
+// =====================================================================
+// ANALYTICS + SEARCH ENGINES
+// =====================================================================
+// Paste each ID below; anything left '' is simply not loaded.
+//
+// ga4Id: Google Analytics 4 → analytics.google.com → Admin → Data streams
+//   → Web → "Measurement ID" (looks like G-XXXXXXXXXX). Visitors, pages,
+//   traffic sources, countries, and purchases.
+// clarityId: Microsoft Clarity (free) → clarity.microsoft.com → new project
+//   → Settings → Setup → the 10-character project ID. Heatmaps and
+//   session recordings — see where people scroll, click, and drop off.
+// googleSiteVerification: Google Search Console → Add property (URL prefix
+//   https://www.apicare.co.in) → "HTML tag" method → copy only the
+//   content="…" value. Shows which Google searches bring people here.
+// bingSiteVerification: Bing Webmaster Tools → "HTML Meta Tag" → content
+//   value. Bing's index feeds ChatGPT search and Copilot, so this matters
+//   for AI answers as much as for Bing itself.
+export const analytics = {
+  ga4Id: '',
+  clarityId: '',
+  googleSiteVerification: '',
+  bingSiteVerification: '',
 };
 
 // =====================================================================
@@ -98,6 +124,7 @@ export const footerNav = {
   ],
   Connect: [
     { label: 'Contact', href: '/contact' },
+    { label: 'FAQ', href: '/faq' },
     { label: 'Instagram', href: 'https://instagram.com/apicare' },
   ],
 };
