@@ -43,7 +43,7 @@ export const site = {
 //   for AI answers as much as for Bing itself.
 export const analytics = {
   ga4Id: 'G-V6JJSE8GGH',
-  clarityId: '',
+  clarityId: 'ys608ljhll',
   googleSiteVerification: '',
   bingSiteVerification: '',
 };
