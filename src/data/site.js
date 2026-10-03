@@ -42,7 +42,7 @@ export const site = {
 //   value. Bing's index feeds ChatGPT search and Copilot, so this matters
 //   for AI answers as much as for Bing itself.
 export const analytics = {
-  ga4Id: '',
+  ga4Id: 'G-V6JJSE8GGH',
   clarityId: '',
   googleSiteVerification: '',
   bingSiteVerification: '',
