@@ -52,3 +52,18 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # Tell Bing & co. (via IndexNow) that the site changed, so pages are
+  # re-crawled within hours. See scripts/indexnow.mjs.
+  indexnow:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Wait for the new version to go live
+        run: sleep 60
+
+      - name: Ping IndexNow
+        run: node scripts/indexnow.mjs
