@@ -6,11 +6,45 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HoneyImage from '../components/HoneyImage.astro';
 import OriginAtlas from '../components/OriginAtlas.astro';
 import { getFeaturedHoney } from '../data/honey.js';
-import { getPublicBeekeepers, getTotalBeekeeperCount } from '../data/beekeepers.js';
+import { getPublicBeekeepers, getTotalBeekeeperCount, getUnnamedCollectiveCount } from '../data/beekeepers.js';
+import { getImage } from 'astro:assets';
+import hero1 from '../assets/hero/hero1.jpg';
+import hero1Portrait from '../assets/hero/hero1-portrait.jpg';
+import hero2 from '../assets/hero/hero2.jpg';
+import hero2Portrait from '../assets/hero/hero2-portrait.jpg';
+import hero3 from '../assets/hero/hero3.jpg';
+import hero3Portrait from '../assets/hero/hero3-portrait.jpg';
+import hero4 from '../assets/hero/hero4.jpg';
+import hero4Portrait from '../assets/hero/hero4-portrait.jpg';
+import hero5 from '../assets/hero/hero5.jpg';
+import hero5Portrait from '../assets/hero/hero5-portrait.jpg';
+
+// Hero slides — art-directed. Landscape screens get the full photo;
+// portrait screens (phones, portrait tablets) get a 2:3 crop centred on
+// the subject, cut by scripts/hero-crops.mjs. Both are resized to WebP.
+// minAspect: hide a slide on screens narrower than this width/height
+// ratio, for photos whose subject can't fit (hero5's two faces need 0.55).
+const heroSlides = await Promise.all(
+  [
+    { landscape: hero1, portrait: hero1Portrait },
+    { landscape: hero2, portrait: hero2Portrait },
+    { landscape: hero3, portrait: hero3Portrait },
+    { landscape: hero4, portrait: hero4Portrait },
+    { landscape: hero5, portrait: hero5Portrait, minAspect: 0.55 },
+  ].map(async ({ landscape, portrait, minAspect }) => ({
+    landscape: await getImage({ src: landscape, format: 'webp', quality: 80, widths: [1280, 1920, 2560] }),
+    portrait: await getImage({ src: portrait, format: 'webp', quality: 80, widths: [640, 960] }),
+    minAspect,
+  })),
+);
 
 const featured = getFeaturedHoney();
 const previewBeekeepers = getPublicBeekeepers().slice(0, 3);
 const totalBeekeepers = getTotalBeekeeperCount();
+const unnamedBeekeepers = getUnnamedCollectiveCount();
+// Until three beekeepers have consented to a public profile, the columns
+// they'd fill are given to the rest of the collective instead.
+const collectiveSpan = 3 - Math.min(previewBeekeepers.length, 3);
 ---
 
 <BaseLayout title="ApiCare">
@@ -18,13 +52,25 @@ const totalBeekeepers = getTotalBeekeeperCount();
   <!-- ====================================================================
        HERO — Editorial, restrained, single moment
        ==================================================================== -->
-  <section class="hero relative h-screen overflow-hidden">
+  <section class="hero relative overflow-hidden">
     <div class="hero-slider">
-      <img src="/images/hero1.jpg" alt="" class="active" />
-      <img src="/images/hero2.jpg" alt="" />
-      <img src="/images/hero3.jpg" alt="" />
-      <img src="/images/hero4.jpg" alt="" />
-      <img src="/images/hero5.jpg" alt="" />
+      {heroSlides.map((slide, i) => (
+        <picture>
+          <source media="(orientation: portrait)" srcset={slide.portrait.srcSet.attribute} sizes="100vw" type="image/webp" />
+          <source srcset={slide.landscape.srcSet.attribute} sizes="100vw" type="image/webp" />
+          <img
+            src={slide.landscape.src}
+            width={slide.landscape.attributes.width}
+            height={slide.landscape.attributes.height}
+            alt=""
+            class={i === 0 ? 'active' : undefined}
+            data-min-aspect={slide.minAspect}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchpriority={i === 0 ? 'high' : undefined}
+            decoding="async"
+          />
+        </picture>
+      ))}
     </div>
 
     <div class="hero-inner container-content relative z-10">
@@ -175,28 +221,39 @@ const totalBeekeepers = getTotalBeekeeperCount();
       </div>
     </div>
 
-    {previewBeekeepers.length > 0 && (
-      <div class="grid md:grid-cols-3 gap-10 mt-16">
-        {previewBeekeepers.map((b) => (
-          <a href={`/beekeepers/${b.slug}`} class="group no-underline">
-            {b.portrait ? (
-              <div class="aspect-[3/4] w-full mb-5 overflow-hidden bg-cream-paper border border-ink-fade/30">
-                <img src={b.portrait} alt={b.name} class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\'flex items-center justify-center h-full\'><p class=\'text-tiny text-ink-mute uppercase tracking-widest\'>Portrait pending</p></div>'"/>
-              </div>
-            ) : (
-              <div class="aspect-[3/4] w-full mb-5 bg-cream-paper border border-ink-fade/30 flex items-center justify-center">
-                <p class="text-tiny text-ink-mute uppercase tracking-widest">Portrait pending</p>
-              </div>
-            )}
-            <p class="eyebrow mb-2">{b.village}, {b.district} Sikkim</p>
-            <h3 class="font-serif text-xl font-normal text-ink group-hover:text-honey transition-colors duration-400 mb-1">
-              {b.name}
-            </h3>
-            <p class="text-sm text-ink-mute">{b.role}</p>
-          </a>
-        ))}
-      </div>
-    )}
+    <div class="grid md:grid-cols-3 gap-10 mt-16">
+      {previewBeekeepers.map((b) => (
+        <a href={`/beekeepers/${b.slug}`} class="group no-underline">
+          {b.portrait ? (
+            <div class="aspect-[3/4] w-full mb-5 overflow-hidden bg-cream-paper border border-ink-fade/30">
+              <img src={b.portrait} alt={b.name} class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class='flex items-center justify-center h-full'><p class='text-tiny text-ink-mute uppercase tracking-widest'>Portrait pending</p></div>'"/>
+            </div>
+          ) : (
+            <div class="aspect-[3/4] w-full mb-5 bg-cream-paper border border-ink-fade/30 flex items-center justify-center">
+              <p class="text-tiny text-ink-mute uppercase tracking-widest">Portrait pending</p>
+            </div>
+          )}
+          <p class="eyebrow mb-2">{b.village}, {b.district} Sikkim</p>
+          <h3 class="font-serif text-xl font-normal text-ink group-hover:text-honey transition-colors duration-400 mb-1">
+            {b.name}
+          </h3>
+          <p class="text-sm text-ink-mute">{b.role}</p>
+        </a>
+      ))}
+
+      {collectiveSpan > 0 && (
+        <div class={`bg-cream-deep border border-ink-fade/30 p-8 md:p-12 flex flex-col justify-end ${collectiveSpan === 3 ? 'md:col-span-3' : collectiveSpan === 2 ? 'md:col-span-2' : ''}`}>
+          <p class="eyebrow mb-6">The collective</p>
+          <p class="font-serif text-5xl md:text-6xl text-honey font-light leading-none mb-6">{unnamedBeekeepers}</p>
+          <p class="font-serif text-2xl md:text-3xl font-light text-ink tracking-tight text-balance max-w-xl mb-6">
+            more beekeepers across four districts of Sikkim.
+          </p>
+          <p class="text-base text-ink-soft leading-relaxed max-w-md">
+            Each is trained in their own village and paid a guaranteed price. Their names and faces stay private — by their choice, and ours.
+          </p>
+        </div>
+      )}
+    </div>
   </section>
 
   <!-- ====================================================================
@@ -239,22 +296,50 @@ const totalBeekeepers = getTotalBeekeeperCount();
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const images = document.querySelectorAll(".hero-slider img");
-    let index = 0;
+    const hero = document.querySelector<HTMLElement>(".hero");
+    const all = [...document.querySelectorAll<HTMLImageElement>(".hero-slider img")];
+    if (!hero || all.length === 0) return;
 
-    function show(i) {
-      images.forEach(img => img.classList.remove("active"));
-      images[i].classList.add("active");
+    // Slides 2+ are lazy so slide 1 gets the bandwidth first. Hidden at
+    // opacity 0 they'd never trigger a lazy load, so start them once the
+    // page has finished loading — before anyone can swipe to them.
+    const loadRest = () => all.forEach((img) => (img.loading = "eager"));
+    if (document.readyState === "complete") loadRest();
+    else addEventListener("load", loadRest, { once: true });
+
+    // Slides whose subject can't fit this screen shape sit out (see minAspect)
+    const usable = () => {
+      const aspect = innerWidth / innerHeight;
+      return all.filter((img) => aspect >= Number(img.dataset.minAspect || 0));
+    };
+    let current = all[0];
+
+    function step(delta: number) {
+      const slides = usable();
+      const at = slides.indexOf(current);
+      current = at === -1 ? slides[0] : slides[(at + delta + slides.length) % slides.length];
+      all.forEach((img) => img.classList.toggle("active", img === current));
     }
 
-    document.querySelector(".hero-next")?.addEventListener("click", () => {
-      index = (index + 1) % images.length;
-      show(index);
-    });
+    document.querySelector(".hero-next")?.addEventListener("click", () => step(1));
+    document.querySelector(".hero-prev")?.addEventListener("click", () => step(-1));
 
-    document.querySelector(".hero-prev")?.addEventListener("click", () => {
-      index = (index - 1 + images.length) % images.length;
-      show(index);
+    // Swipe — the only control on phones, where the arrows are hidden.
+    // Horizontal moves only, so vertical scrolling is never hijacked.
+    let startX = 0, startY = 0;
+    hero.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+    hero.addEventListener("touchend", (e) => {
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+    }, { passive: true });
+
+    // If the screen rotates onto a slide that no longer fits, move on
+    addEventListener("resize", () => {
+      if (!usable().includes(current)) step(1);
     });
   });
 </script>

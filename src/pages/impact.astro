@@ -141,8 +141,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       </h2>
     </div>
 
-    <!-- Full-bleed feature photo — edge to edge, no borders -->
-    <div class="w-full aspect-[16/7] overflow-hidden bg-cream-deep mb-2">
+    <!-- Full-bleed feature photo — edge to edge, no borders.
+         Phones get the photo's own 16:9; the 16:7 band crops the group's heads there. -->
+    <div class="w-full aspect-[16/9] md:aspect-[16/7] overflow-hidden bg-cream-deep mb-2">
       <img
         src="/images/training1.jpg"
         alt="ApiCare beekeeper training session"
@@ -151,17 +152,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       />
     </div>
 
-    <!-- Two-up secondary photos (still full-width row, no container) -->
+    <!-- Two-up secondary photos (still full-width row, no container).
+         training2 is a tall portrait photo with the beekeepers in its lower
+         half: anchored low (object-position y 85%), portrait frame on phones.
+         community1 is a wide group shot: its own 16:9 on phones so nobody
+         at the edges is cut off. -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-      <div class="aspect-[4/3] overflow-hidden bg-cream-deep">
+      <div class="aspect-[3/4] md:aspect-[4/3] overflow-hidden bg-cream-deep">
         <img
           src="/images/training2.jpg"
           alt="Hands-on hive training in Sikkim"
-          class="w-full h-full object-cover"
+          class="w-full h-full object-cover object-[50%_85%]"
           onerror="this.style.display='none'"
         />
       </div>
-      <div class="aspect-[4/3] overflow-hidden bg-cream-deep">
+      <div class="aspect-[16/9] md:aspect-[4/3] overflow-hidden bg-cream-deep">
         <img
           src="/images/community1.jpg"
           alt="ApiCare community gathering"

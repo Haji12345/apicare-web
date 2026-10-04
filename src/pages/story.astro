@@ -18,12 +18,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </p>
   </section>
 
-  <!-- Wide hero band — full-bleed width, height unchanged.
-       The .aspect-[21/9] frame still sets the height from the CONTAINER width;
-       only the absolutely-positioned .story-bleed child escapes to 100vw.
-       Result: identical height at every breakpoint, edge-to-edge image. -->
+  <!-- Wide hero band — full-bleed width.
+       The aspect frame sets the height from the CONTAINER width; only the
+       absolutely-positioned .story-bleed child escapes to 100vw.
+       Phones use 3:2, not 21:9: at 21:9 the band was ~150px tall and cover
+       cut the beekeepers' hats off. 3:2 (stretched to 100vw ≈ 1.7) is close
+       to the photo's own 16:9, so almost nothing is cropped. -->
   <div class="container-content mb-22">
-    <div class="aspect-[21/9] w-full relative bg-cream-deep">
+    <div class="aspect-[3/2] md:aspect-[21/9] w-full relative bg-cream-deep">
       <div class="story-bleed">
         <img
           src="/images/hero.jpg"

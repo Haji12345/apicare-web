@@ -10,18 +10,21 @@ const year = new Date().getFullYear();
 <footer class="bg-cream-deep mt-30">
   <div class="container-content py-22">
 
-    <!-- Newsletter -->
-    <div class="max-w-reading mb-22">
-      <p class="eyebrow mb-4">Stay close</p>
-      <h3 class="font-serif text-3xl md:text-4xl font-light text-ink mb-4 tracking-tight text-balance">
-        One letter per harvest. Nothing more.
-      </h3>
-      <p class="text-base text-ink-soft mb-6">
-        We write when there's something honest to say — a new village, a new harvest, a story from the hives.
-      </p>
+    <!-- Newsletter — stacked on phones/tablets; from lg, copy left and form
+         right, the same 6 / 5 split as the home page's editorial sections -->
+    <div class="grid lg:grid-cols-12 gap-x-12 lg:items-end mb-22">
+      <div class="max-w-reading lg:col-span-6">
+        <p class="eyebrow mb-4">Stay close</p>
+        <h3 class="font-serif text-3xl md:text-4xl font-light text-ink mb-4 tracking-tight text-balance">
+          One letter per harvest. Nothing more.
+        </h3>
+        <p class="text-base text-ink-soft mb-6">
+          We write when there's something honest to say — a new village, a new harvest, a story from the hives.
+        </p>
+      </div>
 
       <form
-        class="flex flex-col sm:flex-row gap-3 max-w-md"
+        class="flex flex-col sm:flex-row lg:flex-wrap gap-3 max-w-md lg:max-w-none lg:col-span-5 lg:col-start-8 lg:mb-3"
         data-apicare-form="newsletter"
         data-endpoint={forms.newsletter}
         data-fallback-email={site.email}
@@ -38,7 +41,7 @@ const year = new Date().getFullYear();
         <button type="submit" class="btn-ghost">
           Subscribe
         </button>
-        <p class="form-status text-tiny text-ink-mute basis-full sm:basis-auto" role="status" aria-live="polite"></p>
+        <p class="form-status text-tiny text-ink-mute basis-full sm:basis-auto lg:basis-full" role="status" aria-live="polite"></p>
       </form>
     </div>
 
