@@ -96,10 +96,10 @@ export const honey = [
     districtFull: 'North Sikkim',
     village: 'Dzongu',
     oneLiner:
-      'From the Lepcha Reserve, bordering the Khangchendzonga Biosphere Reserve.',
+      'Lepcha country beside Khangchendzonga National Park, a UNESCO World Heritage Site.',
     placeStory:
       'Dzongu is a protected reserve in North Sikkim, set aside for the Lepcha — Sikkim\'s indigenous people, and one of the oldest continuously settled communities in the eastern Himalayas. Entry is restricted. The forest is intact in a way that almost nothing else in mainland India is. ' +
-      'The reserve borders the Khangchendzonga Biosphere Reserve and rises from sub-tropical valley floor at 700 metres to alpine pasture above 6,000. In a single day\'s walk, you cross five distinct forest types. ' +
+      'The reserve adjoins Khangchendzonga National Park, a UNESCO World Heritage Site since 2016 and the core of the Khangchendzonga Biosphere Reserve, which UNESCO added to its World Network of Biosphere Reserves in 2018. Dzongu rises from sub-tropical valley floor at 700 metres to alpine pasture above 6,000. In a single day\'s walk, you cross five distinct forest types. ' +
       'We have been working with Lepcha beekeepers in Dzongu since 2024, slowly and on their terms. The first commercial harvest is expected in the coming season. We are not in a hurry — Dzongu honey is the slowest, rarest jar we will ever produce, and we would rather it arrive late than arrive wrong.',
     forestStory:
       'The Dzongu canopy is the richest forage we have ever sourced from. Oak, magnolia, and rhododendron at higher altitudes give way to wild banana, tree-fern, and broadleaf evergreens lower down. Lepcha ethnobotany names dozens of bee-forage plants that don\'t appear on any commercial list. ' +
@@ -107,13 +107,17 @@ export const honey = [
     beekeepers: [],
     altitude: '700 – 6,000 m',
     harvestSeason: 'Late Spring',
+    // No harvest yet, so no colour or tasting claim: the swatch is the crimson
+    // of the Dzongu atlas pin, and the line is the forage we know.
+    profile: { colour: 'First harvest late 2026', swatch: '#A5101E', note: 'Oak, magnolia and rhododendron above; wild banana and tree-fern below.' },
+    distinction: 'Beside a UNESCO World Heritage Site',
     sizes: [
       { weight: '250g', priceINR: 850, priceUSD: 16 },
       { weight: '500g', priceINR: 1600, priceUSD: 30 },
     ],
     available: false,
     comingSoonNote: 'First commercial harvest expected late 2026.',
-    flagship: true, // still appears first on home — story sells the brand even before the jar ships
+    flagship: true, // closes the home row as its story card — sells the brand before the jar ships
   },
 
   // =====================================================================
@@ -137,6 +141,7 @@ export const honey = [
     altitude: '1,800 – 2,500 m',
     harvestSeason: 'Spring & Autumn',
     profile: { colour: 'Expected lighter', swatch: '#D6AE55', note: 'Expected floral, with a clear rhododendron note.' },
+    distinction: 'Gateway to Khangchendzonga National Park',
     sizes: [
       { weight: '250g', priceINR: 750, priceUSD: 14 },
       { weight: '500g', priceINR: 1400, priceUSD: 26 },

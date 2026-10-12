@@ -7,6 +7,7 @@ import HoneyImage from '../components/HoneyImage.astro';
 import OriginAtlas from '../components/OriginAtlas.astro';
 import Contours from '../components/Contours.astro';
 import AltitudeRidge from '../components/AltitudeRidge.astro';
+import Distinction from '../components/Distinction.astro';
 import { atlas } from '../data/atlas.js';
 import { getFeaturedHoney } from '../data/honey.js';
 import { getPublicBeekeepers, getTotalBeekeeperCount, getUnnamedCollectiveCount } from '../data/beekeepers.js';
@@ -133,6 +134,7 @@ const collectiveSpan = 3 - Math.min(previewBeekeepers.length, 3);
                 {g && <img src={g.glyph} alt="" width="32" height="32" class="w-8 h-8 shrink-0 opacity-80" loading="lazy" />}
               </div>
               <p class="text-sm text-ink-soft mb-5 leading-relaxed">{h.oneLiner}</p>
+              {h.distinction && <Distinction text={h.distinction} class="self-start mb-5" />}
 
               {h.profile && (
                 <div class="flex items-start gap-3 mb-5">

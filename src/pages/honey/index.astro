@@ -12,6 +12,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import HoneyImage from '../../components/HoneyImage.astro';
 import RegionMap from '../../components/RegionMap.astro';
 import AltitudeRidge from '../../components/AltitudeRidge.astro';
+import Distinction from '../../components/Distinction.astro';
 import { honey, getHoneyByDistrict } from '../../data/honey.js';
 
 const byDistrict = getHoneyByDistrict();
@@ -79,6 +80,7 @@ const districts = ['North', 'East', 'West', 'South'] as const;
             </h3>
           </a>
           <p class="text-sm text-ink-soft mb-4 leading-relaxed">{h.oneLiner}</p>
+          {h.distinction && <Distinction text={h.distinction} class="self-start mb-4" />}
           {h.profile && (
             <div class="flex items-start gap-3 mb-4">
               <span class="mt-1 w-3.5 h-3.5 shrink-0 rounded-full border border-ink/25" style={`background:${h.profile.swatch}`} aria-hidden="true"></span>

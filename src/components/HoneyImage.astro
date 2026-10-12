@@ -1,8 +1,11 @@
 ---
 // ========================================================================
-// HoneyImage — product photo, or the JarSilhouette when there isn't one
+// HoneyImage — product photo; before a village has one (coming soon), its
+// illustrated Origin Atlas plate on the atlas's paper; the JarSilhouette
+// only when neither exists.
 // ========================================================================
 import JarSilhouette from './JarSilhouette.astro';
+import { atlas } from '../data/atlas.js';
 
 interface Props {
   honey: {
@@ -15,6 +18,7 @@ interface Props {
 }
 
 const { honey: h } = Astro.props;
+const plate = atlas.find((r) => r.key === h.village.toLowerCase())?.plate;
 ---
 
 {h.image ? (
@@ -24,6 +28,17 @@ const { honey: h } = Astro.props;
     loading="lazy"
     class="w-full h-full object-cover transition-transform duration-700 ease-editorial group-hover:scale-[1.03]"
   />
+) : plate ? (
+  <div class="w-full h-full bg-[#E7E0CF] flex items-center justify-center p-4">
+    <img
+      src={plate}
+      alt={`Illustrated map of ${h.village}, ${h.district} Sikkim`}
+      loading="lazy"
+      width="3461"
+      height="2501"
+      class="w-full h-auto transition-transform duration-700 ease-editorial group-hover:scale-[1.04]"
+    />
+  </div>
 ) : (
   <JarSilhouette
     village={h.village}

@@ -6,8 +6,9 @@
 // ========================================================================
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import JarSilhouette from '../../components/JarSilhouette.astro';
 import AltitudeRidge from '../../components/AltitudeRidge.astro';
+import Distinction from '../../components/Distinction.astro';
+import HoneyImage from '../../components/HoneyImage.astro';
 import { honey } from '../../data/honey.js';
 import { getBeekeepersForHoney } from '../../data/beekeepers.js';
 import { site, forms, shop } from '../../data/site.js';
@@ -99,11 +100,7 @@ const breadcrumbSchema = {
       <div class="md:col-span-7">
         {galleries.length === 0 ? (
           <div class="aspect-[4/5] w-full mb-4 bg-cream-paper border border-ink-fade/30 overflow-hidden">
-            <JarSilhouette
-              village={h.village}
-              district={`${h.district} Sikkim`}
-              comingSoon={!h.available}
-            />
+            <HoneyImage honey={h} />
           </div>
         ) : galleries.map((g, gi) => (
           <div class:list={['pdp-gallery', { hidden: gi !== 0 }]} data-gallery={g.weight}>
@@ -160,7 +157,8 @@ const breadcrumbSchema = {
         <h1 class="font-serif text-4xl md:text-5xl font-light tracking-tight text-ink leading-tight text-balance mb-3">
           {h.name}
         </h1>
-        <p class="text-lg text-ink-soft italic mb-8">{h.subtitle}</p>
+        <p class="text-lg text-ink-soft italic mb-6">{h.subtitle}</p>
+        {h.distinction && <Distinction text={h.distinction} class="mb-8" />}
 
         <p class="text-base text-ink-soft leading-relaxed mb-8">
           {h.oneLiner}
