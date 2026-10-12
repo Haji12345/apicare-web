@@ -5,3 +5,9 @@ dist
 *.log
 .env
 .env.local
+
+# Impeccable design tooling: installed per developer (npx impeccable install --project)
+.claude/skills/impeccable/
+.claude/agents/impeccable-*.md
+.claude/settings.local.json
+.impeccable/critique/
