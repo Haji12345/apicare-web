@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-10-12T01:15:51.352Z",
+        "reason": "user confirmed: chose 'Spread the atlas style' (keep palette and fonts) in the 2026-10-12 critique questions"
+      }
+    ]
+  }
+}
