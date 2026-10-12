@@ -61,6 +61,14 @@
     @apply text-honey;
   }
 
+  /* Placeholders at body-text contrast (the browser default grey fails AA) */
+  /* (input/textarea prefix outranks Tailwind's reset, which sets #9ca3af) */
+  input::placeholder,
+  textarea::placeholder {
+    @apply text-ink-mute;
+    opacity: 1;
+  }
+
   /* Selection style */
   ::selection {
     @apply bg-honey text-cream;
@@ -116,12 +124,18 @@
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center
+    @apply relative inline-flex items-center justify-center
            text-sm font-medium tracking-wide uppercase
            text-ink no-underline
            border-b border-ink pb-1
            transition-all duration-400 ease-editorial
            hover:text-honey hover:border-honey;
+  }
+  /* The underline stays tight to the text; the tap area grows to 44px+ */
+  .btn-ghost::before {
+    content: '';
+    position: absolute;
+    inset: -10px -6px -10px;
   }
 
   /* Hairline divider */
@@ -281,6 +295,10 @@
 
 #bee-cursor {
   position: fixed;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
   width: 28px;
   height: 28px;
   background: url('/bee.png') no-repeat center/contain;

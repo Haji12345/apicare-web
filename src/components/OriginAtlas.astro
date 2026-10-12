@@ -88,13 +88,13 @@ const loading = eager ? 'eager' : 'lazy';
 
   <!-- ── REGION CHIPS ─────────────────────────────────────────── -->
   <div class="atlas__chips">
-    <span class="atlas__chipsMeta">Four terroirs · One honey ethic</span>
+    <span class="atlas__chipsMeta">Four districts · Four villages</span>
     <div class="atlas__chipRow" role="tablist" aria-label="Origins">
       {atlas.map((r) => (
         <button class="atlas__chip" type="button" data-goto={r.key} role="tab" aria-selected="false">{r.name}</button>
       ))}
     </div>
-    <span class="atlas__chipsMeta">100% Organic · Sikkim</span>
+    <span class="atlas__chipsMeta">Sikkim, organic state since 2016</span>
   </div>
 </div>
 
@@ -111,7 +111,7 @@ const loading = eager ? 'eager' : 'lazy';
        band full-bleed. The plates are transparent SVGs, so that colour IS their
        background. Set to #FAF7F2 to blend into cream instead. */
     --atlas-stage-bg: transparent;
-    --atlas-muted: #7A7361;
+    --atlas-muted: #69625A; /* 4.5:1 on the greige band */
     --atlas-hairline: rgba(32, 32, 30, 0.14);
 
     --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -177,7 +177,7 @@ const loading = eager ? 'eager' : 'lazy';
     margin-bottom: 6px; white-space: nowrap;
     background: var(--atlas-paper); border: 1px solid var(--atlas-ink);
     padding: 5px 12px;
-    font-family: var(--font-label); font-size: 10px; letter-spacing: .2em;
+    font-family: var(--font-label); font-size: 11px; letter-spacing: .2em;
     text-transform: uppercase; color: var(--atlas-ink);
     opacity: 0; transition: opacity .25s; pointer-events: none;
   }
@@ -213,7 +213,7 @@ const loading = eager ? 'eager' : 'lazy';
   }
   .atlas__cardTop { display: flex; justify-content: space-between; align-items: center; }
   .atlas__no {
-    font-family: var(--font-label); font-size: 10px; letter-spacing: .24em;
+    font-family: var(--font-label); font-size: 11px; letter-spacing: .24em;
     text-transform: uppercase; color: var(--atlas-accent);
   }
   .atlas__glyph { width: 40px; height: 40px; opacity: .9; }
@@ -234,21 +234,21 @@ const loading = eager ? 'eager' : 'lazy';
   .atlas__facts > div:nth-child(1),
   .atlas__facts > div:nth-child(2) { border-bottom: 1px solid var(--atlas-hairline); }
   .atlas__facts dt {
-    font-family: var(--font-label); font-size: 9px; letter-spacing: .2em;
+    font-family: var(--font-label); font-size: 11px; letter-spacing: .2em;
     text-transform: uppercase; color: var(--atlas-accent); margin-bottom: 7px;
   }
   .atlas__facts dd { margin: 0; font-size: 18px; }
 
   .atlas__honey { border-top: 1px solid var(--atlas-hairline); padding-top: 16px; }
   .atlas__honeyLabel {
-    display: block; font-family: var(--font-label); font-size: 9px; letter-spacing: .2em;
+    display: block; font-family: var(--font-label); font-size: 11px; letter-spacing: .2em;
     text-transform: uppercase; color: var(--atlas-accent); margin-bottom: 7px;
   }
   .atlas__honeyNote { margin: 0; font-style: italic; font-size: 18px; line-height: 1.5; }
 
   .atlas__cta {
     display: inline-block; margin-top: 18px;
-    font-family: var(--font-label); font-size: 10.5px; letter-spacing: .2em;
+    font-family: var(--font-label); font-size: 11px; letter-spacing: .2em;
     text-transform: uppercase; text-decoration: none;
     color: var(--atlas-ink); border-bottom: 1px solid var(--atlas-ink);
     padding-bottom: 3px; transition: color .3s, border-color .3s;
@@ -261,7 +261,7 @@ const loading = eager ? 'eager' : 'lazy';
     opacity: 0; visibility: hidden; pointer-events: none;
     cursor: pointer; white-space: nowrap;
     background: var(--atlas-paper); border: 1px solid var(--atlas-ink); padding: 9px 16px;
-    font-family: var(--font-label); font-size: 10.5px; letter-spacing: .2em;
+    font-family: var(--font-label); font-size: 11px; letter-spacing: .2em;
     text-transform: uppercase; color: var(--atlas-ink);
     transition: opacity .5s ease .35s, background .25s, color .25s, visibility 0s linear .85s;
   }
@@ -277,14 +277,14 @@ const loading = eager ? 'eager' : 'lazy';
     display: flex; justify-content: space-between; align-items: center; gap: 18px;
   }
   .atlas__chipsMeta {
-    font-family: var(--font-label); font-size: 10px; letter-spacing: .2em;
+    font-family: var(--font-label); font-size: 11px; letter-spacing: .2em;
     text-transform: uppercase; color: var(--atlas-muted);
   }
   .atlas__chipRow { display: flex; gap: 10px; flex-wrap: wrap; }
   .atlas__chip {
     cursor: pointer; border: 1px solid var(--atlas-ink); background: transparent; color: var(--atlas-ink);
     padding: 8px 18px;
-    font-family: var(--font-label); font-size: 10.5px; letter-spacing: .18em;
+    font-family: var(--font-label); font-size: 11px; letter-spacing: .18em;
     text-transform: uppercase; transition: all .25s;
   }
   .atlas__chip:hover, .atlas__chip:focus-visible { border-color: var(--atlas-accent); color: #8F6410; }

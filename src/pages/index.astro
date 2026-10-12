@@ -5,6 +5,9 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HoneyImage from '../components/HoneyImage.astro';
 import OriginAtlas from '../components/OriginAtlas.astro';
+import Contours from '../components/Contours.astro';
+import AltitudeRidge from '../components/AltitudeRidge.astro';
+import { atlas } from '../data/atlas.js';
 import { getFeaturedHoney } from '../data/honey.js';
 import { getPublicBeekeepers, getTotalBeekeeperCount, getUnnamedCollectiveCount } from '../data/beekeepers.js';
 import { getImage } from 'astro:assets';
@@ -39,6 +42,8 @@ const heroSlides = await Promise.all(
 );
 
 const featured = getFeaturedHoney();
+// Each village's line glyph from the atlas (bee, cardamom, chorten, wheat)
+const glyphFor = (village: string) => atlas.find((r) => r.key === village.toLowerCase());
 const previewBeekeepers = getPublicBeekeepers().slice(0, 3);
 const totalBeekeepers = getTotalBeekeeperCount();
 const unnamedBeekeepers = getUnnamedCollectiveCount();
@@ -75,12 +80,11 @@ const collectiveSpan = 3 - Math.min(previewBeekeepers.length, 3);
 
     <div class="hero-inner container-content relative z-10">
       <div class="max-w-4xl fade-up">
-        <p class="eyebrow mb-8">Sikkim, India</p>
         <h1 class="font-serif text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-ink leading-[1.05] text-balance mb-10">
           Single-village honey from <em class="text-honey not-italic">Sikkim's</em> protected forests.
         </h1>
         <p class="text-lg md:text-xl text-ink-soft max-w-xl leading-relaxed mb-12">
-          From the only fully organic state in India. Harvested by 125 verified beekeepers across four districts. Every jar traceable to its village.
+          From the only fully organic state in India. Harvested by 125 trained beekeepers across four districts. Every jar traced to its village.
         </p>
         <div class="flex flex-wrap gap-4">
           <a href="/honey" class="btn-primary">Shop the Honey</a>
@@ -94,19 +98,96 @@ const collectiveSpan = 3 - Math.min(previewBeekeepers.length, 3);
   </section>
 
   <!-- ====================================================================
-       THE LAND — short paragraph, sets terroir
+       THE HONEY — straight after the hero: what can be bought comes first
        ==================================================================== -->
-  <section class="bg-cream-deep section" data-reveal>
-    <div class="container-content grid md:grid-cols-12 gap-12 items-start">
+  <section class="section" data-reveal>
+    <div class="container-content">
+      <div class="flex items-end justify-between gap-8 mb-14">
+        <h2 class="font-serif text-4xl md:text-5xl font-light text-ink tracking-tight text-balance">
+          Two villages live. Two more on the way.
+        </h2>
+        <a href="/honey" class="hidden md:inline-flex btn-ghost shrink-0">View All</a>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-x-10 gap-y-16">
+        {featured.map((h, i) => {
+          const g = glyphFor(h.village);
+          return (
+            <article class="group relative flex flex-col">
+              {!h.available && (
+                <span class="absolute top-4 left-4 z-10 inline-block text-tiny uppercase tracking-widest bg-cream text-honey border border-honey px-3 py-1">
+                  Coming Soon
+                </span>
+              )}
+              <a href={`/honey/${h.slug}`} class="block no-underline" tabindex="-1" aria-hidden="true">
+                <div class="aspect-[4/5] w-full mb-6 overflow-hidden bg-cream-paper border border-ink-fade/30">
+                  <HoneyImage honey={h} />
+                </div>
+              </a>
+              <div class="flex items-start justify-between gap-4 mb-2">
+                <a href={`/honey/${h.slug}`} class="no-underline">
+                  <h3 class="font-serif text-2xl font-normal text-ink group-hover:text-honey transition-colors duration-400">
+                    {h.name}
+                  </h3>
+                </a>
+                {g && <img src={g.glyph} alt="" width="32" height="32" class="w-8 h-8 shrink-0 opacity-80" loading="lazy" />}
+              </div>
+              <p class="text-sm text-ink-soft mb-5 leading-relaxed">{h.oneLiner}</p>
+
+              {h.profile && (
+                <div class="flex items-start gap-3 mb-5">
+                  <span class="mt-1 w-4 h-4 shrink-0 rounded-full border border-ink/25" style={`background:${h.profile.swatch}`} aria-hidden="true"></span>
+                  <p class="text-sm leading-snug">
+                    <span class="text-ink">{h.profile.colour}.</span>
+                    <span class="text-ink-soft"> {h.profile.note}</span>
+                  </p>
+                </div>
+              )}
+
+              <div class="mb-6"><AltitudeRidge altitude={h.altitude} seed={i + 2} /></div>
+
+              <div class="mt-auto">
+                {h.available ? (
+                  <>
+                    <p class="text-sm text-ink font-medium" data-price data-price-inr={h.sizes[0].priceINR} data-price-usd={h.sizes[0].priceUSD}>
+                      ₹{h.sizes[0].priceINR}
+                      <span class="text-ink-mute font-normal text-tiny ml-1">/ {h.sizes[0].weight}</span>
+                    </p>
+                    <a href={`/checkout?sku=${h.slug}&size=${h.sizes[0].weight}`} class="btn-primary mt-5">
+                      Buy Now
+                    </a>
+                  </>
+                ) : (
+                  <a href={`/honey/${h.slug}`} class="btn-ghost">
+                    {h.comingSoonNote || 'Notify me when ready'}
+                  </a>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <div class="mt-16 text-center md:hidden">
+        <a href="/honey" class="btn-ghost">View All Honey</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       THE LAND — the contour band marks the turn from shop to story
+       ==================================================================== -->
+  <section class="bg-cream-deep pb-22 md:pb-30" data-reveal>
+    <Contours variant="rule" seed={3} class="block w-full h-12 md:h-16 text-ink-fade" />
+    <div class="container-content grid md:grid-cols-12 gap-12 items-start pt-16 md:pt-22">
       <div class="md:col-span-5">
-        <p class="eyebrow mb-6">The Land</p>
         <h2 class="font-serif text-4xl md:text-5xl font-light text-ink leading-tight tracking-tight text-balance">
           India's only fully organic state.
         </h2>
       </div>
       <div class="md:col-span-6 md:col-start-7">
         <p class="text-lg text-ink-soft leading-relaxed mb-6">
-          Sikkim spans the eastern Himalayas, from sub-tropical river valleys at 700m to alpine pasture at 6,000m. In 2016 it became the first — and still only — Indian state to declare itself fully organic. No chemical fertilizers. No pesticides. No exceptions.
+          Sikkim spans the eastern Himalayas, from sub-tropical river valleys at 700m to alpine pasture at 6,000m. In 2016 it became the first, and still the only, Indian state to declare itself fully organic. No chemical fertilizers. No pesticides. No exceptions.
         </p>
         <p class="text-lg text-ink-soft leading-relaxed mb-8">
           For bees, this is everything. The forage is uncontaminated, the biodiversity is intact, and the honey reflects the forest unmediated.
@@ -122,84 +203,18 @@ const collectiveSpan = 3 - Math.min(previewBeekeepers.length, 3);
   <section class="atlas-section section" data-reveal>
    <div class="container-content">
 
-    <!-- Intro copy -->
     <div class="max-w-reading mb-16">
-      <p class="eyebrow mb-6">Four Districts. Four Villages.</p>
       <h2 class="font-serif text-3xl md:text-4xl font-light text-ink leading-tight tracking-tight text-balance mb-6">
         Every jar carries a village name. Every village has a story.
       </h2>
-      <p class="text-base text-ink-soft leading-relaxed mb-8">
-        We don't blend honey across regions. Each harvest is bottled separately, by village, so you taste the forest exactly where it grew.
-      </p>
       <p class="text-base text-ink-soft leading-relaxed">
-        Tap a region to see where your honey comes from.
+        We don't blend honey across regions. Each harvest is bottled separately, by village, so you taste the forest exactly where it grew. Tap a region to see where your honey comes from.
       </p>
     </div>
 
-    <!-- The map -->
     <OriginAtlas />
 
    </div>
-  </section>
-
-  <!-- ====================================================================
-       FEATURED HONEY — 3 SKUs, flagship first
-       ==================================================================== -->
-  <section class="bg-cream-deep section" data-reveal>
-    <div class="container-content">
-      <div class="flex items-end justify-between mb-16">
-        <div>
-          <p class="eyebrow mb-4">The Honey</p>
-          <h2 class="font-serif text-4xl md:text-5xl font-light text-ink tracking-tight text-balance">
-            Two villages live. Two more on the way.
-          </h2>
-        </div>
-        <a href="/honey" class="hidden md:inline-flex btn-ghost">View All</a>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-10">
-        {featured.map((h) => (
-          <article class="group relative">
-            {!h.available && (
-              <span class="absolute top-4 left-4 z-10 inline-block text-tiny uppercase tracking-widest bg-cream text-honey border border-honey px-3 py-1">
-                Coming Soon
-              </span>
-            )}
-            <a href={`/honey/${h.slug}`} class="block no-underline">
-              <div class="aspect-[4/5] w-full mb-5 overflow-hidden bg-cream-paper border border-ink-fade/30">
-              <HoneyImage honey={h} />
-              </div>
-            </a>
-            <p class="eyebrow mb-2">{h.districtFull}</p>
-            <a href={`/honey/${h.slug}`} class="no-underline">
-              <h3 class="font-serif text-2xl font-normal text-ink mb-2 group-hover:text-honey transition-colors duration-400">
-                {h.name}
-              </h3>
-            </a>
-            <p class="text-sm text-ink-soft mb-4 leading-relaxed">{h.oneLiner}</p>
-            {h.available ? (
-              <>
-              <p class="text-sm text-ink font-medium" data-price data-price-inr={h.sizes[0].priceINR} data-price-usd={h.sizes[0].priceUSD}>
-                ₹{h.sizes[0].priceINR}
-                <span class="text-ink-mute font-normal text-tiny ml-1">/ {h.sizes[0].weight}</span>
-              </p>
-                <a href={`/checkout?sku=${h.slug}&size=${h.sizes[0].weight}`} class="btn-primary mt-5">
-                  Buy Now
-                </a>
-              </>
-            ) : (
-              <p class="text-tiny uppercase tracking-widest text-ink-mute">
-                {h.comingSoonNote || 'Notify me when ready →'}
-              </p>
-            )}
-          </article>
-        ))}
-      </div>
-
-      <div class="mt-16 text-center md:hidden">
-        <a href="/honey" class="btn-ghost">View All Honey</a>
-      </div>
-    </div>
   </section>
 
   <!-- ====================================================================
@@ -208,14 +223,13 @@ const collectiveSpan = 3 - Math.min(previewBeekeepers.length, 3);
   <section class="container-content section" data-reveal>
     <div class="grid md:grid-cols-12 gap-12 items-start mb-16">
       <div class="md:col-span-6">
-        <p class="eyebrow mb-6">The People</p>
         <h2 class="font-serif text-4xl md:text-5xl font-light text-ink tracking-tight text-balance">
-          {totalBeekeepers} beekeepers. The ones you meet here, chose to be here.
+          {totalBeekeepers} beekeepers. The ones you meet here chose to be here.
         </h2>
       </div>
       <div class="md:col-span-5 md:col-start-8">
         <p class="text-lg text-ink-soft leading-relaxed mb-6">
-          A beekeeper's name and face on a global website is a permanent thing. We never publish either without explicit consent — collected in person, with the right to withdraw at any time. Most of our collective stays unnamed by their own choice. A few have asked to share their story.
+          A beekeeper's name and face on a global website is a permanent thing. We never publish either without explicit consent, collected in person, with the right to withdraw at any time. Most of our collective stays unnamed by their own choice. A few have asked to share their story.
         </p>
         <a href="/beekeepers" class="btn-ghost">Meet the Beekeepers</a>
       </div>
@@ -226,30 +240,29 @@ const collectiveSpan = 3 - Math.min(previewBeekeepers.length, 3);
         <a href={`/beekeepers/${b.slug}`} class="group no-underline">
           {b.portrait ? (
             <div class="aspect-[3/4] w-full mb-5 overflow-hidden bg-cream-paper border border-ink-fade/30">
-              <img src={b.portrait} alt={b.name} class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class='flex items-center justify-center h-full'><p class='text-tiny text-ink-mute uppercase tracking-widest'>Portrait pending</p></div>'"/>
+              <img src={b.portrait} alt={b.name} class="w-full h-full object-cover" loading="lazy" />
             </div>
           ) : (
             <div class="aspect-[3/4] w-full mb-5 bg-cream-paper border border-ink-fade/30 flex items-center justify-center">
               <p class="text-tiny text-ink-mute uppercase tracking-widest">Portrait pending</p>
             </div>
           )}
-          <p class="eyebrow mb-2">{b.village}, {b.district} Sikkim</p>
           <h3 class="font-serif text-xl font-normal text-ink group-hover:text-honey transition-colors duration-400 mb-1">
             {b.name}
           </h3>
-          <p class="text-sm text-ink-mute">{b.role}</p>
+          <p class="text-sm text-ink-mute">{b.role}, {b.village}, {b.district} Sikkim</p>
         </a>
       ))}
 
       {collectiveSpan > 0 && (
-        <div class={`bg-cream-deep border border-ink-fade/30 p-8 md:p-12 flex flex-col justify-end ${collectiveSpan === 3 ? 'md:col-span-3' : collectiveSpan === 2 ? 'md:col-span-2' : ''}`}>
-          <p class="eyebrow mb-6">The collective</p>
-          <p class="font-serif text-5xl md:text-6xl text-honey font-light leading-none mb-6">{unnamedBeekeepers}</p>
-          <p class="font-serif text-2xl md:text-3xl font-light text-ink tracking-tight text-balance max-w-xl mb-6">
+        <div class={`relative overflow-hidden bg-cream-deep border border-ink-fade/30 p-8 md:p-12 flex flex-col justify-end ${collectiveSpan === 3 ? 'md:col-span-3' : collectiveSpan === 2 ? 'md:col-span-2' : ''}`}>
+          <Contours variant="field" seed={5} class="absolute -top-10 -right-24 w-[34rem] h-[34rem] text-ink-fade/60 pointer-events-none" />
+          <p class="relative font-serif text-5xl md:text-6xl text-honey font-light leading-none mb-6">{unnamedBeekeepers}</p>
+          <p class="relative font-serif text-2xl md:text-3xl font-light text-ink tracking-tight text-balance max-w-xl mb-6">
             more beekeepers across four districts of Sikkim.
           </p>
-          <p class="text-base text-ink-soft leading-relaxed max-w-md">
-            Each is trained in their own village and paid a guaranteed price. Their names and faces stay private — by their choice, and ours.
+          <p class="relative text-base text-ink-soft leading-relaxed max-w-md">
+            Each is trained in their own village and paid a guaranteed price. Their names and faces stay private, by their choice and ours.
           </p>
         </div>
       )}
@@ -257,19 +270,19 @@ const collectiveSpan = 3 - Math.min(previewBeekeepers.length, 3);
   </section>
 
   <!-- ====================================================================
-       TRACEABILITY TEASER — your category-defining moat
+       TRACEABILITY — what exists today, and what FarmLedger is building
        ==================================================================== -->
-  <section class="bg-ink text-cream section" data-reveal>
-    <div class="container-content max-w-4xl text-center">
-      <p class="eyebrow text-cream/60 mb-6">Powered by FarmLedger</p>
+  <section class="relative overflow-hidden bg-ink text-cream section" data-reveal>
+    <Contours variant="field" seed={8} class="absolute inset-y-0 right-0 w-full md:w-2/3 h-full text-cream/[0.09] pointer-events-none" />
+    <div class="relative container-content max-w-4xl text-center">
       <h2 class="font-serif text-4xl md:text-6xl font-light tracking-tight leading-[1.1] text-balance mb-8 text-cream">
-        Scan the jar. Meet your beekeeper.
+        Every jar names its village. Next, its beekeeper.
       </h2>
       <p class="text-lg text-cream/80 leading-relaxed max-w-2xl mx-auto mb-12">
-        Every ApiCare jar carries a unique code. Scan it with your phone and see exactly who harvested your honey, when, where, and how it was tested.
+        We're building FarmLedger, a record for every harvest: who kept the hives (when they agree to be named), when it was harvested and how it tested. The code on the lid will open it. Until then, every jar is traced to its village and tested by Eurofins.
       </p>
-      <a href="/traceability" class="inline-flex items-center justify-center px-8 py-3.5 bg-cream text-ink text-sm font-medium tracking-wide uppercase no-underline hover:bg-honey hover:text-cream transition-all duration-400 ease-editorial">
-        See How It Works
+      <a href="/traceability" class="inline-flex items-center justify-center min-h-[44px] px-8 py-3.5 bg-cream text-ink text-sm font-medium tracking-wide uppercase no-underline hover:bg-honey hover:text-cream transition-all duration-400 ease-editorial">
+        How Traceability Will Work
       </a>
     </div>
   </section>

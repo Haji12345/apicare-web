@@ -28,7 +28,7 @@ function isActiveBranch(item: any): boolean {
       <!-- Wordmark -->
       <a
         href="/"
-        class="justify-self-start block no-underline opacity-100 hover:opacity-70 transition-opacity duration-400"
+        class="justify-self-start block py-2 -my-2 no-underline opacity-100 hover:opacity-70 transition-opacity duration-400"
         aria-label={`${site.name} — home`}
       >
         <img
@@ -88,7 +88,7 @@ function isActiveBranch(item: any): boolean {
             <a
               href={item.href}
               class:list={[
-                'text-tiny uppercase tracking-widest font-medium no-underline border-b border-transparent pb-0.5 transition-all duration-400',
+                'whitespace-nowrap text-tiny uppercase tracking-widest font-medium no-underline border-b border-transparent pb-0.5 transition-all duration-400',
                 currentPath === item.href
                   ? 'text-honey border-honey'
                   : 'text-ink hover:text-honey hover:border-honey',
@@ -107,8 +107,10 @@ function isActiveBranch(item: any): boolean {
         <button
           type="button"
           id="mobile-menu-toggle"
-          class="md:hidden text-ink"
-          aria-label="Toggle menu"
+          class="md:hidden text-ink p-3 -m-3"
+          aria-label="Menu"
+          aria-controls="mobile-nav"
+          aria-expanded="false"
         >
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
             <line x1="3" y1="7" x2="19" y2="7" stroke="currentColor" stroke-width="1.5" />
@@ -186,6 +188,7 @@ function isActiveBranch(item: any): boolean {
   const toggle = document.getElementById('mobile-menu-toggle');
   const nav = document.getElementById('mobile-nav');
   toggle?.addEventListener('click', () => {
-    nav?.classList.toggle('hidden');
+    const open = nav?.classList.toggle('hidden') === false;
+    toggle.setAttribute('aria-expanded', String(open));
   });
 </script>

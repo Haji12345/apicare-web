@@ -36,7 +36,7 @@ export const faq = [
   },
   {
     q: 'How do I know ApiCare honey is genuine?',
-    a: 'ApiCare honey is tested by Eurofins, an independent international food-testing laboratory, and ApiCare is registered with FSSAI, India\'s food safety authority. Every jar also carries a QR code on the lid: scan it to see the beekeeper, the harvest date, and the lab test results for that batch.',
+    a: 'ApiCare honey is tested by Eurofins, an independent international food-testing laboratory, and ApiCare is registered with FSSAI, India\'s food safety authority. Every jar is traced to its village. We are building FarmLedger so the code on the lid will open that harvest\'s record: the beekeeper (when they agree to be named), the harvest date and the lab results.',
   },
   {
     q: 'What certifications does ApiCare have?',

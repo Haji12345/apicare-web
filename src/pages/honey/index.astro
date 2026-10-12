@@ -11,6 +11,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import HoneyImage from '../../components/HoneyImage.astro';
 import RegionMap from '../../components/RegionMap.astro';
+import AltitudeRidge from '../../components/AltitudeRidge.astro';
 import { honey, getHoneyByDistrict } from '../../data/honey.js';
 
 const byDistrict = getHoneyByDistrict();
@@ -21,12 +22,11 @@ const districts = ['North', 'East', 'West', 'South'] as const;
 
   <!-- Page header -->
   <section class="container-content pt-22 md:pt-30 pb-16">
-    <p class="eyebrow mb-6">The Catalogue</p>
     <h1 class="font-serif text-5xl md:text-6xl font-light tracking-tight text-ink leading-[1.05] text-balance max-w-3xl mb-8">
       Two villages live. Two more on the way.
     </h1>
     <p class="text-lg text-ink-soft max-w-xl leading-relaxed">
-      Each honey is bottled by village — never blended across regions. Tap a district to see where it comes from on the map.
+      Each honey is bottled by village, never blended across regions. Tap a district to see where it comes from on the map.
     </p>
   </section>
 
@@ -38,7 +38,7 @@ const districts = ['North', 'East', 'West', 'South'] as const;
       <button
         type="button"
         data-filter="all"
-        class="filter-btn text-tiny uppercase tracking-widest text-ink no-underline border-b border-ink pb-0.5 transition-colors duration-300"
+        class="filter-btn min-h-[44px] text-tiny uppercase tracking-widest text-ink no-underline border-b border-ink pb-0.5 transition-colors duration-300"
       >
         All Villages
       </button>
@@ -47,7 +47,7 @@ const districts = ['North', 'East', 'West', 'South'] as const;
           <button
             type="button"
             data-filter={d}
-            class="filter-btn text-tiny uppercase tracking-widest text-ink-mute hover:text-honey transition-colors duration-300 border-b border-transparent pb-0.5"
+            class="filter-btn min-h-[44px] text-tiny uppercase tracking-widest text-ink-mute hover:text-honey transition-colors duration-300 border-b border-transparent pb-0.5"
           >
             {d} Sikkim
           </button>
@@ -61,8 +61,8 @@ const districts = ['North', 'East', 'West', 'South'] as const;
        ============================================================ -->
   <section id="view-all" class="container-content section">
     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
-      {honey.map((h) => (
-        <article class="group relative">
+      {honey.map((h, i) => (
+        <article class="group relative flex flex-col">
           {!h.available && (
             <span class="absolute top-4 left-4 z-10 inline-block text-tiny uppercase tracking-widest bg-cream text-honey border border-honey px-3 py-1">
               Coming Soon
@@ -73,13 +73,20 @@ const districts = ['North', 'East', 'West', 'South'] as const;
               <HoneyImage honey={h} />
             </div>
           </a>
-          <p class="eyebrow mb-2">{h.districtFull}</p>
           <a href={`/honey/${h.slug}`} class="no-underline">
             <h3 class="font-serif text-xl font-normal text-ink mb-2 group-hover:text-honey transition-colors duration-400">
               {h.name}
             </h3>
           </a>
           <p class="text-sm text-ink-soft mb-4 leading-relaxed">{h.oneLiner}</p>
+          {h.profile && (
+            <div class="flex items-start gap-3 mb-4">
+              <span class="mt-1 w-3.5 h-3.5 shrink-0 rounded-full border border-ink/25" style={`background:${h.profile.swatch}`} aria-hidden="true"></span>
+              <p class="text-tiny leading-snug text-ink-soft"><span class="text-ink">{h.profile.colour}.</span> {h.profile.note}</p>
+            </div>
+          )}
+          <div class="mb-5"><AltitudeRidge altitude={h.altitude} seed={i + 2} /></div>
+          <div class="mt-auto">
           {h.available ? (
             <>
             <div class="flex items-baseline gap-3">
@@ -97,6 +104,7 @@ const districts = ['North', 'East', 'West', 'South'] as const;
               {h.comingSoonNote || 'Notify me →'}
             </span>
           )}
+          </div>
         </article>
       ))}
     </div>
@@ -118,9 +126,8 @@ const districts = ['North', 'East', 'West', 'South'] as const;
 
           <!-- LEFT: product card(s) -->
           <div class="lg:col-span-5">
-            <p class="eyebrow mb-4">{d} Sikkim</p>
             <h2 class="font-serif text-4xl md:text-5xl font-light text-ink tracking-tight text-balance mb-10">
-              {byDistrict[d].length === 1 ? 'One village' : `${byDistrict[d].length} villages`} in this district.
+              {d} Sikkim: {byDistrict[d].length === 1 ? 'one village' : `${byDistrict[d].length} villages`}.
             </h2>
             <div class="space-y-10">
               {byDistrict[d].map((h) => (

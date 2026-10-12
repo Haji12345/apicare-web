@@ -4,29 +4,31 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <BaseLayout
   title="Traceability"
-  description="Every ApiCare jar carries a unique code. Scan it to see your beekeeper, the harvest date, and the lab test results — powered by FarmLedger."
+  description="How ApiCare is building per-harvest traceability with FarmLedger. Today every jar is traced to its village and tested by Eurofins; next, the code on the lid opens the beekeeper, harvest date and lab results."
 >
 
   <!-- Hero -->
   <section class="container-content pt-22 md:pt-30 pb-22">
-    <p class="eyebrow mb-6">Powered by FarmLedger</p>
     <h1 class="font-serif text-5xl md:text-6xl lg:text-7xl font-light tracking-tight text-ink leading-[1.05] text-balance max-w-4xl mb-10">
-      Every jar tells you exactly who, where, and when.
+      Every jar will tell you who, where, and when.
     </h1>
     <p class="text-lg text-ink-soft max-w-xl leading-relaxed">
-      Most premium honey says "trust us." We say: scan the code on the lid.
+      Most premium honey says "trust us." We're building a way for you to check: a code on the lid that opens the record of your jar's harvest.
+    </p>
+    <p class="text-base text-ink-soft max-w-xl leading-relaxed mt-6 border-l border-honey pl-4">
+      Where it stands today: every jar is traced to its village and our honey is tested by Eurofins. The code on the lid currently opens a sample beekeeper profile while the per-harvest records are built.
     </p>
   </section>
 
   <!-- 3-step how it works strip -->
   <section class="bg-cream-deep section">
     <div class="container-content">
-      <p class="eyebrow mb-16 text-center">How It Works</p>
+      <h2 class="font-serif text-3xl md:text-4xl font-light text-ink tracking-tight text-center mb-16">How it will work</h2>
       <div class="grid md:grid-cols-3 gap-12">
         {[
-          { n: '01', title: 'Scan', body: 'Point any phone camera at the QR code printed on your jar lid.' },
-          { n: '02', title: 'See', body: "A page opens showing the beekeeper's name, photo, village, and the exact harvest date." },
-          { n: '03', title: 'Verify', body: 'Lab test results, organic certification, and the GPS of the apiary — all timestamped, all signed.' },
+          { n: '01', title: 'Scan', body: 'Point your phone camera at the code on the jar lid.' },
+          { n: '02', title: 'See', body: "A page opens with the village, the harvest date and the beekeeper, when they have agreed to be named." },
+          { n: '03', title: 'Verify', body: 'The lab results for that harvest and where the hives stand, attached to the same record.' },
         ].map((step) => (
           <div>
             <p class="font-serif text-6xl text-honey font-light mb-6">{step.n}</p>
@@ -43,9 +45,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
        ============================================================ -->
   <section class="container-content section">
     <div class="max-w-content mx-auto">
-      <p class="eyebrow mb-6 text-center">A scan, in three layers</p>
-      <h2 class="font-serif text-3xl md:text-5xl font-light text-ink tracking-tight text-balance mb-16 text-center max-w-3xl mx-auto">
-        This is what a buyer sees, the moment they scan.
+            <h2 class="font-serif text-3xl md:text-5xl font-light text-ink tracking-tight text-balance mb-16 text-center max-w-3xl mx-auto">
+        A preview of what a scan will show.
       </h2>
 
       <div class="grid md:grid-cols-3 gap-8">
@@ -166,13 +167,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </h2>
         <div class="prose-editorial">
           <p>
-            FarmLedger is the digital traceability system we built to close this gap for ApiCare honey, and eventually for any smallholder agricultural product where the producer has been priced out of their own value chain.
+            FarmLedger is the digital traceability system we are building to close this gap for ApiCare honey, and eventually for any smallholder agricultural product where the producer has been priced out of their own value chain.
           </p>
           <p>
-            It works in three steps. When a beekeeper harvests a frame, they record the harvest in our app — village, hive, date, weight, and a phone photo. When the honey goes to lab testing, the test results are signed by Eurofins (or the testing lab of record) and attached to the same record. When the honey is jarred at our facility, each jar is given a unique code that links back to that complete record.
+            It will work in three steps. When a beekeeper harvests a frame, they record the harvest in our app: village, hive, date, weight, and a phone photo. When the honey goes to lab testing, the results from Eurofins (or the testing lab of record) are attached to the same record. When the honey is jarred, each jar is given a code that links back to that record.
           </p>
           <p>
-            The buyer scans the code on the lid. They see the chain — beekeeper, hive, harvest, test, jar — laid out in plain language with photos and timestamps. None of it is taken on our word. All of it can be independently verified.
+            The buyer scans the code on the lid and sees the chain (beekeeper, hive, harvest, test, jar) in plain language with photos and dates, so none of it has to be taken on our word.
           </p>
         </div>
       </div>
@@ -254,9 +255,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   <!-- Final CTA -->
   <section class="bg-ink text-cream section">
     <div class="container-content max-w-3xl text-center">
-      <p class="eyebrow text-cream/60 mb-6">Try it</p>
       <h2 class="font-serif text-4xl md:text-5xl font-light tracking-tight leading-[1.1] text-balance mb-10 text-cream">
-        Buy a jar. Scan the code. See what we mean.
+        Every jar is traced to its village today. The full record is on its way.
       </h2>
       <a href="/honey" class="inline-flex items-center justify-center px-8 py-3.5 bg-cream text-ink text-sm font-medium tracking-wide uppercase no-underline hover:bg-honey hover:text-cream transition-all duration-400 ease-editorial">
         See the Honey

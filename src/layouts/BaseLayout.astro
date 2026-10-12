@@ -136,27 +136,48 @@ const schemas = [organization, website, ...(Array.isArray(jsonLd) ? jsonLd : [js
     <Footer />
 
     <script>
+      // Bee that trails the mouse. Mouse users only (never on touch), never
+      // for visitors who ask for reduced motion, and the animation loop only
+      // runs while the bee is still catching up with the pointer.
       document.addEventListener("DOMContentLoaded", () => {
+        if (!matchMedia("(pointer: fine)").matches) return;
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
         const bee = document.createElement("div");
         bee.id = "bee-cursor";
         document.body.appendChild(bee);
 
-        let mouseX = 0, mouseY = 0;
-        let x = 0, y = 0;
-
-        document.addEventListener("mousemove", (e) => {
-          mouseX = e.clientX;
-          mouseY = e.clientY;
-        });
+        let mouseX = 0, mouseY = 0, x = 0, y = 0;
+        let running = false, shown = false;
 
         function animate() {
           x += (mouseX - x) * 0.08;
           y += (mouseY - y) * 0.08;
-          bee.style.transform = `translate(${x}px, ${y}px)`;
-          requestAnimationFrame(animate);
+          bee.style.transform = `translate(${x - 14}px, ${y - 14}px)`;
+          if (Math.abs(mouseX - x) + Math.abs(mouseY - y) > 0.5) {
+            requestAnimationFrame(animate);
+          } else {
+            running = false;
+          }
         }
 
-        animate();
+        document.addEventListener("mousemove", (e) => {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+          if (!shown) {
+            x = mouseX; y = mouseY;
+            bee.style.opacity = "1";
+            shown = true;
+          }
+          if (!running) {
+            running = true;
+            requestAnimationFrame(animate);
+          }
+        });
+        document.documentElement.addEventListener("mouseleave", () => {
+          bee.style.opacity = "0";
+          shown = false;
+        });
       });
     </script>
     <script>

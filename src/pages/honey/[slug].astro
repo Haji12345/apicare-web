@@ -7,6 +7,7 @@
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import JarSilhouette from '../../components/JarSilhouette.astro';
+import AltitudeRidge from '../../components/AltitudeRidge.astro';
 import { honey } from '../../data/honey.js';
 import { getBeekeepersForHoney } from '../../data/beekeepers.js';
 import { site, forms, shop } from '../../data/site.js';
@@ -124,9 +125,9 @@ const breadcrumbSchema = {
               {g.photos.length > 1 && (
                 <>
                   <button type="button" data-gallery-step="-1" aria-label="Previous photo"
-                    class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-cream/85 text-ink text-lg flex items-center justify-center shadow-sm hover:bg-cream transition-colors">‹</button>
+                    class="absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 bg-cream/90 border border-ink/20 text-ink text-lg flex items-center justify-center hover:bg-cream hover:border-ink transition-colors">‹</button>
                   <button type="button" data-gallery-step="1" aria-label="Next photo"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-cream/85 text-ink text-lg flex items-center justify-center shadow-sm hover:bg-cream transition-colors">›</button>
+                    class="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 bg-cream/90 border border-ink/20 text-ink text-lg flex items-center justify-center hover:bg-cream hover:border-ink transition-colors">›</button>
                   <div class="absolute bottom-4 inset-x-0 flex justify-center gap-2">
                     {g.photos.map((_, i) => (
                       <span data-gallery-dot class:list={['w-2 h-2 rounded-full transition-colors', i === 0 ? 'bg-cream' : 'bg-cream/50']}></span>
@@ -156,15 +157,25 @@ const breadcrumbSchema = {
             Coming Soon
           </span>
         )}
-        <p class="eyebrow mb-4">{h.districtFull}</p>
         <h1 class="font-serif text-4xl md:text-5xl font-light tracking-tight text-ink leading-tight text-balance mb-3">
           {h.name}
         </h1>
         <p class="text-lg text-ink-soft italic mb-8">{h.subtitle}</p>
 
-        <p class="text-base text-ink-soft leading-relaxed mb-10">
+        <p class="text-base text-ink-soft leading-relaxed mb-8">
           {h.oneLiner}
         </p>
+
+        {h.profile && (
+          <div class="flex items-start gap-3 mb-6">
+            <span class="mt-1 w-4 h-4 shrink-0 rounded-full border border-ink/25" style={`background:${h.profile.swatch}`} aria-hidden="true"></span>
+            <p class="text-sm leading-snug">
+              <span class="text-ink">{h.profile.colour}.</span>
+              <span class="text-ink-soft"> {h.profile.note}</span>
+            </p>
+          </div>
+        )}
+        <div class="max-w-xs mb-10"><AltitudeRidge altitude={h.altitude} seed={h.slug.length} /></div>
 
         <div class="hairline mb-8"></div>
 
@@ -261,8 +272,12 @@ const breadcrumbSchema = {
             <dd class="text-ink">{h.harvestSeason}</dd>
           </div>
           <div class="flex justify-between border-b border-ink-fade/30 pb-3">
-            <dt class="text-ink-mute">Certification</dt>
-            <dd class="text-ink">Organic, traceable</dd>
+            <dt class="text-ink-mute">Certified</dt>
+            <dd class="text-ink text-right">FSSAI registered · Eurofins tested</dd>
+          </div>
+          <div class="flex justify-between gap-6 border-b border-ink-fade/30 pb-3">
+            <dt class="text-ink-mute">In progress</dt>
+            <dd class="text-ink text-right">EU organic · GI tag</dd>
           </div>
         </dl>
       </div>
@@ -274,7 +289,6 @@ const breadcrumbSchema = {
        ==================================================================== -->
   <section class="bg-cream-deep section">
     <div class="container-content max-w-reading">
-      <p class="eyebrow mb-6">The Place</p>
       <h2 class="font-serif text-3xl md:text-4xl font-light text-ink leading-tight tracking-tight text-balance mb-8">
         {h.village}, {h.districtFull}
       </h2>
@@ -294,7 +308,6 @@ const breadcrumbSchema = {
   <section class="container-content section">
     <div class="grid md:grid-cols-12 gap-12 items-start">
       <div class="md:col-span-5">
-        <p class="eyebrow mb-6">The Forest</p>
         <h2 class="font-serif text-3xl md:text-4xl font-light text-ink leading-tight tracking-tight text-balance">
           What the bees forage on.
         </h2>
@@ -316,7 +329,6 @@ const breadcrumbSchema = {
     <section class="bg-cream-deep section">
       <div class="container-content">
         <div class="mb-16">
-          <p class="eyebrow mb-6">Your Beekeepers</p>
           <h2 class="font-serif text-3xl md:text-4xl font-light text-ink tracking-tight text-balance">
             The people behind this jar.
           </h2>
@@ -347,14 +359,13 @@ const breadcrumbSchema = {
        ==================================================================== -->
   <section class="container-content section">
     <div class="border border-ink p-12 md:p-16 text-center max-w-3xl mx-auto">
-      <p class="eyebrow mb-6">Traceability</p>
       <h2 class="font-serif text-3xl md:text-4xl font-light text-ink tracking-tight text-balance mb-6">
-        Each jar carries a unique code.
+        Every jar is traced to its village.
       </h2>
       <p class="text-base text-ink-soft mb-8 max-w-md mx-auto">
-        Scan it to see your beekeeper, harvest date, lab test results, and the exact GPS of the hive.
+        We're building FarmLedger so the code on the lid will open this harvest's own record: the beekeeper (when they agree to be named), the harvest date and the lab results.
       </p>
-      <a href="/traceability" class="btn-ghost">How It Works</a>
+      <a href="/traceability" class="btn-ghost">How Traceability Will Work</a>
     </div>
   </section>
 
@@ -364,7 +375,7 @@ const breadcrumbSchema = {
   {otherInDistrict.length > 0 && (
     <section class="bg-cream-deep section">
       <div class="container-content">
-        <p class="eyebrow mb-10">More from {h.districtFull}</p>
+        <h2 class="font-serif text-3xl font-light text-ink tracking-tight mb-10">More from {h.districtFull}</h2>
         <div class="grid md:grid-cols-3 gap-10">
           {otherInDistrict.map((other) => (
             <a href={`/honey/${other.slug}`} class="group no-underline">

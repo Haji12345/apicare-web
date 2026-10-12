@@ -16,7 +16,7 @@ export default {
         ink: {
           DEFAULT: '#1A1916',  // primary near-black
           soft: '#403D37',     // secondary text
-          mute: '#7A7269',     // captions, metadata
+          mute: '#69625A',     // captions, metadata (4.5:1+ on every cream ground)
           fade: '#B8B0A4',     // disabled, dividers
         },
         // The single brand accent — golden-red / honey amber

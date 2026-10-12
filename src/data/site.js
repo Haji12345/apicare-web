@@ -10,7 +10,7 @@ export const site = {
   // Browser-tab / Google title for the home page — lead with what people search for
   homeTitle: 'ApiCare — Raw Himalayan Forest Honey from Sikkim, India',
   description:
-    'ApiCare partners with smallholder beekeepers in Sikkim — India\'s only fully organic state — to produce raw, single-village Himalayan forest honey. Lab tested by Eurofins, FSSAI registered, every jar traceable to its beekeeper.',
+    'ApiCare partners with smallholder beekeepers in Sikkim — India\'s only fully organic state — to produce raw, single-village Himalayan forest honey. Lab tested by Eurofins, FSSAI registered, every jar traced to its village.',
   url: 'https://www.apicare.co.in',
   email: 'hello@apicare.co.in', // TODO: confirm this is your real email
   phone: '+91 79080 90 298',

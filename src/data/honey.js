@@ -42,6 +42,8 @@ export const honey = [
     beekeepers: ['dal-bhadur-rai'],
     altitude: '1,200 – 2,000 m',
     harvestSeason: 'Spring & Autumn',
+    // Card swatch + tasting line, condensed from forestStory above.
+    profile: { colour: 'Amber, shifts by harvest', swatch: '#C08A2E', note: 'Layered and multi-floral, a faint citrus note from cardamom.' },
     sizes: [
       { weight: '250g', priceINR: 650, priceUSD: 12, images: jarPhotos['250g'] },
       { weight: '500g', priceINR: 1200, priceUSD: 22, images: jarPhotos['500g'] },
@@ -74,6 +76,7 @@ export const honey = [
     beekeepers: [],
     altitude: '1,500 – 2,200 m',
     harvestSeason: 'Spring',
+    profile: { colour: 'Darker amber', swatch: '#8C5420', note: 'Savoury, closer to a European forest honey, with a slow finish.' },
     sizes: [
       { weight: '250g', priceINR: 650, priceUSD: 12, images: jarPhotos['250g'] },
       { weight: '500g', priceINR: 1200, priceUSD: 22, images: jarPhotos['500g'] },
@@ -133,6 +136,7 @@ export const honey = [
     beekeepers: [],
     altitude: '1,800 – 2,500 m',
     harvestSeason: 'Spring & Autumn',
+    profile: { colour: 'Expected lighter', swatch: '#D6AE55', note: 'Expected floral, with a clear rhododendron note.' },
     sizes: [
       { weight: '250g', priceINR: 750, priceUSD: 14 },
       { weight: '500g', priceINR: 1400, priceUSD: 26 },
@@ -150,15 +154,12 @@ export function getHoney(slug) {
   return honey.find((h) => h.slug === slug);
 }
 
-// Featured for home: flagship first (even if coming soon — story sells brand),
-// then prioritize available SKUs to fill remaining slots.
+// Featured for home: what can be bought comes first; the flagship (even if
+// coming soon) closes the row as its story card.
 export function getFeaturedHoney() {
   const flagship = honey.find((h) => h.flagship);
   const live = honey.filter((h) => h.available && !h.flagship);
-  const result = [];
-  if (flagship) result.push(flagship);
-  result.push(...live.slice(0, 3 - result.length));
-  return result;
+  return [...live.slice(0, flagship ? 2 : 3), ...(flagship ? [flagship] : [])];
 }
 
 export function getHoneyByDistrict() {

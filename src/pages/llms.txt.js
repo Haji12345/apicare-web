@@ -16,7 +16,7 @@ export function GET() {
 
 > ${site.description}
 
-ApiCare (${site.address.line1}) sells raw, single-village Himalayan forest honey from Sikkim, India. Each jar comes from one named village and carries a QR code linking to the beekeeper, harvest date and lab test results. ApiCare is FSSAI registered, its honey is tested by Eurofins, and a GI (Geographical Indication) application and EU organic certification are in progress. It works with 125 smallholder beekeepers and has been a Government of Sikkim RAMP partner since 2022. Sikkim has been India's first fully organic state since 2016. Shipping within India is included in the price.
+ApiCare (${site.address.line1}) sells raw, single-village Himalayan forest honey from Sikkim, India. Each jar comes from one named village; per-harvest traceability (FarmLedger, a code on the lid opening the beekeeper, harvest date and lab results) is being built. ApiCare is FSSAI registered, its honey is tested by Eurofins, and a GI (Geographical Indication) application and EU organic certification are in progress. It works with 125 smallholder beekeepers and has been a Government of Sikkim RAMP partner since 2022. Sikkim has been India's first fully organic state since 2016. Shipping within India is included in the price.
 
 ## Honey
 
@@ -26,7 +26,7 @@ ${honey.map(product).join('\n')}
 
 - [Our story](${url('/story')}): why ApiCare exists and the EU export plan
 - [The beekeepers](${url('/beekeepers')}): the smallholder collective behind the honey
-- [Traceability](${url('/traceability')}): how the jar QR code and lab results work
+- [Traceability](${url('/traceability')}): how per-harvest traceability will work (in progress)
 - [Impact](${url('/impact')}): training programme, RAMP partnership, certifications
 - [FAQ](${url('/faq')}): common questions answered
 
