@@ -293,20 +293,6 @@
   }
 }
 
-#bee-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  width: 28px;
-  height: 28px;
-  background: url('/bee.png') no-repeat center/contain;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
-}
-
 .fade-up {
   opacity: 0;
   transform: translateY(20px);
