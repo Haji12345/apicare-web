@@ -47,7 +47,7 @@ export const site = {
 //   to keep the hard-coded tags. Either way, the site pushes the same
 //   ecommerce events to window.dataLayer (see src/layouts/BaseLayout.astro).
 export const analytics = {
-  gtmId: '',
+  gtmId: 'GTM-53BPRNMB',
   ga4Id: 'G-V6JJSE8GGH',
   clarityId: 'ys608ljhll',
   // Google Consent Mode v2: in these regions (EEA, UK, Switzerland) every
