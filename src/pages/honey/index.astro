@@ -188,6 +188,17 @@ const districts = ['North', 'East', 'West', 'South'] as const;
     )
   ))}
 
+  <script is:inline define:vars={{
+    items: honey.filter((h) => h.available).map((h, i) => ({
+      item_id: h.slug, item_name: h.name, item_variant: h.sizes[0].weight,
+      price: h.sizes[0].priceINR, index: i, item_list_name: 'Honey shop',
+    })),
+  }}>
+    // Tracking plan: view_item_list = visitor saw the range
+    window.apicareTrack && apicareTrack('view_item_list', {
+      ecommerce: { item_list_id: 'honey_shop', item_list_name: 'Honey shop', items: items },
+    });
+  </script>
 </BaseLayout>
 
 <script>

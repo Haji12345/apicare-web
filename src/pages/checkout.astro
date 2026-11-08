@@ -373,6 +373,22 @@ const termsHref = policies.find((p) => p.href === '/terms')?.href ?? '/terms';
   renderSizes(params.get('size') || undefined);
   renderTotals();
 
+  // ---- Measurement (see TRACKING-PLAN.md) ---------------------------------
+  // Funnel on this page: begin_checkout → add_shipping_info (form sent)
+  // → add_payment_info (Razorpay opened) → purchase (payment verified).
+  // Only product data goes to analytics, never the customer's details.
+  const track = (name: string, params: object) => (window as any).apicareTrack?.(name, params);
+  function cart() {
+    const s = selectedSize();
+    const q = quantity();
+    return {
+      currency: 'INR',
+      value: s.price * q + config.shipping,
+      items: [{ item_id: product().sku, item_name: product().name, item_variant: s.weight, price: s.price, quantity: q }],
+    };
+  }
+  track('begin_checkout', { ecommerce: cart() });
+
   if (!config.endpoint) {
     document.getElementById('pay-note')!.innerHTML =
       'Online payment is being set up. Your order goes to us on WhatsApp and we reply with a UPI payment link.';
@@ -480,17 +496,27 @@ const termsHref = policies.find((p) => p.href === '/terms')?.href ?? '/terms';
       handler: async (resp: Record<string, string>) => {
         setStatus('Payment received. Confirming…');
         lastCreated = null;
-        // Google Analytics purchase event (no-op when GA4 is not configured)
-        (window as any).gtag?.('event', 'purchase', {
-          transaction_id: created!.ref,
-          value: created!.amount / 100,
-          currency: created!.currency,
-          items: [{ item_id: order.sku, item_name: product().name, item_variant: order.size, quantity: order.quantity }],
-        });
+        // purchase uses the server's amount, not the page's, and the order
+        // ref as transaction_id, so GA4 de-duplicates repeats and the event
+        // joins to the Orders sheet row.
+        const sendPurchase = () =>
+          track('purchase', {
+            ecommerce: {
+              transaction_id: created!.ref,
+              value: created!.amount / 100,
+              currency: created!.currency,
+              shipping: config.shipping,
+              items: [{ item_id: order.sku, item_name: product().name, item_variant: order.size, price: selectedSize().price, quantity: order.quantity }],
+            },
+          });
         try {
           const v = await post({ action: 'verify', ...resp });
+          sendPurchase();
           showDone(v.ref, v.deliverBy, created!.prefill.email);
         } catch {
+          // Razorpay only calls this handler after a successful payment, so
+          // the sale is real even when the verify call fails: record it.
+          sendPurchase();
           // Money has moved; the sheet's 10-minute reconcile will confirm it
           // and send the email even though this call failed.
           showDone(
@@ -503,11 +529,13 @@ const termsHref = policies.find((p) => p.href === '/terms')?.href ?? '/terms';
       },
       modal: {
         ondismiss: () => {
+          track('payment_window_closed', { order_ref: created!.ref });
           setBusy(false);
           setStatus('Payment window closed. Your details are saved here. Press Pay to try again.');
         },
       },
     });
+    track('add_payment_info', { ecommerce: { ...cart(), payment_type: 'razorpay' } });
     rzp.open();
   }
 
@@ -534,6 +562,7 @@ const termsHref = policies.find((p) => p.href === '/terms')?.href ?? '/terms';
     event.preventDefault();
     if (!form.reportValidity()) return;
     const order = collect();
+    track('add_shipping_info', { ecommerce: { ...cart(), shipping_tier: 'standard' } });
 
     if (!config.endpoint) {
       sendToWhatsApp(order);

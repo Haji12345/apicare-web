@@ -1,0 +1,49 @@
+---
+// ========================================================================
+// ConsentBanner — the site's consent management (CMP)
+// ========================================================================
+// Shown until the visitor chooses. "Accept" and "Only necessary" carry
+// equal weight, so refusing is as easy as agreeing. The choice is stored
+// in localStorage and sent to Google Consent Mode v2 by
+// window.apicareConsent.apply() (defined in BaseLayout). The footer's
+// "Cookie settings" button reopens the banner so a choice can be changed.
+// ========================================================================
+---
+
+<div
+  id="consent-banner"
+  role="dialog"
+  aria-live="polite"
+  aria-label="Cookie choices"
+  class="hidden fixed inset-x-0 bottom-0 z-50 p-4 md:p-6"
+>
+  <div class="mx-auto max-w-3xl bg-cream-paper border border-ink-fade shadow-lg p-5 md:p-6 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+    <p class="text-sm text-ink-soft flex-1">
+      We use analytics cookies (Google Analytics, Microsoft Clarity) to see which pages help people find our honey. No advertising cookies.
+      <a href="/privacy-policy" class="underline hover:text-honey">Privacy policy</a>
+    </p>
+    <div class="flex gap-3 shrink-0">
+      <button type="button" data-consent="necessary" class="btn-secondary px-5 py-2.5">Only necessary</button>
+      <button type="button" data-consent="accept" class="btn-secondary px-5 py-2.5">Accept</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const banner = document.getElementById('consent-banner')!;
+  const consent = (window as any).apicareConsent;
+  const show = () => banner.classList.remove('hidden');
+  const hide = () => banner.classList.add('hidden');
+
+  if (consent && !consent.saved) show();
+
+  banner.querySelectorAll<HTMLButtonElement>('[data-consent]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const accept = btn.dataset.consent === 'accept';
+      consent?.apply({ analytics: accept, marketing: false });
+      hide();
+    }),
+  );
+
+  document.querySelectorAll('[data-cookie-settings]').forEach((el) => el.addEventListener('click', show));
+</script>

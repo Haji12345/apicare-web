@@ -390,6 +390,16 @@ const breadcrumbSchema = {
     </section>
   )}
 
+  {h.available && (
+    <script is:inline define:vars={{
+      item: { item_id: h.slug, item_name: h.name, item_variant: h.sizes[0].weight, price: h.sizes[0].priceINR, quantity: 1 },
+    }}>
+      // Tracking plan: view_item = "interest" step of the funnel
+      window.apicareTrack && apicareTrack('view_item', {
+        ecommerce: { currency: 'INR', value: item.price, items: [item] },
+      });
+    </script>
+  )}
 </BaseLayout>
 
 <script>
