@@ -41,9 +41,25 @@ export const site = {
 // bingSiteVerification: Bing Webmaster Tools → "HTML Meta Tag" → content
 //   value. Bing's index feeds ChatGPT search and Copilot, so this matters
 //   for AI answers as much as for Bing itself.
+// gtmId: Google Tag Manager → tagmanager.google.com → container ID
+//   (GTM-XXXXXXX). Once set, GTM loads instead of the hard-coded GA4 and
+//   Clarity tags below, and those tags are configured inside GTM. Leave ''
+//   to keep the hard-coded tags. Either way, the site pushes the same
+//   ecommerce events to window.dataLayer (see src/layouts/BaseLayout.astro).
 export const analytics = {
+  gtmId: '',
   ga4Id: 'G-V6JJSE8GGH',
   clarityId: 'ys608ljhll',
+  // Google Consent Mode v2: in these regions (EEA, UK, Switzerland) every
+  // consent signal starts as 'denied' until the visitor accepts in the
+  // cookie banner. Everywhere else analytics starts as 'granted' and the
+  // banner lets the visitor turn it off. Advertising signals start
+  // 'denied' everywhere, since the site runs no ads yet.
+  consentRequiredRegions: [
+    'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU',
+    'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES',
+    'SE', 'IS', 'LI', 'NO', 'GB', 'CH',
+  ],
   googleSiteVerification: '',
   bingSiteVerification: '',
 };

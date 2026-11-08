@@ -95,6 +95,7 @@ const year = new Date().getFullYear();
         {policies.map((p) => (
           <a href={p.href} class="inline-block py-2.5 text-ink-mute no-underline hover:text-honey">{p.label}</a>
         ))}
+        <button type="button" data-cookie-settings class="inline-block py-2.5 text-ink-mute hover:text-honey">Cookie settings</button>
         <a href="/contact" class="inline-block py-2.5 text-ink-mute hover:text-honey">{site.email}</a>
       </nav>
     </div>

@@ -8,6 +8,7 @@
 
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ConsentBanner from '../components/ConsentBanner.astro';
 import { site, analytics } from '../data/site.js';
 import '../styles/global.css';
 
@@ -100,29 +101,100 @@ const schemas = [organization, website, ...(Array.isArray(jsonLd) ? jsonLd : [js
       <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     ))}
 
-    <!-- Google Analytics 4 — loads only once analytics.ga4Id is set in src/data/site.js -->
-    {analytics.ga4Id && (
-      <>
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${analytics.ga4Id}`}></script>
-        <script is:inline define:vars={{ id: analytics.ga4Id }}>
-          window.dataLayer = window.dataLayer || [];
-          window.gtag = function () { dataLayer.push(arguments); };
-          gtag('js', new Date());
-          gtag('config', id);
-        </script>
-      </>
-    )}
+    <!-- ====================================================================
+         MEASUREMENT LAYER
+         1. Consent Mode v2 defaults — must run before any Google tag loads.
+         2. apicareTrack() — the one function pages call to record an event.
+            It pushes to window.dataLayer (read by GTM) and, while GTM is
+            not set up, also sends the event straight to GA4 via gtag.
+         3. Tag loading — GTM if analytics.gtmId is set, otherwise the
+            hard-coded GA4 tag. Clarity loads only after consent (directly,
+            or from GTM once GTM is in use).
+         The tracking plan: what each event means and why it exists is in
+         TRACKING-PLAN.md at the repo root.
+         ==================================================================== -->
+    <script is:inline define:vars={{
+      ga4Id: analytics.ga4Id,
+      gtmId: analytics.gtmId,
+      clarityId: analytics.clarityId,
+      consentRegions: analytics.consentRequiredRegions,
+    }}>
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
 
-    <!-- Microsoft Clarity — heatmaps + session recordings, loads only once analytics.clarityId is set -->
-    {analytics.clarityId && (
-      <script is:inline define:vars={{ id: analytics.clarityId }}>
+      // --- 1. Consent defaults -------------------------------------------
+      // The more specific (region) default wins wherever it applies.
+      var denied = { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied' };
+      gtag('consent', 'default', Object.assign({}, denied, { region: consentRegions, wait_for_update: 500 }));
+      gtag('consent', 'default', Object.assign({}, denied, { analytics_storage: 'granted' }));
+
+      // A choice the visitor made earlier overrides the defaults.
+      var CONSENT_KEY = 'apicare_consent_v1';
+      var saved = null;
+      try { saved = JSON.parse(localStorage.getItem(CONSENT_KEY) || 'null'); } catch (e) {}
+      function consentSignals(c) {
+        var ads = c.marketing ? 'granted' : 'denied';
+        return {
+          analytics_storage: c.analytics ? 'granted' : 'denied',
+          ad_storage: ads, ad_user_data: ads, ad_personalization: ads,
+        };
+      }
+      if (saved) gtag('consent', 'update', consentSignals(saved));
+
+      // --- 2. Event helper ------------------------------------------------
+      // apicareTrack('view_item', { ecommerce: { currency, value, items } })
+      // Never pass names, emails, phones or addresses: GA4 forbids
+      // personal data, and orders join to GA4 on transaction_id only.
+      window.apicareTrack = function (name, params) {
+        params = params || {};
+        if (params.ecommerce) dataLayer.push({ ecommerce: null }); // clear the previous ecommerce object
+        dataLayer.push(Object.assign({ event: name }, params));
+        if (!gtmId && ga4Id) {
+          var flat = Object.assign({}, params.ecommerce || {}, params);
+          delete flat.ecommerce;
+          gtag('event', name, flat);
+        }
+      };
+
+      // --- 3. Clarity, only with analytics consent (non-GTM path) --------
+      window.apicareLoadClarity = function () {
+        if (gtmId || !clarityId || window.clarity) return;
         (function (c, l, a, r, i, t, y) {
           c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
           t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i;
           y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
-        })(window, document, 'clarity', 'script', id);
-      </script>
-    )}
+        })(window, document, 'clarity', 'script', clarityId);
+      };
+      window.apicareConsent = {
+        key: CONSENT_KEY,
+        saved: saved,
+        apply: function (choice) {
+          var record = { analytics: !!choice.analytics, marketing: !!choice.marketing, ts: new Date().toISOString() };
+          try { localStorage.setItem(CONSENT_KEY, JSON.stringify(record)); } catch (e) {}
+          this.saved = record;
+          gtag('consent', 'update', consentSignals(record));
+          dataLayer.push({ event: 'consent_update', consent_analytics: record.analytics, consent_marketing: record.marketing });
+          if (record.analytics) window.apicareLoadClarity();
+        },
+      };
+      if (saved && saved.analytics) window.apicareLoadClarity();
+
+      // --- 4. Load Google tags --------------------------------------------
+      if (gtmId) {
+        dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+        var g = document.createElement('script');
+        g.async = true;
+        g.src = 'https://www.googletagmanager.com/gtm.js?id=' + gtmId;
+        document.head.appendChild(g);
+      } else if (ga4Id) {
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4Id;
+        document.head.appendChild(s);
+        gtag('js', new Date());
+        gtag('config', ga4Id);
+      }
+    </script>
 
   </head>
 
@@ -134,6 +206,8 @@ const schemas = [organization, website, ...(Array.isArray(jsonLd) ? jsonLd : [js
     </main>
 
     <Footer />
+
+    <ConsentBanner />
 
     <script>
       const observer = new IntersectionObserver((entries) => {
@@ -208,6 +282,9 @@ const schemas = [organization, website, ...(Array.isArray(jsonLd) ? jsonLd : [js
 
             if (res.ok) {
               form.reset();
+              // Lead captured: the 'lead_type' parameter tells contact,
+              // newsletter and notify-me apart in GA4. No personal data.
+              (window as any).apicareTrack?.('generate_lead', { lead_type: kind });
               setStatus(
                 kind === 'newsletter' ? 'Thank you — you’re on the list.' :
                 kind === 'notify'    ? 'Done. We’ll write the day this harvest is ready.' :
