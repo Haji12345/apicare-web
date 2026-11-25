@@ -1,6 +1,6 @@
 # ApiCare tracking plan
 
-Owner: ApiCare (apicarebusiness@gmail.com), maintained by Nikhil Pradhan · Property: GA4 `G-V6JJSE8GGH` · Last updated: 8 Nov 2026
+Owner: ApiCare (apicarebusiness@gmail.com), maintained by Nikhil Pradhan · Property: GA4 `G-V6JJSE8GGH` · Last updated: 25 Nov 2026
 
 This file is the contract between the business questions and the code.
 Every event below exists because it answers a question. If an event stops
@@ -54,7 +54,7 @@ always `INR`. `item_id` is the honey slug everywhere (e.g. `zitlang-pakyong`).
 | `payment_window_closed` | customer closes Razorpay without paying | `order_ref` | `src/pages/checkout.astro` |
 | `purchase` | Razorpay reports success; sent after the server verify call (or its failure, since money has moved) | `transaction_id` = order ref, `value` = server amount, `items` | `src/pages/checkout.astro` |
 | `generate_lead` | contact, newsletter or notify-me form succeeds | `lead_type` | `src/layouts/BaseLayout.astro` |
-| `consent_update` | visitor makes a cookie choice | `consent_analytics`, `consent_marketing` | `src/layouts/BaseLayout.astro` |
+| `consent_update` | visitor makes a cookie choice | `consent_analytics`, `consent_marketing` | `src/layouts/BaseLayout.astro` (dataLayer only: a GTM trigger that loads Clarity; not sent to GA4) |
 
 Automatic and enhanced-measurement events (`page_view`, `session_start`,
 `first_visit`, `user_engagement`, `scroll`, `click`) come from GA4 itself.
@@ -70,6 +70,18 @@ Key events in GA4: `purchase` (set). Candidate: `generate_lead`.
   necessary" carry equal weight; "Cookie settings" in the footer reopens it.
 - Microsoft Clarity loads only after the visitor accepts analytics.
 - Choice stored in `localStorage` key `apicare_consent_v1`.
+- Mode: **advanced**. GA4 tags load before the visitor chooses. Where
+  analytics is denied they send cookieless pings (`gcs=G100` in the hit),
+  so no cookie is set but GA4 still receives the page view. Checked live
+  on 25 Nov 2026 from Belgium.
+- Open decision: switch to **basic** mode (GA4 tags wait for consent).
+  Google models the missing users only once a property has at least 1,000
+  events a day with analytics denied and 1,000 daily users who accept,
+  each for at least 7 days (GA4 help, "Behavioral modeling for consent
+  mode"). This site had 117 users in four weeks, so the pings give little
+  benefit here, while Google says they still carry IP address and user
+  agent. If the mode
+  changes, update the analytics line in the privacy policy too.
 
 ## 4. Governance rules
 
@@ -87,11 +99,19 @@ Key events in GA4: `purchase` (set). Candidate: `generate_lead`.
 
 ## 5. Tag delivery
 
-- Now: hard-coded GA4 tag (`analytics.ga4Id`) receives events through
-  `apicareTrack()`.
-- Next: Google Tag Manager. Set `analytics.gtmId` in `src/data/site.js`;
-  GA4 and Clarity then move into GTM, reading the same `dataLayer` events.
-  No page code changes.
+Google Tag Manager container `GTM-53BPRNMB` has been live since 8 Nov 2026
+(`analytics.gtmId` in `src/data/site.js`). Published version 2 holds:
+
+| Tag | Type | Fires on |
+|---|---|---|
+| Google tag `G-V6JJSE8GGH` | Google tag | Initialization |
+| GA4 ecommerce event | GA4 event; name = `{{Event}}`, ecommerce read from the dataLayer | `view_item_list`, `view_item`, `begin_checkout`, `add_shipping_info`, `add_payment_info`, `purchase` |
+| GA4 lead | GA4 event `generate_lead`, parameter `lead_type` | `generate_lead` |
+| GA4 payment closed | GA4 event `payment_window_closed`, parameter `order_ref` | `payment_window_closed` |
+| Clarity | Custom HTML, needs `analytics_storage` consent | `gtm.js`, `consent_update` |
+
+The hard-coded GA4 path in `BaseLayout.astro` stays as a fallback for
+when `gtmId` is empty.
 
 ## 6. Known gaps
 
@@ -99,3 +119,11 @@ Key events in GA4: `purchase` (set). Candidate: `generate_lead`.
   `purchase` from the server (GA4 Measurement Protocol, from
   `order-pipeline/Code.gs` when a payment settles).
 - No raw-data warehouse yet. Next: GA4 → BigQuery export.
+- To check in GA4 Admin: `lead_type` and `order_ref` registered as
+  event-scoped custom dimensions (otherwise they don't show in reports);
+  event data retention set to 14 months (the most a standard property allows); the
+  internal-traffic data filter set to Active, not Testing (hits already
+  carry `tt=internal` from the owner's network).
+- `add_payment_info` fires each time the Razorpay window opens, so a
+  customer who retries counts more than once. Funnel reports by users are
+  unaffected.
