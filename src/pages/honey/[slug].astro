@@ -32,7 +32,9 @@ const galleries = h.sizes
   .filter((g) => g.photos.length > 0);
 
 // Product structured data — price, stock and origin for Google Shopping
-// and AI assistants. One Offer per jar size.
+// and AI assistants. One Offer per jar size. Only for honeys on sale:
+// coming-soon pages have no photos and no buy button, so describing them
+// as a product made Google flag a missing image.
 const pageUrl = new URL(`/honey/${h.slug}/`, site.url).toString();
 const productSchema = {
   '@context': 'https://schema.org',
@@ -54,13 +56,25 @@ const productSchema = {
     name: size.weight,
     price: size.priceINR,
     priceCurrency: 'INR',
-    availability: h.available ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
+    availability: 'https://schema.org/InStock',
     url: pageUrl,
     seller: { '@id': `${site.url}/#organization` },
+    // Matches /refund-policy: no returns of a food product (damaged jars
+    // are replaced or refunded without a return).
+    hasMerchantReturnPolicy: {
+      '@type': 'MerchantReturnPolicy',
+      applicableCountry: 'IN',
+      returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+    },
     shippingDetails: {
       '@type': 'OfferShippingDetails',
       shippingRate: { '@type': 'MonetaryAmount', value: shop.shippingINR, currency: 'INR' },
       shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'IN' },
+      deliveryTime: {
+        '@type': 'ShippingDeliveryTime',
+        handlingTime: { '@type': 'QuantitativeValue', minValue: shop.handlingDays.min, maxValue: shop.handlingDays.max, unitCode: 'DAY' },
+        transitTime: { '@type': 'QuantitativeValue', minValue: shop.transitDays.min, maxValue: shop.transitDays.max, unitCode: 'DAY' },
+      },
     },
   })),
 };
@@ -78,7 +92,7 @@ const breadcrumbSchema = {
   title={`${h.village} Himalayan Forest Honey, ${h.districtFull}`}
   description={`Raw single-village Himalayan forest honey from ${h.village}, ${h.districtFull}. ${h.oneLiner} Lab tested, traceable to the beekeeper.`}
   ogImage={h.image}
-  jsonLd={[productSchema, breadcrumbSchema]}
+  jsonLd={h.available ? [productSchema, breadcrumbSchema] : [breadcrumbSchema]}
 >
 
   <!-- Breadcrumb -->

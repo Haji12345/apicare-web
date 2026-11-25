@@ -81,6 +81,11 @@ export const shop = {
   checkoutEndpoint: 'https://script.google.com/macros/s/AKfycbw19J0Auu-lIfW_vvfSK61_YzUJwCZEVMBckw2ReyN3HCjXhULjav5kKR_dY_WRyZQ3/exec',
   shippingINR: 0,      // 0 = shipping included in the jar price
   deliveryDays: 14,
+  // Split of deliveryDays for Google's product data (owner, 25 Nov 2026):
+  // packing and dispatch from Sikkim, then the courier. The two maximums
+  // must add up to deliveryDays.
+  handlingDays: { min: 1, max: 2 },
+  transitDays: { min: 5, max: 12 },
   maxQuantity: 10,
   whatsapp: '917908090298', // digits only, with country code
 };
